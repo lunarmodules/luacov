@@ -5,7 +5,7 @@
     <title>LuaCov - Coverage analysis for Lua scripts</title>
     <link rel="stylesheet" href="doc.css" type="text/css" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-<style>
+<style type="text/css">
 pre {
    font-family: "Andale Mono", monospace;
 }
@@ -146,6 +146,19 @@ Therefore, it expects to find them in the same location they were when
 the <tt>luacov</tt> module ran (the stats file stores the filenames, but
 not the sources themselves).
 </p>
+
+<p>
+LuaCov saves its stats upon normal program termination. If your program
+is a daemon -- in other words, if it does not terminate normally -- you
+can use the <tt>luacov.tick</tt> module, which periodically saves the
+stats file. For example, to run (on Unix systems) LuaCov on
+<a href="http://www.keplerproject.org/xavante">Xavante</a>,
+just modify the first line of <tt>xavante_start.lua</tt> so it reads:
+</p>
+
+<div class="Example">
+#!/usr/bin/env lua -lluacov.tick
+</div>
 
 <h2><a name="history"></a>History</h2>
 

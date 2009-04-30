@@ -1,6 +1,6 @@
 
 PACKAGE=luacov
-VERSION=0.1
+VERSION=0.2
 PREFIX=/usr/local
 BINDIR=$(PREFIX)/bin
 LUADIR=$(PREFIX)/share/lua/5.1/

@@ -19,21 +19,24 @@ local function on_line(_, line_nr)
       end
    end
 
-   local name = debug.getinfo(2, "S").short_src
-   local file = data[name]
-   if not file then
-      file = {}
-      file.max = 0
-      data[name] = file
-   end
-   if line_nr > file.max then
-      file.max = line_nr
-   end
-   local current = file[line_nr]
-   if not current then
-      file[line_nr] = 1
-   else
-      file[line_nr] = current + 1
+   local name = debug.getinfo(2, "S").source
+   if name:match("^@") then
+      name = name:sub(2)
+      local file = data[name]
+      if not file then
+         file = {}
+         file.max = 0
+         data[name] = file
+      end
+      if line_nr > file.max then
+         file.max = line_nr
+      end
+      local current = file[line_nr]
+      if not current then
+         file[line_nr] = 1
+      else
+         file[line_nr] = current + 1
+      end
    end
 end
 

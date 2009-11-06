@@ -2,7 +2,7 @@
 
 local luacov = require("luacov.stats")
 
-local data = luacov.load_stats()
+local data, most_hits = luacov.load_stats()
 
 if not data then
    print("Could not load stats file "..luacov.statsfile..".")
@@ -12,12 +12,63 @@ end
 
 local report = io.open("luacov.report.out", "w")
 
+-- only report on files specified on the command line
+local patterns = {}
+for i = 1, #arg do
+   patterns[i] = arg[i]
+end
+
 local names = {}
 for filename, _ in pairs(data) do
-   table.insert(names, filename)
+   if not patterns[1] then
+      table.insert(names, filename)
+   else
+      local path = filename:gsub("/", "."):gsub("%.lua$", "")
+      local include = false
+      for _, p in ipairs(patterns) do
+         if path:match(p) then
+            include = true
+            break
+         end
+      end
+      if include then
+         table.insert(names, filename)
+      end
+   end
 end
 
 table.sort(names)
+
+local most_hits_length = ("%d"):format(most_hits):len()
+local empty_format = (" "):rep(most_hits_length+1)
+local false_negative_format = ("!%% %dd"):format(most_hits_length)
+local zero_format = ("*"):rep(most_hits_length).."0"
+local count_format = ("%% %dd"):format(most_hits_length+1)
+
+local exclusions =
+{
+   { false, "^#!" },     -- Unix hash-bang magic line
+   { true, "" },         -- Empty line
+   { true, "end,?" },    -- Single "end"
+   { true, "else" },     -- Single "else"
+   { true, "repeat" },   -- Single "repeat"
+   { true, "do" },       -- Single "do"
+   { true, "local%s+[%w_,%s]+" }, -- "local var1, ..., varN"
+   { true, "local%s+[%w_,%s]+%s*=" }, -- "local var1, ..., varN ="
+   { true, "local%s+function%s*%([%w_,%s]*%)" }, -- "local function(arg1, ..., argN)"
+   { true, "local%s+function%s+[%w_]*%s*%([%w_,%s]*%)" }, -- "local function f (arg1, ..., argN)"
+}
+
+local function excluded(line)
+   for _, e in ipairs(exclusions) do
+      if e[1] then
+         if line:match("^%s*"..e[2].."%s*$") or line:match("^%s*"..e[2].."%s*%-%-") then return true end
+      else
+         if line:match(e[2]) then return true end
+      end
+   end
+   return false
+end
 
 for _, filename in ipairs(names) do
    local filedata = data[filename]
@@ -28,21 +79,43 @@ for _, filename in ipairs(names) do
       report:write(filename, "\n")
       report:write("==============================================================================\n")
       local line_nr = 1
+      block_comment, equals = false, ""
       while true do
          local line = file:read("*l")
          if not line then break end
-         if line:match("^%s*%-%-") -- Comment line
-         or line:match("^%s*$")    -- Empty line
-         or line:match("^%s*end,?%s*$") -- Single "end"
-         or line:match("^%s*else%s*$") -- Single "else"
-         or line:match("^#!") -- Unix hash-bang magic line
-         then
-            report:write("\t", line, "\n")
+         local true_line = line
+         
+         local new_block_comment = false
+         if not block_comment then
+            local l, equals = line:match("^(.*)%-%-%[(=*)%[")
+            if l then
+               line = l
+               new_block_comment = true
+            end
          else
-            local hits = filedata[line_nr]
-            if not hits then hits = 0 end
-            report:write(hits, "\t", line, "\n")
+            local l = line:match("%]"..equals.."%](.*)$")
+            if l then
+               line = l
+               block_comment = false
+            end         
          end
+         
+         local hits = filedata[line_nr] or 0
+         if block_comment or excluded(line) then
+            if hits > 0 then
+               report:write(false_negative_format:format(hits))
+            else
+               report:write(empty_format)
+            end
+         else
+            if hits == 0 then
+               report:write(zero_format)            
+            else
+               report:write(count_format:format(hits))
+            end
+         end
+         report:write("\t", true_line, "\n")
+         if new_block_comment then block_comment = true end
          line_nr = line_nr + 1
       end
    end

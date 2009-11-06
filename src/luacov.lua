@@ -54,3 +54,30 @@ if not tick then
 end
 
 debug.sethook(on_line, "l")
+
+rawcoroutinecreate = coroutine.create
+
+function coroutine.create(...)
+  local co = rawcoroutinecreate(...)
+  debug.sethook(co, on_line, "l")
+  return co
+end
+
+function coroutine.wrap(...)
+  local co = rawcoroutinecreate(...)
+  debug.sethook(co, on_line, "l")
+  return function()
+    local r = { coroutine.resume(co) }
+    if not r[1] then
+      error(r[2])
+    end
+    return unpack(r, 2)
+  end
+end
+
+
+local rawexit = os.exit
+function os.exit(...)
+  on_exit()
+  rawexit(...)
+end

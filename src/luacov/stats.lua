@@ -4,7 +4,7 @@ module("luacov.stats", package.seeall)
 local statsfile = "luacov.stats.out"
 
 function load_stats()
-   local data = {}
+   local data, most_hits = {}, 0
    local stats = io.open(statsfile, "r")
    if not stats then return data end
    while true do
@@ -23,11 +23,12 @@ function load_stats()
          if skip ~= " " then break end
          if hits > 0 then
             data[filename][i] = hits
+            most_hits = math.max(most_hits, hits)
          end
       end
    end
    stats:close()
-   return data
+   return data, most_hits
 end
 
 function start_stats()

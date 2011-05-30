@@ -19,25 +19,22 @@ local function on_line(_, line_nr)
       end
    end
 
+   -- get name of processed file; ignore Lua code loaded from raw strings
    local name = debug.getinfo(2, "S").source
-   if name:match("^@") then
-      name = name:sub(2)
-      local file = data[name]
-      if not file then
-         file = {}
-         file.max = 0
-         data[name] = file
-      end
-      if line_nr > file.max then
-         file.max = line_nr
-      end
-      local current = file[line_nr]
-      if not current then
-         file[line_nr] = 1
-      else
-         file[line_nr] = current + 1
-      end
+   if not name:match("^@") then
+      return
    end
+   name = name:sub(2)
+
+   local file = data[name]
+   if not file then
+      file = {max=0}
+      data[name] = file
+   end
+   if line_nr > file.max then
+      file.max = line_nr
+   end
+   file[line_nr] = (file[line_nr] or 0) + 1
 end
 
 local function on_exit()

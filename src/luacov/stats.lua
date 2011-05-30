@@ -6,22 +6,35 @@ local stats
 
 function M.load()
    local data, most_hits = {}, 0
-   local stats = io.open(statsfile, "r")
-   if not stats then return data end
+   stats = io.open(statsfile, "r")
+   if not stats then
+      return data
+   end
    while true do
       local nlines = stats:read("*n")
-      if not nlines then break end
+      if not nlines then
+         break
+      end
       local skip = stats:read(1)
-      if skip ~= ":" then break end
+      if skip ~= ":" then
+         break
+      end
       local filename = stats:read("*l")
-      if not filename then break end
-      data[filename] = {}
-      data[filename].max = nlines
+      if not filename then
+         break
+      end
+      data[filename] = {
+         max=nlines
+      }
       for i = 1, nlines do
          local hits = stats:read("*n")
-         if not hits then break end
+         if not hits then
+            break
+         end
          local skip = stats:read(1)
-         if skip ~= " " then break end
+         if skip ~= " " then
+            break
+         end
          if hits > 0 then
             data[filename][i] = hits
             most_hits = math.max(most_hits, hits)

@@ -1,9 +1,10 @@
 
-module("luacov.stats", package.seeall)
+local M = {}
 
 local statsfile = "luacov.stats.out"
+local stats
 
-function load_stats()
+function M.load()
    local data, most_hits = {}, 0
    local stats = io.open(statsfile, "r")
    if not stats then return data end
@@ -31,15 +32,15 @@ function load_stats()
    return data, most_hits
 end
 
-function start_stats()
+function M.start()
    return io.open(statsfile, "w")
 end
 
-function stop_stats(stats)
+function M.stop(stats)
    stats:close()
 end
 
-function save_stats(data, stats)
+function M.save(data, stats)
    stats:seek("set")
    for filename, filedata in pairs(data) do
       local max = filedata.max
@@ -55,3 +56,5 @@ function save_stats(data, stats)
    end
    stats:flush()
 end
+
+return M

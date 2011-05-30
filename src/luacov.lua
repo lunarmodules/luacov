@@ -3,9 +3,9 @@ module("luacov", package.seeall)
 
 local stats = require("luacov.stats")
 
-data = stats.load_stats()
+data = stats.load()
 
-statsfile = stats.start_stats()
+statsfile = stats.start()
 
 tick = package.loaded["luacov.tick"]
 ctr = 0
@@ -15,7 +15,7 @@ local function on_line(_, line_nr)
       ctr = ctr + 1
       if ctr == 100 then
          ctr = 0
-         stats.save_stats(data, statsfile)
+         stats.save(data, statsfile)
       end
    end
 
@@ -44,8 +44,8 @@ local luacovlock = os.tmpname()
 
 function on_exit()
    os.remove(luacovlock)
-   stats.save_stats(data, statsfile)
-   stats.stop_stats(statsfile)
+   stats.save(data, statsfile)
+   stats.stop(statsfile)
 end
 
 if not tick then

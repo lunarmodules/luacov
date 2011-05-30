@@ -1,14 +1,14 @@
 
-module("luacov", package.seeall)
+local M = {}
 
 local stats = require("luacov.stats")
+local data = stats.load()
+local statsfile = stats.start()
+M.statsfile = statsfile
 
-data = stats.load()
-
-statsfile = stats.start()
-
-tick = package.loaded["luacov.tick"]
-ctr = 0
+local tick = package.loaded["luacov.tick"]
+local ctr = 0
+local luacovlock = os.tmpname()
 
 local function on_line(_, line_nr)
    if tick then
@@ -40,44 +40,45 @@ local function on_line(_, line_nr)
    end
 end
 
-local luacovlock = os.tmpname()
-
-function on_exit()
+local function on_exit()
    os.remove(luacovlock)
    stats.save(data, statsfile)
    stats.stop(statsfile)
 end
 
-if not tick then
-   on_exit_trick = io.open(luacovlock, "w")
-   debug.setmetatable(on_exit_trick, { __gc = on_exit } )
+local function init()
+   if not tick then
+      M.on_exit_trick = io.open(luacovlock, "w")
+      debug.setmetatable(M.on_exit_trick, { __gc = on_exit } )
+   end
+
+   debug.sethook(on_line, "l")
+
+   local rawcoroutinecreate = coroutine.create
+   coroutine.create = function(...)
+      local co = rawcoroutinecreate(...)
+      debug.sethook(co, on_line, "l")
+      return co
+   end
+   coroutine.wrap = function(...)
+      local co = rawcoroutinecreate(...)
+      debug.sethook(co, on_line, "l")
+      return function()
+         local r = { coroutine.resume(co) }
+         if not r[1] then
+            error(r[2])
+         end
+         return unpack(r, 2)
+      end
+   end
+
+   local rawexit = os.exit
+   os.exit = function(...)
+      on_exit()
+      rawexit(...)
+   end
 end
 
-debug.sethook(on_line, "l")
+init()
 
-rawcoroutinecreate = coroutine.create
-
-function coroutine.create(...)
-  local co = rawcoroutinecreate(...)
-  debug.sethook(co, on_line, "l")
-  return co
-end
-
-function coroutine.wrap(...)
-  local co = rawcoroutinecreate(...)
-  debug.sethook(co, on_line, "l")
-  return function()
-    local r = { coroutine.resume(co) }
-    if not r[1] then
-      error(r[2])
-    end
-    return unpack(r, 2)
-  end
-end
-
-
-local rawexit = os.exit
-function os.exit(...)
-  on_exit()
-  rawexit(...)
-end
+return M

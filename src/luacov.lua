@@ -10,6 +10,10 @@ local tick = package.loaded["luacov.tick"]
 local ctr = 0
 local luacovlock = os.tmpname()
 
+local booting = true
+local skip = {}
+M.skip = skip
+
 local function on_line(_, line_nr)
    if tick then
       ctr = ctr + 1
@@ -25,6 +29,16 @@ local function on_line(_, line_nr)
       return
    end
    name = name:sub(2)
+
+   -- skip 'luacov.lua' in coverage report
+   if booting then
+      skip[name] = true
+      booting = false
+   end
+
+   if skip[name] then
+      return
+   end
 
    local file = data[name]
    if not file then

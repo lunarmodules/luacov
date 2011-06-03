@@ -57,7 +57,7 @@ function M.save(data, stats)
    stats:seek("set")
    for filename, filedata in pairs(data) do
       local max = filedata.max
-      stats:write(filedata.max, ":", filename, "\n")
+      stats:write(max, ":", filename, "\n")
       for i = 1, max do
          local hits = filedata[i]
          if not hits then

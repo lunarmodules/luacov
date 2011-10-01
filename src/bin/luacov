@@ -2,7 +2,7 @@
 
 local luacov = require("luacov.stats")
 
-local data, most_hits = luacov.load_stats()
+local data, most_hits = luacov.load()
 
 if not data then
    print("Could not load stats file "..luacov.statsfile..".")

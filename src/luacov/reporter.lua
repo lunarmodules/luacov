@@ -1,39 +1,11 @@
-#!/usr/bin/env lua
-
--- commandline;
--- luacov [-c=configfile] filename filename ...
 local M = {}
-local arg = arg or {}
 
 function M.report()
-  local patterns = {}
-  local configfile = nil
-  -- only parse commandline if we're not called from the Runner.
-  if not package.loaded["luacov.runner"] then
-    -- only report on files specified on the command line
-    local n = 1
-    for i = 1, #arg do
-      if i == 1 and arg[i]:sub(1,4) == "-c=" then
-        configfile = arg[i]:sub(4,-1)
-      else
-        patterns[n] = arg[i]
-        n = n + 1
-      end
-    end
-  end
-
   local luacov = require("luacov.runner")
   local stats = require("luacov.stats")
-
-  local configuration = luacov.load_config(configfile)
+  
+  local configuration = luacov.load_config()
   stats.statsfile = configuration.statsfile
-  configuration.include = configuration.include or {}
-  configuration.exclude = configuration.exclude or {}
-
-  for i, patt in ipairs(patterns) do
-    table.insert(configuration.include, patt)
-  end
-  patterns = nil
 
   local data, most_hits = stats.load()
 
@@ -165,6 +137,4 @@ function M.report()
   end
 end
 
-return setmetatable(M, { ["__call"] = function(self)
-    M.report()
-  end})
+return M

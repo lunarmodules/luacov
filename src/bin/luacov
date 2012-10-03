@@ -1,122 +1,39 @@
-#!/usr/bin/env lua
-
-local luacov = require("luacov.stats")
-
-local data, most_hits = luacov.load()
-
-if not data then
-   print("Could not load stats file "..luacov.statsfile..".")
-   print("Run your Lua program with -lluacov and then rerun luacov.")
-   os.exit(1)
-end
-
-local report = io.open("luacov.report.out", "w")
-
--- only report on files specified on the command line
-local patterns = {}
-for i = 1, #arg do
-   patterns[i] = arg[i]
-end
-
-local names = {}
-for filename, _ in pairs(data) do
-   if not patterns[1] then
-      table.insert(names, filename)
-   else
-      local path = filename:gsub("/", "."):gsub("%.lua$", "")
-      local include = false
-      for _, p in ipairs(patterns) do
-         if path:match(p) then
-            include = true
-            break
-         end
-      end
-      if include then
-         table.insert(names, filename)
-      end
-   end
-end
-
-table.sort(names)
-
-local most_hits_length = ("%d"):format(most_hits):len()
-local empty_format = (" "):rep(most_hits_length+1)
-local false_negative_format = ("!%% %dd"):format(most_hits_length)
-local zero_format = ("*"):rep(most_hits_length).."0"
-local count_format = ("%% %dd"):format(most_hits_length+1)
-
-local exclusions =
-{
-   { false, "^#!" },     -- Unix hash-bang magic line
-   { true, "" },         -- Empty line
-   { true, "end,?" },    -- Single "end"
-   { true, "else" },     -- Single "else"
-   { true, "repeat" },   -- Single "repeat"
-   { true, "do" },       -- Single "do"
-   { true, "local%s+[%w_,%s]+" }, -- "local var1, ..., varN"
-   { true, "local%s+[%w_,%s]+%s*=" }, -- "local var1, ..., varN ="
-   { true, "local%s+function%s*%([%w_,%s]*%)" }, -- "local function(arg1, ..., argN)"
-   { true, "local%s+function%s+[%w_]*%s*%([%w_,%s]*%)" }, -- "local function f (arg1, ..., argN)"
+#!/bin/sh
+commandExists () {
+    command -v "$1" > /dev/null
 }
 
-local function excluded(line)
-   for _, e in ipairs(exclusions) do
-      if e[1] then
-         if line:match("^%s*"..e[2].."%s*$") or line:match("^%s*"..e[2].."%s*%-%-") then return true end
-      else
-         if line:match(e[2]) then return true end
-      end
-   end
-   return false
-end
+# Obtain $COMMAND
+while getopts ":l:" optchar; do
+  case $optchar in
+    l)
+      COMMAND="$OPTARG"
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
 
-for _, filename in ipairs(names) do
-   local filedata = data[filename]
-   local file = io.open(filename, "r")
-   if file then
-      report:write("\n")
-      report:write("==============================================================================\n")
-      report:write(filename, "\n")
-      report:write("==============================================================================\n")
-      local line_nr = 1
-      block_comment, equals = false, ""
-      while true do
-         local line = file:read("*l")
-         if not line then break end
-         local true_line = line
-         
-         local new_block_comment = false
-         if not block_comment then
-            local l, equals = line:match("^(.*)%-%-%[(=*)%[")
-            if l then
-               line = l
-               new_block_comment = true
-            end
-         else
-            local l = line:match("%]"..equals.."%](.*)$")
-            if l then
-               line = l
-               block_comment = false
-            end         
-         end
-         
-         local hits = filedata[line_nr] or 0
-         if block_comment or excluded(line) then
-            if hits > 0 then
-               report:write(false_negative_format:format(hits))
-            else
-               report:write(empty_format)
-            end
-         else
-            if hits == 0 then
-               report:write(zero_format)            
-            else
-               report:write(count_format:format(hits))
-            end
-         end
-         report:write("\t", true_line, "\n")
-         if new_block_comment then block_comment = true end
-         line_nr = line_nr + 1
-      end
-   end
-end
+if commandExists $COMMAND ; then
+  COMMAND=$COMMAND;
+elif commandExists luajit ; then
+  COMMAND=luajit;
+elif commandExists lua ; then
+  COMMAND=lua;
+else
+  echo >&2 "Busted requires that a valid execution environment be specified(or that you have lua or luajit accessible in your PATH). Aborting.";
+  exit 1
+fi
+
+# Obtain $BOOSTRAP_PATH
+DIR="$( dirname "$0" )"
+BOOTSTRAP_PATH="$DIR/busted_bootstrap"
+
+if commandExists cygpath ; then
+  BOOTSTRAP_PATH=`cygpath -ms "${BOOTSTRAP_PATH}"`
+fi
+
+# Execution
+$COMMAND $BOOTSTRAP_PATH $*

@@ -1,12 +1,11 @@
 
 local M = {}
 
-local statsfile = "luacov.stats.out"
 local stats
 
 function M.load()
    local data, most_hits = {}, 0
-   stats = io.open(statsfile, "r")
+   stats = io.open(M.statsfile, "r")
    if not stats then
       return data
    end
@@ -46,7 +45,7 @@ function M.load()
 end
 
 function M.start()
-   return io.open(statsfile, "w")
+   return io.open(M.statsfile, "w")
 end
 
 function M.stop(stats)

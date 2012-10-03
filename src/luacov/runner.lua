@@ -2,11 +2,11 @@
 local M = {}
 
 local stats = require("luacov.stats")
-local data = stats.load()
-local statsfile = stats.start()
-M.statsfile = statsfile
+M.defaults = require("luacov.defaults")
 
-local tick = package.loaded["luacov.tick"]
+local data
+local statsfile
+local tick 
 local ctr = 0
 local luacovlock = os.tmpname()
 
@@ -51,20 +51,66 @@ local function on_line(_, line_nr)
    file[line_nr] = (file[line_nr] or 0) + 1
 end
 
+local function run_report()
+  local success, error = pcall(xxxxxxx)
+  if success and M.configuration.deletestats then
+    os.remove(M.configuration.statsfile)
+  end
+end
+
 local function on_exit()
    os.remove(luacovlock)
    stats.save(data, statsfile)
    stats.stop(statsfile)
+   
+   if M.configuration.runreport then run_report() end
 end
 
-local function init()
+--------------------------------------------------
+-- Initializes LuaCov runner to start collecting data
+-- @param configuration if string, filename of config file.
+-- If table then config table (see luacov.default.lua for an example)
+local function init(configuration)
+  
+  if not configuration then
+    local success
+    success, configuration = pcall(dofile, configuration)
+    if not success then
+      configuration = M.defaults
+    end
+  elseif type(configuration) == "string" then
+    configuration = dofile(configuration)
+  elseif type(configuration) == "table" then
+    -- do nothing
+  else
+    error("Expected filename, config table or nil. Got " .. type(configuration))
+  end
+  
+  M.configuration = configuration
+  
+  stats.statsfile = configuration.statsfile
+  data = stats.load()
+  statsfile = stats.start()
+  M.statsfile = statsfile
+  tick = package.loaded["luacov.tick"]
+
    if not tick then
       M.on_exit_trick = io.open(luacovlock, "w")
       debug.setmetatable(M.on_exit_trick, { __gc = on_exit } )
    end
+   -- metatable trick on filehandle won't work if Lua exits through 
+   -- os.exit() hence wrap that with exit code as well
+   local rawexit = os.exit
+   os.exit = function(...)
+      on_exit()
+      rawexit(...)
+   end
 
    debug.sethook(on_line, "l")
 
+   -- debug must be set for each coroutine separately
+   -- hence wrap coroutine function to set the hook there
+   -- as well
    local rawcoroutinecreate = coroutine.create
    coroutine.create = function(...)
       local co = rawcoroutinecreate(...)
@@ -83,13 +129,7 @@ local function init()
       end
    end
 
-   local rawexit = os.exit
-   os.exit = function(...)
-      on_exit()
-      rawexit(...)
-   end
 end
 
-init()
 
-return M
+return setmetatable(M, { __call = function(configfile) init(configfile) end })

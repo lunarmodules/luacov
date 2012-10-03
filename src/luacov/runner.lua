@@ -52,10 +52,7 @@ local function on_line(_, line_nr)
 end
 
 local function run_report()
-  local success, error = pcall(xxxxxxx)
-  if success and M.configuration.deletestats then
-    os.remove(M.configuration.statsfile)
-  end
+  local success, error = pcall(function() require("luacov.reporter")() end)
 end
 
 local function on_exit()
@@ -142,4 +139,4 @@ local function init(configuration)
 end
 
 
-return setmetatable(M, { __call = function(configfile) init(configfile) end })
+return setmetatable(M, { ["__call"] = function(configfile) init(configfile) end })

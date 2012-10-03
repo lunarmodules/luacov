@@ -66,29 +66,39 @@ local function on_exit()
    if M.configuration.runreport then run_report() end
 end
 
+------------------------------------------------------
+-- Loads a valid configuration
+-- @param configuration user provide config (table or filename)
+-- @returns existing configuration if already set, otherwise loads a new
+-- config from the provided data or the defaults
+function m.load_config(configuration)
+  if not M.configuration then
+    if not configuration then
+      local success
+      success, configuration = pcall(dofile, configuration)
+      if not success then
+        configuration = M.defaults
+      end
+    elseif type(configuration) == "string" then
+      configuration = dofile(configuration)
+    elseif type(configuration) == "table" then
+      -- do nothing
+    else
+      error("Expected filename, config table or nil. Got " .. type(configuration))
+    end
+    M.configuration = configuration
+  end
+  return M.configuration
+end
+
 --------------------------------------------------
 -- Initializes LuaCov runner to start collecting data
 -- @param configuration if string, filename of config file.
 -- If table then config table (see luacov.default.lua for an example)
 local function init(configuration)
+  M.configuration = M.load_config(configuration)
   
-  if not configuration then
-    local success
-    success, configuration = pcall(dofile, configuration)
-    if not success then
-      configuration = M.defaults
-    end
-  elseif type(configuration) == "string" then
-    configuration = dofile(configuration)
-  elseif type(configuration) == "table" then
-    -- do nothing
-  else
-    error("Expected filename, config table or nil. Got " .. type(configuration))
-  end
-  
-  M.configuration = configuration
-  
-  stats.statsfile = configuration.statsfile
+  stats.statsfile = M.configuration.statsfile
   data = stats.load()
   statsfile = stats.start()
   M.statsfile = statsfile

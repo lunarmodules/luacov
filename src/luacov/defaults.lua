@@ -19,14 +19,25 @@ return {
   -- if runreport == true)
   deletestats = false,
   
-  -- Patterns for files to exclude when reporting
-  ["exclude"] = {
-    "luacov.luacov.lua$",
-    "luacov.reporter.lua$",
-    "luacov.defaults.lua$",
-    "luacov.runner.lua$",
-    "luacov.stats.lua$",
-    "luacov.tick.lua$",
+  -- Patterns for files to include when reporting
+  -- all will be included if nothing is listed
+  -- (exclude overrules include, do not include 
+  -- the .lua extension)
+  ["include"] = {
   },
+  
+  -- Patterns for files to exclude when reporting
+  -- all will be included if nothing is listed
+  -- (exclude overrules include, do not include 
+  -- the .lua extension)
+  ["exclude"] = {
+    "luacov.luacov$",
+    "luacov.reporter$",
+    "luacov.defaults$",
+    "luacov.runner$",
+    "luacov.stats$",
+    "luacov.tick$",
+  },
+  
 
 }

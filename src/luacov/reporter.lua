@@ -1,8 +1,38 @@
 #!/usr/bin/env lua
 
-local luacov = require("luacov.stats")
+-- commandline;
+-- luacov [-c=configfile] filename filename ...
 
-local data, most_hits = luacov.load()
+local patterns = {}
+local configfile = nil
+-- only parse commandline if we're not called from the Runner.
+if not package.loaded("luacov.runner") then
+  -- only report on files specified on the command line
+  local n = 1
+  for i = 1, #arg do
+    if i == 1 and arg[i]:sub(1,4) == "-c=" then
+      configfile = arg[i]:sub(4,-1)
+    else
+      patterns[n] = arg[i]
+      n = n + 1
+    end
+  end
+end
+
+local luacov = require("luacov.runner")
+local stats = require("luacov.stats")
+
+local configuration = luacov.load_config(configfile)
+stats.statsfile = configuration.statsfile
+configuration.include = configuration.include or {}
+configuration.exclude = configuration.exclude or {}
+
+for i, patt in ipairs(patterns) do
+  table.insert(configuration.include, patt)
+end
+patterns = nil
+
+local data, most_hits = stats.load()
 
 if not data then
    print("Could not load stats file "..luacov.statsfile..".")
@@ -10,31 +40,34 @@ if not data then
    os.exit(1)
 end
 
-local report = io.open("luacov.report.out", "w")
-
--- only report on files specified on the command line
-local patterns = {}
-for i = 1, #arg do
-   patterns[i] = arg[i]
-end
+local report = io.open(configuration.reportfile, "w")
 
 local names = {}
 for filename, _ in pairs(data) do
-   if not patterns[1] then
-      table.insert(names, filename)
-   else
-      local path = filename:gsub("/", "."):gsub("%.lua$", "")
-      local include = false
-      for _, p in ipairs(patterns) do
-         if path:match(p) then
-            include = true
-            break
-         end
-      end
-      if include then
-         table.insert(names, filename)
-      end
-   end
+  local include = false
+  local path = filename:gsub("/", "."):gsub("\\", "."):gsub("%.lua$", "")
+  if not configuration.include[1] then
+    include = true
+  else
+    include = false
+    for _, p in ipairs(configuration.include) do
+       if path:match(p) then
+          include = true
+          break
+       end
+    end
+  end
+  if include and configuration.exclude[1] then
+    for _, p in ipairs(configuration.exclude) do
+       if path:match(p) then
+          include = false
+          break
+       end
+    end
+  end
+  if include then
+   table.insert(names, filename)
+  end
 end
 
 table.sort(names)
@@ -118,5 +151,7 @@ for _, filename in ipairs(names) do
          if new_block_comment then block_comment = true end
          line_nr = line_nr + 1
       end
+      file:close()
    end
 end
+report:close()

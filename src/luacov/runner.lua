@@ -6,7 +6,7 @@ M.defaults = require("luacov.defaults")
 
 local data
 local statsfile
-local tick 
+local tick
 local ctr = 0
 local luacovlock = os.tmpname()
 
@@ -59,7 +59,7 @@ local function on_exit()
    os.remove(luacovlock)
    stats.save(data, statsfile)
    stats.stop(statsfile)
-   
+
    if M.configuration.runreport then run_report() end
 end
 
@@ -68,11 +68,12 @@ end
 -- @param configuration user provide config (table or filename)
 -- @returns existing configuration if already set, otherwise loads a new
 -- config from the provided data or the defaults
-function m.load_config(configuration)
+function M.load_config(configuration)
   if not M.configuration then
     if not configuration then
+      -- nothing provided, try and load from defaults
       local success
-      success, configuration = pcall(dofile, configuration)
+      success, configuration = pcall(dofile, M.defaults.configfile)
       if not success then
         configuration = M.defaults
       end
@@ -94,8 +95,9 @@ end
 -- If table then config table (see luacov.default.lua for an example)
 local function init(configuration)
   M.configuration = M.load_config(configuration)
-  
+
   stats.statsfile = M.configuration.statsfile
+
   data = stats.load()
   statsfile = stats.start()
   M.statsfile = statsfile
@@ -105,7 +107,7 @@ local function init(configuration)
       M.on_exit_trick = io.open(luacovlock, "w")
       debug.setmetatable(M.on_exit_trick, { __gc = on_exit } )
    end
-   -- metatable trick on filehandle won't work if Lua exits through 
+   -- metatable trick on filehandle won't work if Lua exits through
    -- os.exit() hence wrap that with exit code as well
    local rawexit = os.exit
    os.exit = function(...)
@@ -139,4 +141,4 @@ local function init(configuration)
 end
 
 
-return setmetatable(M, { ["__call"] = function(configfile) init(configfile) end })
+return setmetatable(M, { ["__call"] = function(self, configfile) init(configfile) end })

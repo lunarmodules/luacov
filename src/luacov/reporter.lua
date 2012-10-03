@@ -3,12 +3,13 @@
 -- commandline;
 -- luacov [-c=configfile] filename filename ...
 local M = {}
+local arg = arg or {}
 
 function M.report()
   local patterns = {}
   local configfile = nil
   -- only parse commandline if we're not called from the Runner.
-  if not package.loaded("luacov.runner") then
+  if not package.loaded["luacov.runner"] then
     -- only report on files specified on the command line
     local n = 1
     for i = 1, #arg do
@@ -119,7 +120,7 @@ function M.report()
            local line = file:read("*l")
            if not line then break end
            local true_line = line
-           
+
            local new_block_comment = false
            if not block_comment then
               local l, equals = line:match("^(.*)%-%-%[(=*)%[")
@@ -132,9 +133,9 @@ function M.report()
               if l then
                  line = l
                  block_comment = false
-              end         
+              end
            end
-           
+
            local hits = filedata[line_nr] or 0
            if block_comment or excluded(line) then
               if hits > 0 then
@@ -144,7 +145,7 @@ function M.report()
               end
            else
               if hits == 0 then
-                 report:write(zero_format)            
+                 report:write(zero_format)
               else
                  report:write(count_format:format(hits))
               end
@@ -159,11 +160,11 @@ function M.report()
   report:close()
 
   -- delete stats file if set to do so
-  if M.configuration.deletestats then
-    os.remove(M.configuration.statsfile)
+  if configuration.deletestats then
+    os.remove(configuration.statsfile)
   end
 end
 
-return setmetatable(M, { ["__call"] = function() 
+return setmetatable(M, { ["__call"] = function(self)
     M.report()
   end})

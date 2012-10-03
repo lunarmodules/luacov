@@ -1,3 +1,7 @@
+---------------------------------------------------
+-- Statistics collecting module.
+-- @class module
+-- @name luacov.runner
 
 local M = {}
 
@@ -65,7 +69,7 @@ end
 
 ------------------------------------------------------
 -- Loads a valid configuration
--- @param configuration user provide config (table or filename)
+-- @param configuration user provided config (config-table or filename)
 -- @returns existing configuration if already set, otherwise loads a new
 -- config from the provided data or the defaults
 function M.load_config(configuration)
@@ -91,8 +95,8 @@ end
 
 --------------------------------------------------
 -- Initializes LuaCov runner to start collecting data
--- @param configuration if string, filename of config file.
--- If table then config table (see luacov.default.lua for an example)
+-- @param configuration if string, filename of config file (used to call <code>load_config</code>).
+-- If table then config table (see file <code>luacov.default.lua</code> for an example)
 local function init(configuration)
   M.configuration = M.load_config(configuration)
 

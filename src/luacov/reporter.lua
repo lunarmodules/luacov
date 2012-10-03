@@ -1,5 +1,18 @@
+------------------------
+-- Report module, will transform statistics file into a report.
+-- @class module
+-- @name luacov.reporter
 local M = {}
 
+------------------------
+-- Starts the report generator
+-- To load a config, use <code>luacov.runner</code> to load
+-- settings and then start the report.
+-- @example# local runner = require("luacov.runner")
+-- local reporter = require("luacov.reporter")
+-- runner.load_config()
+-- table.insert(luacov.configuration.include, "thisfile")
+-- reporter.report()
 function M.report()
   local luacov = require("luacov.runner")
   local stats = require("luacov.stats")

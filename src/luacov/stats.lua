@@ -1,8 +1,17 @@
-
+-----------------------------------------------------
+-- Manages the file with statistics (being) collected.
+-- In general the module requires that its property <code>stats.statsfile</code>
+-- has been set to the filename of the statsfile to create, load, etc.
+-- @module
+-- @name luacov.stats
 local M = {}
 
 local stats
 
+-----------------------------------------------------
+-- Loads the stats file.
+-- @return table with data
+-- @return hitcount of the line with the most hits (to provide the widest number format for reporting)
 function M.load()
    local data, most_hits = {}, 0
    stats = io.open(M.statsfile, "r")
@@ -44,14 +53,24 @@ function M.load()
    return data, most_hits
 end
 
+--------------------------------
+-- Opens the statfile
+-- @return filehandle
 function M.start()
    return io.open(M.statsfile, "w")
 end
 
+--------------------------------
+-- Closes the statfile
+-- @param stats filehandle to the statsfile
 function M.stop(stats)
    stats:close()
 end
 
+--------------------------------
+-- Saves data to the statfile
+-- @param data data to store
+-- @param stats filehandle where to store
 function M.save(data, stats)
    stats:seek("set")
    for filename, filedata in pairs(data) do

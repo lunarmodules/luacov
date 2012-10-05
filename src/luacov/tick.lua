@@ -3,6 +3,6 @@
 -- save the stats file. This is useful if your script is
 -- a daemon (ie, does not properly terminate.)
 -- @class module
--- @class luacov.tick
+-- @name luacov.tick
 require("luacov")
 return {}

@@ -70,7 +70,7 @@ end
 ------------------------------------------------------
 -- Loads a valid configuration
 -- @param configuration user provided config (config-table or filename)
--- @returns existing configuration if already set, otherwise loads a new
+-- @return existing configuration if already set, otherwise loads a new
 -- config from the provided data or the defaults
 function M.load_config(configuration)
   if not M.configuration then

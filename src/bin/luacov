@@ -23,13 +23,13 @@ elif commandExists luajit ; then
 elif commandExists lua ; then
   COMMAND=lua;
 else
-  echo >&2 "Busted requires that a valid execution environment be specified(or that you have lua or luajit accessible in your PATH). Aborting.";
+  echo >&2 "LuaCov requires that a valid execution environment be specified(or that you have lua or luajit accessible in your PATH). Aborting.";
   exit 1
 fi
 
 # Obtain $BOOSTRAP_PATH
 DIR="$( dirname "$0" )"
-BOOTSTRAP_PATH="$DIR/busted_bootstrap"
+BOOTSTRAP_PATH="$DIR/luacov_bootstrap"
 
 if commandExists cygpath ; then
   BOOTSTRAP_PATH=`cygpath -ms "${BOOTSTRAP_PATH}"`

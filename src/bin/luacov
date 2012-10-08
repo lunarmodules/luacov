@@ -1,5 +1,7 @@
 #!/usr/bin/env lua
 
+local arg = { ... }
+
 local luacov = require("luacov.stats")
 
 local data, most_hits = luacov.load()
@@ -39,9 +41,9 @@ end
 
 table.sort(names)
 
+local summary = {}
 local most_hits_length = ("%d"):format(most_hits):len()
 local empty_format = (" "):rep(most_hits_length+1)
-local false_negative_format = ("!%% %dd"):format(most_hits_length)
 local zero_format = ("*"):rep(most_hits_length).."0"
 local count_format = ("%% %dd"):format(most_hits_length+1)
 
@@ -70,6 +72,23 @@ local function excluded(line)
    return false
 end
 
+local function check_long_string(line, in_long_string, ls_equals, linecount)
+   local long_string
+   if not linecount then
+      long_string, ls_equals = line:match("^()%s*[%w_]+%s*=%s*%[(=*)%[[^]]*$")
+      if not long_string then
+         long_string, ls_equals = line:match("^()%s*local%s*[%w_]+%s*=%s*%[(=*)%[%s*$")
+      end
+   end
+   ls_equals = ls_equals or ""
+   if long_string then
+      in_long_string = true
+   elseif in_long_string and line:match("%]"..ls_equals.."%]") then
+      in_long_string = false
+   end
+   return in_long_string, ls_equals or ""
+end
+
 for _, filename in ipairs(names) do
    local filedata = data[filename]
    local file = io.open(filename, "r")
@@ -79,7 +98,9 @@ for _, filename in ipairs(names) do
       report:write(filename, "\n")
       report:write("==============================================================================\n")
       local line_nr = 1
-      block_comment, equals = false, ""
+      local file_hits, file_miss = 0, 0
+      local block_comment, equals = false, ""
+      local in_long_string, ls_equals = false, ""
       while true do
          local line = file:read("*l")
          if not line then break end
@@ -92,6 +113,7 @@ for _, filename in ipairs(names) do
                line = l
                new_block_comment = true
             end
+            in_long_string, ls_equals = check_long_string(line, in_long_string, ls_equals, filedata[line_nr])
          else
             local l = line:match("%]"..equals.."%](.*)$")
             if l then
@@ -101,22 +123,46 @@ for _, filename in ipairs(names) do
          end
          
          local hits = filedata[line_nr] or 0
-         if block_comment or excluded(line) then
-            if hits > 0 then
-               report:write(false_negative_format:format(hits))
-            else
-               report:write(empty_format)
-            end
+         if block_comment or in_long_string or excluded(line) then
+            report:write(empty_format)
          else
             if hits == 0 then
-               report:write(zero_format)            
+               file_miss = file_miss + 1
+               report:write(zero_format)
             else
+               file_hits = file_hits + 1
                report:write(count_format:format(hits))
             end
          end
          report:write("\t", true_line, "\n")
          if new_block_comment then block_comment = true end
          line_nr = line_nr + 1
+         summary[filename] = {
+            hits = file_hits,
+            miss = file_miss
+         }
       end
    end
 end
+
+report:write("\n")
+report:write("==============================================================================\n")
+report:write("Summary\n")
+report:write("==============================================================================\n")
+report:write("\n")
+
+local function write_total(hits, miss, filename)
+   report:write(hits, "\t", miss, "\t", ("%.2f%%"):format(hits/(hits+miss)*100.0), "\t", filename, "\n")
+end
+
+local total_hits, total_miss = 0, 0
+for _, filename in ipairs(names) do
+   local s = summary[filename]
+   if s then
+      write_total(s.hits, s.miss, filename)
+      total_hits = total_hits + s.hits
+      total_miss = total_miss + s.miss
+   end
+end
+report:write("------------------------\n")
+write_total(total_hits, total_miss, "")

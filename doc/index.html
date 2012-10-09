@@ -50,6 +50,7 @@ div.Example {
             <li> <a href="index.html#contact">Contact</a></li>
         </ul>
     </li>
+    <li><a href="doc/index.html">Reference</a></li>
     <li><a href="http://luaforge.net/projects/luacov/">Project</a>
         <ul>
             <li><a href="http://luaforge.net/scm/?group_id=290">CVS</a></li>
@@ -105,6 +106,8 @@ your script, like this:
 
 <div class="Example">
 lua -lluacov test.lua
+
+lua -erequire('luacov.runner')('myconfigfilename') test.lua
 </div>
 
 <p>
@@ -163,6 +166,18 @@ just modify the first line of <tt>xavante_start.lua</tt> so it reads:
 <h2><a name="history"></a>History</h2>
 
 <dl>
+    <dt><strong>0.3</strong> [October, 2012]</dt>
+    <dd>
+        <ul>
+            <li>Added configuration options and files</li>
+        </ul>
+    </dd>
+    <dt><strong>0.2</strong> [?]</dt>
+    <dd>
+        <ul>
+            <li>???</li>
+        </ul>
+    </dd>
     <dt><strong>0.1</strong> [July 16, 2007]</dt>
     <dd>
         <ul>

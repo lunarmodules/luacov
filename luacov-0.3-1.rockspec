@@ -15,10 +15,10 @@ description = {
       effectiveness of a test suite.
    ]],
    license = "MIT/X11",
-   homepage = "http://luacov.luaforge.net/"
+   homepage = "http://keplerproject.github.com/luacov/"
 }
 dependencies = {
-   "lua >= 5.0",
+   "lua >= 5.1",
 }
 build = {
   type = "builtin",

@@ -1,7 +1,7 @@
 package = "LuaCov"
-version = "0.2-1"
+version = "0.3-1"
 source = {
-   url = "http://luaforge.net/frs/download.php/4053/luacov-0.2.tar.gz"
+   url = "http://luaforge.net/frs/download.php/4053/luacov-0.3.tar.gz"
 }
 description = {
    summary = "Coverage analysis tool for Lua scripts",
@@ -20,9 +20,20 @@ dependencies = {
    "lua >= 5.0",
 }
 build = {
-   type = "make",
-   variables = {
-      LUADIR = "$(LUADIR)",
-      BINDIR = "$(BINDIR)"
-   }
+  type = "builtin",
+  modules = {
+    ["luacov.defaults"] = "src/luacov/defaults.lua",
+    ["luacov.init"] = "src/luacov/init.lua",
+    ["luacov.reporter"] = "src/luacov/reporter.lua",
+    ["luacov.runner"] = "src/luacov/runner.lua",
+    ["luacov.stats"] = "src/luacov/stats.lua",
+    ["luacov.tick"] = "src/luacov/tick.lua",
+  },
+  install = {
+    bin = {
+      ["luacov"] = "src/bin/luacov",
+      ["luacov.bat"] = "src/bin/luacov.bat",
+      ["luacov_bootstrap"] = "src/bin/luacov_bootstrap"
+    }
+  }
 }

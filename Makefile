@@ -17,6 +17,6 @@ dist:
 	rm -rf $(PACKAGE)-$(VERSION)
 	rm -f $(PACKAGE)-$(VERSION).tar.gz
 	mkdir -p $(PACKAGE)-$(VERSION)
-	cp -a * $(PACKAGE)-$(VERSION)
+	cp -a bin src doc Makefile README.md luacov*rockspec $(PACKAGE)-$(VERSION)
 	tar czvf $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION)
 	rm -rf $(PACKAGE)-$(VERSION)

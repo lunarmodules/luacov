@@ -147,5 +147,4 @@ local function init(configuration)
 
 end
 
-
-return setmetatable(M, { ["__call"] = function(self, configfile) init(configfile) end })
+return M

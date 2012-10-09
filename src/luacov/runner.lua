@@ -56,7 +56,10 @@ local function on_line(_, line_nr)
 end
 
 local function run_report()
-  local success, error = pcall(function() require("luacov.reporter")() end)
+  local success, error = pcall(function() require("luacov.reporter").report() end)
+  if not success then
+    print ("LuaCov reporting error; "..tostring(error))
+  end
 end
 
 local function on_exit()

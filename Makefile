@@ -11,16 +11,12 @@ install:
 	mkdir -p $(LUADIR)
 	cp src/luacov.lua $(LUADIR)
 	mkdir -p $(LUADIR)/luacov
-	cp src/luacov/stats.lua $(LUADIR)/luacov
-	cp src/luacov/tick.lua $(LUADIR)/luacov
+	cp src/luacov/*.lua $(LUADIR)/luacov
 
 dist:
-	rm -f dist.files
 	rm -rf $(PACKAGE)-$(VERSION)
 	rm -f $(PACKAGE)-$(VERSION).tar.gz
-	find * | grep -v CVS > dist.files
 	mkdir -p $(PACKAGE)-$(VERSION)
-	cpio -p $(PACKAGE)-$(VERSION) < dist.files
+	cp -a * $(PACKAGE)-$(VERSION)
 	tar czvf $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION)
-	rm -f dist.files
 	rm -rf $(PACKAGE)-$(VERSION)

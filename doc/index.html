@@ -26,7 +26,7 @@ div.Example {
 <div id="container">
     
 <div id="product">
-    <div id="product_logo"><a href="http://luacov.luaforge.net">
+    <div id="product_logo"><a href="http://keplerproject.github.com/luacov">
         <img alt="LuaCov logo" src="luacov.png" />
     </a></div>
     <div id="product_name"><big><strong>LuaCov</strong></big></div>
@@ -51,9 +51,9 @@ div.Example {
         </ul>
     </li>
     <li><a href="doc/index.html">Reference</a></li>
-    <li><a href="http://luaforge.net/projects/luacov/">Project</a>
+    <li><a href="http://github.com/keplerproject/luacov">Project</a>
         <ul>
-            <li><a href="http://luaforge.net/scm/?group_id=290">CVS</a></li>
+            <li><a href="http://github.com/keplerproject/luacov">Git</a></li>
         </ul>
     </li>
     <li><a href="license.html">License</a></li>
@@ -82,9 +82,12 @@ LuaCov is free software and uses the same <a href="license.html">license</a> as 
 <h2><a name="download"></a>Download</h2>
 
 <p>
-LuaCov can be downloaded from its
-<a href="http://luaforge.net/projects/luacov/files/">LuaForge page</a>.
+LuaCov can be downloaded via LuaRocks:
 </p>
+
+<div class="Example">
+luarocks install luacov
+</div>
 
 <p>
 LuaCov is written in pure Lua and has no external dependencies.
@@ -106,7 +109,11 @@ your script, like this:
 
 <div class="Example">
 lua -lluacov test.lua
+</div>
 
+or
+
+<div class="Example">
 lua -erequire('luacov.runner')('myconfigfilename') test.lua
 </div>
 
@@ -116,7 +123,7 @@ of your script.)
 </p>
 
 <p>
-Once the script is run, a file called <tt>lcov.stats.out</tt> is generated.
+Once the script is run, a file called <tt>luacov.stats.out</tt> is generated.
 If the file already exists, statistics are <i>added</i> to it. This is useful,
 for example, for making a series of runs with different input parameters in
 a test suite. To start the accounting from scratch, just delete the stats file.
@@ -124,8 +131,8 @@ a test suite. To start the accounting from scratch, just delete the stats file.
 
 <p>
 To generate a report, just run the <tt>luacov</tt> command-line script.
-It expects to find a file named <tt>lcov.stats.out</tt> in the current
-directory, and outputs a file named <tt>lcov.report.out</tt>.
+It expects to find a file named <tt>luacov.stats.out</tt> in the current
+directory, and outputs a file named <tt>luacov.report.out</tt>.
 </p>
 
 <p>This is an example output of the report file:</p>
@@ -190,7 +197,7 @@ just modify the first line of <tt>xavante_start.lua</tt> so it reads:
 
 <p>
 LuaCov was designed and implemented by Hisham Muhammad as a tool for
-testing <a href="http://luarocks.luaforge.net">LuaRocks</a>.
+testing <a href="http://luarocks.org">LuaRocks</a>.
 </p>
 
 <h2><a name="contact"></a>Contact</h2>

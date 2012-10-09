@@ -1,7 +1,8 @@
 package = "LuaCov"
 version = "0.3-1"
 source = {
-   url = "http://luaforge.net/frs/download.php/4053/luacov-0.3.tar.gz"
+   url = "git://github.com/keplerproject/luacov",
+   tag = "v0.3",
 }
 description = {
    summary = "Coverage analysis tool for Lua scripts",
@@ -32,8 +33,6 @@ build = {
   install = {
     bin = {
       ["luacov"] = "src/bin/luacov",
-      ["luacov.bat"] = "src/bin/luacov.bat",
-      ["luacov_bootstrap"] = "src/bin/luacov_bootstrap"
     }
   }
 }

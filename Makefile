@@ -8,6 +8,7 @@ LUADIR=$(PREFIX)/share/lua/5.1/
 install:
 	mkdir -p $(BINDIR)
 	cp src/bin/luacov $(BINDIR)
+	chmod +x $(BINDIR)/luacov
 	mkdir -p $(LUADIR)
 	cp src/luacov.lua $(LUADIR)
 	mkdir -p $(LUADIR)/luacov

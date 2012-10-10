@@ -32,7 +32,7 @@ return {
   -- (exclude overrules include, do not include
   -- the .lua extension)
   ["exclude"] = {
-    "luacov.luacov$",
+    "luacov$",
     "luacov.reporter$",
     "luacov.defaults$",
     "luacov.runner$",

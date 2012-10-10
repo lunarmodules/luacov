@@ -14,7 +14,7 @@ function M.load()
    local data, most_hits = {}, 0
    local stats = io.open(M.statsfile, "r")
    if not stats then
-      return data, most_hits
+      return nil
    end
    while true do
       local nlines = stats:read("*n")

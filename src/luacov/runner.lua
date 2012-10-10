@@ -105,7 +105,7 @@ function M.init(configuration)
 
   stats.statsfile = M.configuration.statsfile
 
-  data = stats.load()
+  data = stats.load() or {}
   statsfile = stats.start()
   M.statsfile = statsfile
   tick = package.loaded["luacov.tick"]

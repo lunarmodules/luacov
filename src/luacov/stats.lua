@@ -6,17 +6,15 @@
 -- @name luacov.stats
 local M = {}
 
-local stats
-
 -----------------------------------------------------
 -- Loads the stats file.
 -- @return table with data
 -- @return hitcount of the line with the most hits (to provide the widest number format for reporting)
 function M.load()
    local data, most_hits = {}, 0
-   stats = io.open(M.statsfile, "r")
+   local stats = io.open(M.statsfile, "r")
    if not stats then
-      return data
+      return data, most_hits
    end
    while true do
       local nlines = stats:read("*n")

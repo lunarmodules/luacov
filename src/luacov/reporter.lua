@@ -50,7 +50,8 @@ function M.report()
    local names = {}
    for filename, _ in pairs(data) do
       local include = false
-      local path = filename:gsub("/", "."):gsub("\\", "."):gsub("%.lua$", "")
+      -- normalize paths in patterns
+      local path = filename:gsub("/", "%."):gsub("\\", "%."):gsub("%.lua$", "")
       if not configuration.include[1] then
          include = true
       else

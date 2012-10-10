@@ -33,11 +33,11 @@ return {
   -- the .lua extension)
   ["exclude"] = {
     "luacov$",
-    "luacov.reporter$",
-    "luacov.defaults$",
-    "luacov.runner$",
-    "luacov.stats$",
-    "luacov.tick$",
+    "luacov%.reporter$",
+    "luacov%.defaults$",
+    "luacov%.runner$",
+    "luacov%.stats$",
+    "luacov%.tick$",
   },
 
 

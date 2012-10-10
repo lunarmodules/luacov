@@ -27,7 +27,8 @@ for i = 1, #arg do
    elseif arg[i]:sub(1,2) == "-c" then
       configfile = arg[i]:sub(3)
    else
-      table.insert(patterns, arg[i])
+      -- normalize paths in patterns
+      table.insert(patterns, (arg[i]:gsub("/", "%."):gsub("\\", "%."):gsub("%.lua$", "")))
    end
 end
 

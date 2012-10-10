@@ -100,7 +100,7 @@ end
 -- Initializes LuaCov runner to start collecting data
 -- @param configuration if string, filename of config file (used to call <code>load_config</code>).
 -- If table then config table (see file <code>luacov.default.lua</code> for an example)
-function init(configuration)
+function M.init(configuration)
   M.configuration = M.load_config(configuration)
 
   stats.statsfile = M.configuration.statsfile
@@ -147,4 +147,4 @@ function init(configuration)
 
 end
 
-return setmetatable(M, { ["__call"] = function(self, configfile) init(configfile) end })
+return setmetatable(M, { ["__call"] = function(self, configfile) M.init(configfile) end })

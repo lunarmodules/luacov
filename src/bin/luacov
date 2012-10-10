@@ -1,8 +1,10 @@
 #!/usr/bin/env lua
 -- commandline;
--- luacov [-c=configfile] filename filename ...
+-- luacov [-c configfile] filename filename ...
 -- the -c option will load the specifed configfile
 -- the filenames are the ones that need to be reported on
+
+local arg = { ... }
 
 local runner = require("luacov.runner")
 local reporter = require("luacov.reporter")
@@ -11,14 +13,22 @@ local patterns = {}
 local configfile = nil
 
 -- only report on files specified on the command line
-local n = 1
+local next_is_config = false
 for i = 1, #arg do
-  if i == 1 and arg[i]:sub(1,4) == "-c=" then
-    configfile = arg[i]:sub(4,-1)
-  else
-    patterns[n] = arg[i]
-    n = n + 1
-  end
+   if next_is_config then
+      configfile = arg[i]
+      next_is_config = false
+   elseif arg[i] == "-c" then
+      next_is_config = true
+   elseif arg[i]:sub(1,3) == "-c=" then
+      configfile = arg[i]:sub(4)
+   elseif arg[i]:sub(1,9) == "--config=" then
+      configfile = arg[i]:sub(10)
+   elseif arg[i]:sub(1,2) == "-c" then
+      configfile = arg[i]:sub(3)
+   else
+      table.insert(patterns, arg[i])
+   end
 end
 
 -- will load configfile specified, or defaults otherwise
@@ -31,6 +41,5 @@ configuration.exclude = configuration.exclude or {}
 for i, patt in ipairs(patterns) do
   table.insert(configuration.include, patt)
 end
-
 
 reporter.report()

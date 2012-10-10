@@ -100,7 +100,7 @@ end
 -- Initializes LuaCov runner to start collecting data
 -- @param configuration if string, filename of config file (used to call <code>load_config</code>).
 -- If table then config table (see file <code>luacov.default.lua</code> for an example)
-local function init(configuration)
+function init(configuration)
   M.configuration = M.load_config(configuration)
 
   stats.statsfile = M.configuration.statsfile

@@ -28,7 +28,7 @@ for i = 1, #arg do
       configfile = arg[i]:sub(3)
    else
       -- normalize paths in patterns
-      table.insert(patterns, (arg[i]:gsub("/", "%."):gsub("\\", "%."):gsub("%.lua$", "")))
+      table.insert(patterns, (arg[i]:gsub("/", "."):gsub("\\", "."):gsub("%.lua$", "")))
    end
 end
 

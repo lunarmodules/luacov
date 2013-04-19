@@ -94,8 +94,8 @@ function M.report()
       { true, "do" },       -- Single "do"
       { true, "local%s+[%w_,%s]+" }, -- "local var1, ..., varN"
       { true, "local%s+[%w_,%s]+%s*=" }, -- "local var1, ..., varN ="
-      { true, "local%s+function%s*%([%w_,%s]*%)" }, -- "local function(arg1, ..., argN)"
-      { true, "local%s+function%s+[%w_]*%s*%([%w_,%s]*%)" }, -- "local function f (arg1, ..., argN)"
+      { true, "local%s+function%s*%([%w_,%s%.]*%)" }, -- "local function(arg1, ..., argN)"
+      { true, "local%s+function%s+[%w_]*%s*%([%w_,%s%.]*%)" }, -- "local function f (arg1, ..., argN)"
    }
 
    local hit0_exclusions =

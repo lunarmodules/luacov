@@ -104,7 +104,8 @@ function M.report()
       { true, "[%w_,'\"%s]*function%s*%([%w_,%s%.]*%)" }, -- "1,2,function(...)"
       { true, "local%s+[%w_]+%s*=%s*function%s*%([%w_,%s%.]*%)" }, -- "local a = function(arg1, ..., argN)"
       { true, "[%w_]+%s*=%s*function%s*%([%w_,%s%.]*%)" }, -- "a = function(arg1, ..., argN)"
-      { true, "}" }, -- "a = function(arg1, ..., argN)"
+      { true, "{%s*" }, -- "{" opening table
+      { true, "}" }, -- "{" closing table
    }
 
    local function excluded(exclusions,line)

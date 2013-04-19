@@ -98,7 +98,16 @@ function M.report()
       { true, "local%s+function%s+[%w_]*%s*%([%w_,%s]*%)" }, -- "local function f (arg1, ..., argN)"
    }
 
-   local function excluded(line)
+   local hit0_exclusions =
+   {
+      { true, "[%w_,='\"%s]+%s*," }, -- "var1, var2," multi columns table stuff
+      { true, "[%w_,'\"%s]*function%s*%([%w_,%s%.]*%)" }, -- "1,2,function(...)"
+      { true, "local%s+[%w_]+%s*=%s*function%s*%([%w_,%s%.]*%)" }, -- "local a = function(arg1, ..., argN)"
+      { true, "[%w_]+%s*=%s*function%s*%([%w_,%s%.]*%)" }, -- "a = function(arg1, ..., argN)"
+      { true, "}" }, -- "a = function(arg1, ..., argN)"
+   }
+
+   local function excluded(exclusions,line)
       for _, e in ipairs(exclusions) do
          if e[1] then
             if line:match("^%s*"..e[2].."%s*$") or line:match("^%s*"..e[2].."%s*%-%-") then return true end
@@ -143,7 +152,7 @@ function M.report()
             end
 
             local hits = filedata[line_nr] or 0
-            if block_comment or in_long_string or excluded(line) then
+            if block_comment or in_long_string or excluded(exclusions,line) or (hits == 0 and excluded(hit0_exclusions,line)) then
                report:write(empty_format)
             else
                if hits == 0 then

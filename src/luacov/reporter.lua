@@ -100,7 +100,8 @@ function M.report()
 
    local hit0_exclusions =
    {
-      { true, "[%w_,='\"%s]+%s*," }, -- "var1, var2," multi columns table stuff
+      { true, "[%w_,='\"%s]+%s*," }, -- "var1 var2," multi columns table stuff
+      { true, "%[%s*[\"'%w_]+%s*%]%s=.+," }, -- "[123] = 23," "[ "foo"] = "asd"," 
       { true, "[%w_,'\"%s]*function%s*%([%w_,%s%.]*%)" }, -- "1,2,function(...)"
       { true, "local%s+[%w_]+%s*=%s*function%s*%([%w_,%s%.]*%)" }, -- "local a = function(arg1, ..., argN)"
       { true, "[%w%._]+%s*=%s*function%s*%([%w_,%s%.]*%)" }, -- "a = function(arg1, ..., argN)"

@@ -92,4 +92,4 @@ completion and removal of the stats after generating the report.
 ## Credits
 
 LuaCov was designed and implemented by Hisham Muhammad as a tool for testing
-[Luarocks](http://www.luarocks.org).
+[LuaRocks](http://www.luarocks.org).

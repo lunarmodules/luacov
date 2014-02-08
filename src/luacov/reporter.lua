@@ -4,12 +4,33 @@
 -- @name luacov.reporter
 local M = {}
 
+--- Utility function to make patterns more readable
+local function fixup(pat)
+   return pat:gsub(" ", " +")                  -- ' ' represents "at least one space"
+             :gsub("=", " *= *")               -- '=' may be surrounded by spaces
+             :gsub("%(", " *%%( *")            -- '(' may be surrounded by spaces
+             :gsub("%)", " *%%) *")            -- ')' may be surrounded by spaces
+             :gsub("<ID>", " *[%%w_]+ *")      -- identifier
+             :gsub("<FULLID>", " *[%%w._]+ *") -- identifier
+             :gsub("<BEGIN_LONG_STRING>", "%%[(=*)%%[[^]]* *")
+             :gsub("<IDS>", "[%%w_, ]+")       -- comma-separated identifiers
+             :gsub("<ARGS>", "[%%w_, \"'%%.]*") -- comma-separated arguments
+             :gsub("<FIELDNAME>", "%%[? *[\"'%%w_]+ *%%]?") -- field, possibly like ["this"]
+             :gsub(" %* ", " ")                -- collapse consecutive spacing rules
+             :gsub(" %+ %*", " +")             -- collapse consecutive spacing rules
+end
+
+local long_string_1 = "^() *" .. fixup"<ID>=<BEGIN_LONG_STRING>$"
+local long_string_2 = "^() *" .. fixup"local <ID>=<BEGIN_LONG_STRING>$"
+
 local function check_long_string(line, in_long_string, ls_equals, linecount)
    local long_string
    if not linecount then
-      long_string, ls_equals = line:match("^()%s*[%w_]+%s*=%s*%[(=*)%[[^]]*$")
-      if not long_string then
-         long_string, ls_equals = line:match("^()%s*local%s*[%w_]+%s*=%s*%[(=*)%[%s*$")
+      if line:match("%[=*%[") then
+         long_string, ls_equals = line:match(long_string_1)
+         if not long_string then
+            long_string, ls_equals = line:match(long_string_2)
+         end
       end
    end
    ls_equals = ls_equals or ""
@@ -22,32 +43,34 @@ local function check_long_string(line, in_long_string, ls_equals, linecount)
 end
 
 --- Lines that are always excluded from accounting
-local exclusions =
-{
+local exclusions = {
    { false, "^#!" },     -- Unix hash-bang magic line
    { true, "" },         -- Empty line
-   { true, "end,?" },    -- Single "end"
-   { true, "else" },     -- Single "else"
-   { true, "repeat" },   -- Single "repeat"
-   { true, "do" },       -- Single "do"
-   { true, "while%s+" },       -- Single "do"
-   { true, "do" },       -- Single "do"
-   { true, "local%s+[%w_,%s]+" }, -- "local var1, ..., varN"
-   { true, "local%s+[%w_,%s]+%s*=" }, -- "local var1, ..., varN ="
-   { true, "local%s+function%s*%([%w_,%s%.]*%)" }, -- "local function(arg1, ..., argN)"
-   { true, "local%s+function%s+[%w_]*%s*%([%w_,%s%.]*%)" }, -- "local function f (arg1, ..., argN)"
+   { true, fixup "end,?" },    -- Single "end"
+   { true, fixup "else" },     -- Single "else"
+   { true, fixup "repeat" },   -- Single "repeat"
+   { true, fixup "do" },       -- Single "do"
+   { true, fixup "while true do" }, -- "while true do" generates no code
+   { true, fixup "if true then" }, -- "if true then" generates no code
+   { true, fixup "local <IDS>" }, -- "local var1, ..., varN"
+   { true, fixup "local <IDS>=" }, -- "local var1, ..., varN ="
+   { true, fixup "local function(<ARGS>)" }, -- "local function(arg1, ..., argN)"
+   { true, fixup "local function <ID>(<ARGS>)" }, -- "local function f (arg1, ..., argN)"
 }
 
 --- Lines that are only excluded from accounting when they have 0 hits
-local hit0_exclusions =
-{
-   { true, "[%w_,='\"%s]+%s*," }, -- "var1 var2," multi columns table stuff
-   { true, "%[?%s*[\"'%w_]+%s*%]?%s=.+," }, -- "[123] = 23," "['foo'] = "asd","
-   { true, "[%w_,'\"%s]*function%s*%([%w_,%s%.]*%)" }, -- "1,2,function(...)"
-   { true, "local%s+[%w_]+%s*=%s*function%s*%([%w_,%s%.]*%)" }, -- "local a = function(arg1, ..., argN)"
-   { true, "[%w%._]+%s*=%s*function%s*%([%w_,%s%.]*%)" }, -- "a = function(arg1, ..., argN)"
-   { true, "{%s*" }, -- "{" opening table
+local hit0_exclusions = {
+   { true, "[%w_,='\" ]+," }, -- "var1 var2," multi columns table stuff
+   { true, fixup "<FIELDNAME>=.+," }, -- "[123] = 23," "['foo'] = "asd","
+   { true, fixup "<ARGS>*function(<ARGS>)" }, -- "1,2,function(...)"
+   { true, fixup "function(<ARGS>)" }, -- "local a = function(arg1, ..., argN)"
+   { true, fixup "local <ID>=function(<ARGS>)" }, -- "local a = function(arg1, ..., argN)"
+   { true, fixup "<FULLID>=function(<ARGS>)" }, -- "a = function(arg1, ..., argN)"
+   { true, fixup "break" }, -- "break" generates no trace in Lua 5.2
+   { true, "{" }, -- "{" opening table
    { true, "}" }, -- "{" closing table
+   { true, fixup "})" }, -- function closer
+   { true, fixup ")" }, -- function closer
 }
 
 ------------------------
@@ -116,7 +139,7 @@ function M.report()
    local function excluded(exclusions,line)
       for _, e in ipairs(exclusions) do
          if e[1] then
-            if line:match("^%s*"..e[2].."%s*$") or line:match("^%s*"..e[2].."%s*%-%-") then return true end
+            if line:match("^ *"..e[2].." *$") or line:match("^ *"..e[2].." *%-%-") then return true end
          else
             if line:match(e[2]) then return true end
          end
@@ -143,6 +166,7 @@ function M.report()
 
             local new_block_comment = false
             if not block_comment then
+               line = line:gsub("%s+", " ")
                local l, equals = line:match("^(.*)%-%-%[(=*)%[")
                if l then
                   line = l

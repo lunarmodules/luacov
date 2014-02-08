@@ -21,6 +21,35 @@ local function check_long_string(line, in_long_string, ls_equals, linecount)
    return in_long_string, ls_equals or ""
 end
 
+--- Lines that are always excluded from accounting
+local exclusions =
+{
+   { false, "^#!" },     -- Unix hash-bang magic line
+   { true, "" },         -- Empty line
+   { true, "end,?" },    -- Single "end"
+   { true, "else" },     -- Single "else"
+   { true, "repeat" },   -- Single "repeat"
+   { true, "do" },       -- Single "do"
+   { true, "while%s+" },       -- Single "do"
+   { true, "do" },       -- Single "do"
+   { true, "local%s+[%w_,%s]+" }, -- "local var1, ..., varN"
+   { true, "local%s+[%w_,%s]+%s*=" }, -- "local var1, ..., varN ="
+   { true, "local%s+function%s*%([%w_,%s%.]*%)" }, -- "local function(arg1, ..., argN)"
+   { true, "local%s+function%s+[%w_]*%s*%([%w_,%s%.]*%)" }, -- "local function f (arg1, ..., argN)"
+}
+
+--- Lines that are only excluded from accounting when they have 0 hits
+local hit0_exclusions =
+{
+   { true, "[%w_,='\"%s]+%s*," }, -- "var1 var2," multi columns table stuff
+   { true, "%[?%s*[\"'%w_]+%s*%]?%s=.+," }, -- "[123] = 23," "['foo'] = "asd","
+   { true, "[%w_,'\"%s]*function%s*%([%w_,%s%.]*%)" }, -- "1,2,function(...)"
+   { true, "local%s+[%w_]+%s*=%s*function%s*%([%w_,%s%.]*%)" }, -- "local a = function(arg1, ..., argN)"
+   { true, "[%w%._]+%s*=%s*function%s*%([%w_,%s%.]*%)" }, -- "a = function(arg1, ..., argN)"
+   { true, "{%s*" }, -- "{" opening table
+   { true, "}" }, -- "{" closing table
+}
+
 ------------------------
 -- Starts the report generator
 -- To load a config, use <code>luacov.runner</code> to load
@@ -83,31 +112,6 @@ function M.report()
    local empty_format = (" "):rep(most_hits_length+1)
    local zero_format = ("*"):rep(most_hits_length).."0"
    local count_format = ("%% %dd"):format(most_hits_length+1)
-
-   local exclusions =
-   {
-      { false, "^#!" },     -- Unix hash-bang magic line
-      { true, "" },         -- Empty line
-      { true, "end,?" },    -- Single "end"
-      { true, "else" },     -- Single "else"
-      { true, "repeat" },   -- Single "repeat"
-      { true, "do" },       -- Single "do"
-      { true, "local%s+[%w_,%s]+" }, -- "local var1, ..., varN"
-      { true, "local%s+[%w_,%s]+%s*=" }, -- "local var1, ..., varN ="
-      { true, "local%s+function%s*%([%w_,%s%.]*%)" }, -- "local function(arg1, ..., argN)"
-      { true, "local%s+function%s+[%w_]*%s*%([%w_,%s%.]*%)" }, -- "local function f (arg1, ..., argN)"
-   }
-
-   local hit0_exclusions =
-   {
-      { true, "[%w_,='\"%s]+%s*," }, -- "var1 var2," multi columns table stuff
-      { true, "%[?%s*[\"'%w_]+%s*%]?%s=.+," }, -- "[123] = 23," "[ "foo"] = "asd"," 
-      { true, "[%w_,'\"%s]*function%s*%([%w_,%s%.]*%)" }, -- "1,2,function(...)"
-      { true, "local%s+[%w_]+%s*=%s*function%s*%([%w_,%s%.]*%)" }, -- "local a = function(arg1, ..., argN)"
-      { true, "[%w%._]+%s*=%s*function%s*%([%w_,%s%.]*%)" }, -- "a = function(arg1, ..., argN)"
-      { true, "{%s*" }, -- "{" opening table
-      { true, "}" }, -- "{" closing table
-   }
 
    local function excluded(exclusions,line)
       for _, e in ipairs(exclusions) do

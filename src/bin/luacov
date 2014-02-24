@@ -12,12 +12,41 @@ local reporter = require("luacov.reporter")
 local patterns = {}
 local configfile = nil
 
+local function show_help()
+   print([[
+luacov - coverage analyzer for Lua scripts
+
+Usage:
+   luacov [-c=configfile] [pattern...]
+
+   Launch your Lua programs with -lluacov to perform accounting.
+   
+   Launch this script to generate a report from collected stats.
+   
+   By default it reports on every Lua file encountered running your
+   script. To filter filenames, pass one or more patterns in the
+   command line.
+
+   For details of the config file, see the luacov.defaults module.
+   (Copy it and modify it and you'll have a config file.)
+
+Example:
+   luacov foo/bar
+   
+   This will report only on modules in the foo/bar subtree.
+
+]])
+end
+
 -- only report on files specified on the command line
 local next_is_config = false
 for i = 1, #arg do
    if next_is_config then
       configfile = arg[i]
       next_is_config = false
+   elseif arg[i] == "--help" then
+      show_help()
+      os.exit(0)
    elseif arg[i] == "-c" then
       next_is_config = true
    elseif arg[i]:sub(1,3) == "-c=" then

@@ -36,12 +36,9 @@ local function on_line(_, line_nr)
 
    local r = filelist[name]
    if r == nil then  -- unknown file, check our in/exclude lists
-local x
-if name:find("bootstrap") then x = true end
       local include = false
       -- normalize paths in patterns
       local path = name:gsub("\\", "/"):gsub("%.lua$", "")
-if x then print("-->",path) end
       if not M.configuration.include[1] then 
          include = true  -- no include list --> then everything is included by default
       else

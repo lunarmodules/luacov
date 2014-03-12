@@ -9,6 +9,9 @@ local M = {}
 local stats = require("luacov.stats")
 M.defaults = require("luacov.defaults")
 
+local unpack   = unpack or table.unpack
+local pack     = table.pack or function(...) return { n = select('#', ...), ... } end
+
 local data
 local statsfile
 local tick
@@ -248,7 +251,7 @@ end
 
 local function addtreetolist(name, level, list)
   local f = escapefilename(getfilename(name))
-  if level then
+  if level or f:match("/init$") then
     local cpos, pos = 0, nil
     while true do
       pos = f:find("/", cpos+1, true)
@@ -264,6 +267,16 @@ local function addtreetolist(name, level, list)
   return f, t
 end
 
+-- returns a pcall result, with the initial 'true' value removed
+local function checkresult(...)
+  local t = pack(...)
+  if t[1] then
+    return unpack(t, 2, t.n)   -- success, strip 'true' value
+  else
+    return nil, unpack(t, 2, t.n) -- failure; nil + error
+  end
+end
+
 -------------------------------------------------------------------
 -- Adds a file to the exclude list (see <code>defaults.lua</code>).
 -- If passed a function, then through debuginfo the source filename is collected. In case of a table
@@ -275,16 +288,16 @@ end
 --             string;   modulename as passed to require(), 
 --             function; where containing file is looked up, 
 --             table;    module table where containing file is looked up
--- @return the pattern as added to the list
+-- @return the pattern as added to the list, or nil + error
 function M.excludefile(name)
-  return addfiletolist(name, M.configuration.exclude)
+  return checkresult(pcall(addfiletolist, name, M.configuration.exclude))
 end
 -------------------------------------------------------------------
 -- Adds a file to the include list (see <code>defaults.lua</code>).
 -- @param name see <code>excludefile</code>
--- @return the pattern as added to the list
+-- @return the pattern as added to the list, or nil + error
 function M.includefile(name)
-  return addfiletolist(name, M.configuration.include)
+  return checkresult(pcall(addfiletolist, name, M.configuration.include))
 end
 -------------------------------------------------------------------
 -- Adds a tree to the exclude list (see <code>defaults.lua</code>).
@@ -292,20 +305,20 @@ end
 -- module 'luacov' (luacov.lua) and the tree 'luacov' (containing `luacov/runner.lua` etc.) is excluded.
 -- If <code>name = 'pl.path'</code> and <code>level = true</code> then
 -- module 'pl' (pl.lua) and the tree 'pl' (containing `pl/path.lua` etc.) is excluded.
--- NOTE: in case of an 'init.lua' file, the second method should be used (with a truthy 'level' parameter)
+-- NOTE: in case of an 'init.lua' file, the 'level' parameter will always be set
 -- @param name see <code>excludefile</code>
 -- @param level if truthy then one level up is added, including the tree
--- @return the 2 patterns as added to the list (file and tree)
+-- @return the 2 patterns as added to the list (file and tree), or nil + error
 function M.excludetree(name, level)
-  return addtreetolist(name, level, M.configuration.exclude)
+  return checkresult(pcall(addtreetolist, name, level, M.configuration.exclude))
 end
 -------------------------------------------------------------------
 -- Adds a tree to the include list (see <code>defaults.lua</code>).
 -- @param name see <code>excludefile</code>
 -- @param level see <code>includetree</code>
--- @return the 2 patterns as added to the list (file and tree)
+-- @return the 2 patterns as added to the list (file and tree), or nil + error
 function M.includetree(name, level)
-  return addtreetolist(name, level, M.configuration.include)
+  return checkresult(pcall(addtreetolist, name, level, M.configuration.include))
 end
 
 

@@ -42,7 +42,7 @@ local function on_line(_, line_nr)
       local include = false
       -- normalize paths in patterns
       local path = name:gsub("\\", "/"):gsub("%.lua$", "")
-      if not M.configuration.include[1] then 
+      if not M.configuration.include[1] then
          include = true  -- no include list --> then everything is included by default
       else
          include = false
@@ -64,7 +64,7 @@ local function on_line(_, line_nr)
       if include then r = true else r = false end
       filelist[name] = r
    end
-   if r == false then 
+   if r == false then
      return  -- do not include
    end
 
@@ -171,6 +171,14 @@ function M.init(configuration)
 
 end
 
+--------------------------------------------------
+-- Shuts down LucCov's runner.
+-- This should only be called from daemon processes or sandboxes which have
+-- disabled os.exit and other hooks that are used to determine shutdown.
+function M.shutdown()
+  on_exit()
+end
+
 -- Returns true if the given filename exists
 local fileexists = function(fname)
   local f = io.open(fname)
@@ -192,9 +200,9 @@ local getsourcefile = function(func)
   end
 end
 
--- @param name string;   filename, 
---             string;   modulename as passed to require(), 
---             function; where containing file is looked up, 
+-- @param name string;   filename,
+--             string;   modulename as passed to require(),
+--             function; where containing file is looked up,
 --             table;    module table where containing file is looked up
 local function getfilename(name)
   if type(name)=="function" then
@@ -262,8 +270,8 @@ local function addtreetolist(name, level, list)
   end
   local t = "^"..f.."/"   -- the tree behind the file
   f = "^"..f.."$"         -- the file
-  table.insert(list, f) 
-  table.insert(list, t) 
+  table.insert(list, f)
+  table.insert(list, t)
   return f, t
 end
 
@@ -282,11 +290,11 @@ end
 -- If passed a function, then through debuginfo the source filename is collected. In case of a table
 -- it will recursively search teh table for a function, which is then resolved to a filename through debuginfo.
 -- If the parameter is a string, it will first check if a file by that name exists. If it doesn't exist
--- it will call <code>require(name)</code> to load a module by that name, and the result of require (function or 
+-- it will call <code>require(name)</code> to load a module by that name, and the result of require (function or
 -- table expected) is used as described above to get the sourcefile.
--- @param name string;   literal filename, 
---             string;   modulename as passed to require(), 
---             function; where containing file is looked up, 
+-- @param name string;   literal filename,
+--             string;   modulename as passed to require(),
+--             function; where containing file is looked up,
 --             table;    module table where containing file is looked up
 -- @return the pattern as added to the list, or nil + error
 function M.excludefile(name)

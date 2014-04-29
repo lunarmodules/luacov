@@ -73,92 +73,160 @@ local hit0_exclusions = {
    { true, fixup ")" }, -- function closer
 }
 
-------------------------
--- Starts the report generator
--- To load a config, use <code>luacov.runner</code> to load
--- settings and then start the report.
--- @example# local runner = require("luacov.runner")
--- local reporter = require("luacov.reporter")
--- runner.load_config()
--- table.insert(luacov.configuration.include, "thisfile")
--- reporter.report()
-function M.report()
-   local luacov = require("luacov.runner")
-   local stats = require("luacov.stats")
-  
-   local configuration = luacov.load_config()
-   stats.statsfile = configuration.statsfile
-
-   local data, most_hits = stats.load()
-
-   if not data then
-      print("Could not load stats file "..configuration.statsfile..".")
-      print("Run your Lua program with -lluacov and then rerun luacov.")
-      os.exit(1)
-   end
-
-   local report = io.open(configuration.reportfile, "w")
-
-   local names = {}
-   for filename, _ in pairs(data) do
-      local include = false
-      -- normalize paths in patterns
-      local path = filename:gsub("\\", "/"):gsub("%.lua$", "")
-      if not configuration.include[1] then
-         include = true
+local function excluded_(exclusions,line)
+   for _, e in ipairs(exclusions) do
+      if e[1] then
+         if line:match("^ *"..e[2].." *$") or line:match("^ *"..e[2].." *%-%-") then return true end
       else
-         include = false
-         for _, p in ipairs(configuration.include) do
-            if path:match(p) then
-               include = true
-               break
-            end
-         end
-      end
-      if include and configuration.exclude[1] then
-         for _, p in ipairs(configuration.exclude) do
-            if path:match(p) then
-               include = false
-               break
-            end
-         end
-      end
-      if include then
-         table.insert(names, filename)
+         if line:match(e[2]) then return true end
       end
    end
+   return false
+end
 
-   table.sort(names)
+local function excluded(line, hits)
+   return excluded_(exclusions, line)
+      or (hits == 0 and excluded_(hit0_exclusions,line))
+end
 
-   local summary = {}
-   local most_hits_length = ("%d"):format(most_hits):len()
-   local empty_format = (" "):rep(most_hits_length+1)
-   local zero_format = ("*"):rep(most_hits_length).."0"
-   local count_format = ("%% %dd"):format(most_hits_length+1)
+----------------------------------------------------------------
+local ReporterBase = {} do
+ReporterBase.__index = ReporterBase
 
-   local function excluded(exclusions,line)
-      for _, e in ipairs(exclusions) do
-         if e[1] then
-            if line:match("^ *"..e[2].." *$") or line:match("^ *"..e[2].." *%-%-") then return true end
-         else
-            if line:match(e[2]) then return true end
-         end
-      end
-      return false
-   end
+function ReporterBase:new(conf)
+  local stats = require("luacov.stats")
 
-   for _, filename in ipairs(names) do
-      local filedata = data[filename]
+  stats.statsfile = conf.statsfile
+  local data, most_hits = stats.load()
+
+  if not data then
+    return nil, "Could not load stats file " .. conf.statsfile .. ".", most_hits
+  end
+
+  local out, err = io.open(conf.reportfile, "w")
+  if not out then return nil, err end
+
+  local o = setmetatable({
+    _private = {
+      out  = out;
+      cfg  = conf;
+      data = data;
+      mhit = most_hits;
+    }
+  },self)
+  
+  return o
+end
+
+function ReporterBase:config()
+  return self._private.cfg
+end
+
+function ReporterBase:max_hits()
+  return self._private.mhit
+end
+
+function ReporterBase:write(...)
+  return self._private.out:write(...)
+end
+
+function ReporterBase:close()
+  self._private.out:close()
+  self._private = nil
+end
+
+local function norm_path(filename)
+  -- normalize paths in patterns
+  return (filename
+    :gsub("\\", "/")
+    :gsub("%.lua$", "")
+  )
+end
+
+local function file_included(self, filename)
+  local cfg = self._private.cfg
+  if (not cfg.include) or (not cfg.include[1]) then
+    return true
+  end
+
+  local path = norm_path(filename)
+  
+  for _, p in ipairs(cfg.include) do
+    if path:match(p) then return true end
+  end
+  
+  return false
+end
+
+local function file_excluded(self, filename)
+  local cfg = self._private.cfg
+  if (not cfg.exclude) or (not cfg.exclude[1]) then
+    return false
+  end
+
+  local path = norm_path(filename)
+
+  for _, p in ipairs(cfg.exclude) do
+    if path:match(p) then return true end
+  end
+
+  return false
+end
+
+function ReporterBase:files()
+  local data = self._private.data
+
+  local names = {}
+  for filename, _ in pairs(data) do
+    if file_included(self,filename) and not file_excluded(self, filename) then
+      names[#names + 1] = filename
+    end
+  end
+  table.sort(names)
+
+  return names
+end
+
+function ReporterBase:stats(filename)
+  return self._private.data[filename]
+end
+
+function ReporterBase:on_start()
+end
+
+function ReporterBase:on_new_file(filename)
+end
+
+function ReporterBase:on_empty_line(filename, lineno, line)
+end
+
+function ReporterBase:on_mis_line(filename, lineno, line)
+end
+
+function ReporterBase:on_hit_line(filename, lineno, line, hits)
+end
+
+function ReporterBase:on_end_file(filename, hits, miss)
+end
+
+function ReporterBase:on_end()
+end
+
+function ReporterBase:run()
+  self:on_start()
+
+  for _, filename in ipairs(self:files()) do
       local file = io.open(filename, "r")
-      if file then
-         report:write("\n")
-         report:write("==============================================================================\n")
-         report:write(filename, "\n")
-         report:write("==============================================================================\n")
+      local file_hits, file_miss = 0, 0
+      local ok, err
+      if file then ok, err = pcall(function() -- try
+         self:on_new_file(filename)
+         local filedata = self:stats(filename)
+
          local line_nr = 1
-         local file_hits, file_miss = 0, 0
          local block_comment, equals = false, ""
          local in_long_string, ls_equals = false, ""
+
          while true do
             local line = file:read("*l")
             if not line then break end
@@ -166,8 +234,7 @@ function M.report()
 
             local new_block_comment = false
             if not block_comment then
-               line = line:gsub("%s+", " ")
-               local l, equals = line:match("^(.*)%-%-%[(=*)%[")
+               local l l, equals = line:match("^(.*)%-%-%[(=*)%[")
                if l then
                   line = l
                   new_block_comment = true
@@ -182,56 +249,124 @@ function M.report()
             end
 
             local hits = filedata[line_nr] or 0
-            if block_comment or in_long_string or excluded(exclusions,line) or (hits == 0 and excluded(hit0_exclusions,line)) then
-               report:write(empty_format)
+            if block_comment or in_long_string or excluded(line, hits) then
+               self:on_empty_line(filename, line_nr, true_line)
             else
                if hits == 0 then
+                  self:on_mis_line(filename, line_nr, true_line)
                   file_miss = file_miss + 1
-                  report:write(zero_format)
                else
+                  self:on_hit_line(filename, line_nr, true_line, hits)
                   file_hits = file_hits + 1
-                  report:write(count_format:format(hits))
                end
             end
-            report:write("\t", true_line, "\n")
+
             if new_block_comment then block_comment = true end
+
             line_nr = line_nr + 1
-            summary[filename] = {
-               hits = file_hits,
-               miss = file_miss
-            }
          end
-         file:close()
-      end
+      end) -- finally
+      file:close()
+      assert(ok, err)
+      self:on_end_file(filename, file_hits, file_miss)
+    end
+  end
+
+  self:on_end()
+end
+
+end
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+local DefaultReporter = setmetatable({}, ReporterBase) do
+DefaultReporter.__index = DefaultReporter
+
+function DefaultReporter:on_start()
+  local most_hits = self:max_hits()
+  local most_hits_length = #("%d"):format(most_hits)
+
+  self._private.summary      = {}
+  self._private.empty_format = (" "):rep(most_hits_length + 1)
+  self._private.zero_format  = ("*"):rep(most_hits_length).."0"
+  self._private.count_format = ("%% %dd"):format(most_hits_length+1)
+end
+
+function DefaultReporter:on_new_file(filename)
+  self:write("\n")
+  self:write("==============================================================================\n")
+  self:write(filename, "\n")
+  self:write("==============================================================================\n")
+end
+
+function DefaultReporter:on_empty_line(filename, lineno, line)
+  self:write(self._private.empty_format, "\t", line, "\n")
+end
+
+function DefaultReporter:on_mis_line(filename, lineno, line)
+  self:write(self._private.zero_format, "\t", line, "\n")
+end
+
+function DefaultReporter:on_hit_line(filename, lineno, line, hits)
+  self:write(self._private.count_format:format(hits), "\t", line, "\n")
+end
+
+function DefaultReporter:on_end_file(filename, hits, miss)
+  self._private.summary[filename] = { hits = hits, miss = miss }
+end
+
+function DefaultReporter:on_end()
+  self:write("\n")
+  self:write("==============================================================================\n")
+  self:write("Summary\n")
+  self:write("==============================================================================\n")
+  self:write("\n")
+
+  local function write_total(hits, miss, filename)
+    self:write(hits, "\t", miss, "\t", ("%.2f%%"):format(hits/(hits+miss)*100.0), "\t", filename, "\n")
+  end
+
+  local total_hits, total_miss = 0, 0
+  for _, filename in ipairs(self:files()) do
+    local s = self._private.summary[filename]
+    if s then
+      write_total(s.hits, s.miss, filename)
+      total_hits = total_hits + s.hits
+      total_miss = total_miss + s.miss
+    end
+  end
+  self:write("------------------------\n")
+  write_total(total_hits, total_miss, "")
+end
+
+end
+----------------------------------------------------------------
+
+function M.report(Reporter)
+   local luacov = require("luacov.runner")
+   local configuration = luacov.load_config()
+
+   Reporter = Reporter or DefaultReporter
+
+   local reporter, err = Reporter:new(configuration)
+
+   if not reporter then
+      print(err)
+      print("Run your Lua program with -lluacov and then rerun luacov.")
+      os.exit(1)
    end
 
-   report:write("\n")
-   report:write("==============================================================================\n")
-   report:write("Summary\n")
-   report:write("==============================================================================\n")
-   report:write("\n")
-   
-   local function write_total(hits, miss, filename)
-      report:write(hits, "\t", miss, "\t", ("%.2f%%"):format(hits/(hits+miss)*100.0), "\t", filename, "\n")
-   end
-   
-   local total_hits, total_miss = 0, 0
-   for _, filename in ipairs(names) do
-      local s = summary[filename]
-      if s then
-         write_total(s.hits, s.miss, filename)
-         total_hits = total_hits + s.hits
-         total_miss = total_miss + s.miss
-      end
-   end
-   report:write("------------------------\n")
-   write_total(total_hits, total_miss, "")
+   reporter:run()
 
-   report:close()
+   reporter:close()
 
    if configuration.deletestats then
       os.remove(configuration.statsfile)
    end
 end
+
+M.ReporterBase    = ReporterBase
+
+M.DefaultReporter = DefaultReporter
 
 return M

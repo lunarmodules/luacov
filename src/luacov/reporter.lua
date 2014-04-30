@@ -94,101 +94,101 @@ local ReporterBase = {} do
 ReporterBase.__index = ReporterBase
 
 function ReporterBase:new(conf)
-  local stats = require("luacov.stats")
+   local stats = require("luacov.stats")
 
-  stats.statsfile = conf.statsfile
-  local data, most_hits = stats.load()
+   stats.statsfile = conf.statsfile
+   local data, most_hits = stats.load()
 
-  if not data then
-    return nil, "Could not load stats file " .. conf.statsfile .. ".", most_hits
-  end
+   if not data then
+      return nil, "Could not load stats file " .. conf.statsfile .. ".", most_hits
+   end
 
-  local out, err = io.open(conf.reportfile, "w")
-  if not out then return nil, err end
+   local out, err = io.open(conf.reportfile, "w")
+   if not out then return nil, err end
 
-  local o = setmetatable({
-    _private = {
-      out  = out;
-      cfg  = conf;
-      data = data;
-      mhit = most_hits;
-    }
-  },self)
+   local o = setmetatable({
+      _private = {
+        out  = out;
+        cfg  = conf;
+        data = data;
+        mhit = most_hits;
+      }
+   },self)
   
   return o
 end
 
 function ReporterBase:config()
-  return self._private.cfg
+   return self._private.cfg
 end
 
 function ReporterBase:max_hits()
-  return self._private.mhit
+   return self._private.mhit
 end
 
 function ReporterBase:write(...)
-  return self._private.out:write(...)
+   return self._private.out:write(...)
 end
 
 function ReporterBase:close()
-  self._private.out:close()
-  self._private = nil
+   self._private.out:close()
+   self._private = nil
 end
 
 local function norm_path(filename)
-  -- normalize paths in patterns
-  return (filename
-    :gsub("\\", "/")
-    :gsub("%.lua$", "")
-  )
+   -- normalize paths in patterns
+   return (filename
+      :gsub("\\", "/")
+      :gsub("%.lua$", "")
+   )
 end
 
 local function file_included(self, filename)
-  local cfg = self._private.cfg
-  if (not cfg.include) or (not cfg.include[1]) then
-    return true
-  end
+   local cfg = self._private.cfg
+   if (not cfg.include) or (not cfg.include[1]) then
+      return true
+   end
 
-  local path = norm_path(filename)
-  
-  for _, p in ipairs(cfg.include) do
-    if path:match(p) then return true end
-  end
-  
-  return false
+   local path = norm_path(filename)
+
+   for _, p in ipairs(cfg.include) do
+      if path:match(p) then return true end
+   end
+
+   return false
 end
 
 local function file_excluded(self, filename)
-  local cfg = self._private.cfg
-  if (not cfg.exclude) or (not cfg.exclude[1]) then
-    return false
-  end
+   local cfg = self._private.cfg
+   if (not cfg.exclude) or (not cfg.exclude[1]) then
+     return false
+   end
 
-  local path = norm_path(filename)
+   local path = norm_path(filename)
 
-  for _, p in ipairs(cfg.exclude) do
-    if path:match(p) then return true end
-  end
+   for _, p in ipairs(cfg.exclude) do
+      if path:match(p) then return true end
+   end
 
-  return false
+   return false
 end
 
 function ReporterBase:files()
-  local data = self._private.data
+   local data = self._private.data
 
-  local names = {}
-  for filename, _ in pairs(data) do
-    if file_included(self,filename) and not file_excluded(self, filename) then
-      names[#names + 1] = filename
-    end
-  end
-  table.sort(names)
+   local names = {}
+   for filename, _ in pairs(data) do
+      if file_included(self,filename) and not file_excluded(self, filename) then
+         names[#names + 1] = filename
+      end
+   end
+   table.sort(names)
 
-  return names
+   return names
 end
 
 function ReporterBase:stats(filename)
-  return self._private.data[filename]
+   return self._private.data[filename]
 end
 
 function ReporterBase:on_start()
@@ -213,9 +213,9 @@ function ReporterBase:on_end()
 end
 
 function ReporterBase:run()
-  self:on_start()
+   self:on_start()
 
-  for _, filename in ipairs(self:files()) do
+   for _, filename in ipairs(self:files()) do
       local file = io.open(filename, "r")
       local file_hits, file_miss = 0, 0
       local ok, err
@@ -234,7 +234,8 @@ function ReporterBase:run()
 
             local new_block_comment = false
             if not block_comment then
-               local l l, equals = line:match("^(.*)%-%-%[(=*)%[")
+               local l
+               l, equals = line:match("^(.*)%-%-%[(=*)%[")
                if l then
                   line = l
                   new_block_comment = true
@@ -266,13 +267,13 @@ function ReporterBase:run()
             line_nr = line_nr + 1
          end
       end) -- finally
-      file:close()
-      assert(ok, err)
-      self:on_end_file(filename, file_hits, file_miss)
-    end
-  end
+         file:close()
+         assert(ok, err)
+         self:on_end_file(filename, file_hits, file_miss)
+      end
+   end
 
-  self:on_end()
+   self:on_end()
 end
 
 end
@@ -283,60 +284,60 @@ local DefaultReporter = setmetatable({}, ReporterBase) do
 DefaultReporter.__index = DefaultReporter
 
 function DefaultReporter:on_start()
-  local most_hits = self:max_hits()
-  local most_hits_length = #("%d"):format(most_hits)
+   local most_hits = self:max_hits()
+   local most_hits_length = #("%d"):format(most_hits)
 
-  self._private.summary      = {}
-  self._private.empty_format = (" "):rep(most_hits_length + 1)
-  self._private.zero_format  = ("*"):rep(most_hits_length).."0"
-  self._private.count_format = ("%% %dd"):format(most_hits_length+1)
+   self._private.summary      = {}
+   self._private.empty_format = (" "):rep(most_hits_length + 1)
+   self._private.zero_format  = ("*"):rep(most_hits_length).."0"
+   self._private.count_format = ("%% %dd"):format(most_hits_length+1)
 end
 
 function DefaultReporter:on_new_file(filename)
-  self:write("\n")
-  self:write("==============================================================================\n")
-  self:write(filename, "\n")
-  self:write("==============================================================================\n")
+   self:write("\n")
+   self:write("==============================================================================\n")
+   self:write(filename, "\n")
+   self:write("==============================================================================\n")
 end
 
 function DefaultReporter:on_empty_line(filename, lineno, line)
-  self:write(self._private.empty_format, "\t", line, "\n")
+   self:write(self._private.empty_format, "\t", line, "\n")
 end
 
 function DefaultReporter:on_mis_line(filename, lineno, line)
-  self:write(self._private.zero_format, "\t", line, "\n")
+   self:write(self._private.zero_format, "\t", line, "\n")
 end
 
 function DefaultReporter:on_hit_line(filename, lineno, line, hits)
-  self:write(self._private.count_format:format(hits), "\t", line, "\n")
+   self:write(self._private.count_format:format(hits), "\t", line, "\n")
 end
 
 function DefaultReporter:on_end_file(filename, hits, miss)
-  self._private.summary[filename] = { hits = hits, miss = miss }
+   self._private.summary[filename] = { hits = hits, miss = miss }
 end
 
 function DefaultReporter:on_end()
-  self:write("\n")
-  self:write("==============================================================================\n")
-  self:write("Summary\n")
-  self:write("==============================================================================\n")
-  self:write("\n")
+   self:write("\n")
+   self:write("==============================================================================\n")
+   self:write("Summary\n")
+   self:write("==============================================================================\n")
+   self:write("\n")
 
-  local function write_total(hits, miss, filename)
-    self:write(hits, "\t", miss, "\t", ("%.2f%%"):format(hits/(hits+miss)*100.0), "\t", filename, "\n")
-  end
+   local function write_total(hits, miss, filename)
+      self:write(hits, "\t", miss, "\t", ("%.2f%%"):format(hits/(hits+miss)*100.0), "\t", filename, "\n")
+   end
 
-  local total_hits, total_miss = 0, 0
-  for _, filename in ipairs(self:files()) do
-    local s = self._private.summary[filename]
-    if s then
-      write_total(s.hits, s.miss, filename)
-      total_hits = total_hits + s.hits
-      total_miss = total_miss + s.miss
-    end
-  end
-  self:write("------------------------\n")
-  write_total(total_hits, total_miss, "")
+   local total_hits, total_miss = 0, 0
+   for _, filename in ipairs(self:files()) do
+      local s = self._private.summary[filename]
+      if s then
+         write_total(s.hits, s.miss, filename)
+         total_hits = total_hits + s.hits
+         total_miss = total_miss + s.miss
+      end
+   end
+   self:write("------------------------\n")
+   write_total(total_hits, total_miss, "")
 end
 
 end

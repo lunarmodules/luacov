@@ -107,31 +107,29 @@ function ReporterBase:new(conf)
    if not out then return nil, err end
 
    local o = setmetatable({
-      _private = {
-        out  = out;
-        cfg  = conf;
-        data = data;
-        mhit = most_hits;
-      }
-   },self)
+     _out  = out;
+     _cfg  = conf;
+     _data = data;
+     _mhit = most_hits;
+   }, self)
   
   return o
 end
 
 function ReporterBase:config()
-   return self._private.cfg
+   return self._cfg
 end
 
 function ReporterBase:max_hits()
-   return self._private.mhit
+   return self._mhit
 end
 
 function ReporterBase:write(...)
-   return self._private.out:write(...)
+   return self._out:write(...)
 end
 
 function ReporterBase:close()
-   self._private.out:close()
+   self._out:close()
    self._private = nil
 end
 
@@ -144,7 +142,7 @@ local function norm_path(filename)
 end
 
 local function file_included(self, filename)
-   local cfg = self._private.cfg
+   local cfg = self._cfg
    if (not cfg.include) or (not cfg.include[1]) then
       return true
    end
@@ -159,7 +157,7 @@ local function file_included(self, filename)
 end
 
 local function file_excluded(self, filename)
-   local cfg = self._private.cfg
+   local cfg = self._cfg
    if (not cfg.exclude) or (not cfg.exclude[1]) then
      return false
    end
@@ -174,7 +172,7 @@ local function file_excluded(self, filename)
 end
 
 function ReporterBase:files()
-   local data = self._private.data
+   local data = self._data
 
    local names = {}
    for filename, _ in pairs(data) do
@@ -188,7 +186,7 @@ function ReporterBase:files()
 end
 
 function ReporterBase:stats(filename)
-   return self._private.data[filename]
+   return self._data[filename]
 end
 
 function ReporterBase:on_start()
@@ -287,10 +285,10 @@ function DefaultReporter:on_start()
    local most_hits = self:max_hits()
    local most_hits_length = #("%d"):format(most_hits)
 
-   self._private.summary      = {}
-   self._private.empty_format = (" "):rep(most_hits_length + 1)
-   self._private.zero_format  = ("*"):rep(most_hits_length).."0"
-   self._private.count_format = ("%% %dd"):format(most_hits_length+1)
+   self._summary      = {}
+   self._empty_format = (" "):rep(most_hits_length + 1)
+   self._zero_format  = ("*"):rep(most_hits_length).."0"
+   self._count_format = ("%% %dd"):format(most_hits_length+1)
 end
 
 function DefaultReporter:on_new_file(filename)
@@ -301,19 +299,19 @@ function DefaultReporter:on_new_file(filename)
 end
 
 function DefaultReporter:on_empty_line(filename, lineno, line)
-   self:write(self._private.empty_format, "\t", line, "\n")
+   self:write(self._empty_format, "\t", line, "\n")
 end
 
 function DefaultReporter:on_mis_line(filename, lineno, line)
-   self:write(self._private.zero_format, "\t", line, "\n")
+   self:write(self._zero_format, "\t", line, "\n")
 end
 
 function DefaultReporter:on_hit_line(filename, lineno, line, hits)
-   self:write(self._private.count_format:format(hits), "\t", line, "\n")
+   self:write(self._count_format:format(hits), "\t", line, "\n")
 end
 
 function DefaultReporter:on_end_file(filename, hits, miss)
-   self._private.summary[filename] = { hits = hits, miss = miss }
+   self._summary[filename] = { hits = hits, miss = miss }
 end
 
 function DefaultReporter:on_end()
@@ -329,7 +327,7 @@ function DefaultReporter:on_end()
 
    local total_hits, total_miss = 0, 0
    for _, filename in ipairs(self:files()) do
-      local s = self._private.summary[filename]
+      local s = self._summary[filename]
       if s then
          write_total(s.hits, s.miss, filename)
          total_hits = total_hits + s.hits

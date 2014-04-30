@@ -63,9 +63,9 @@ end
 
 function CoverallsReporter:on_end()
    local msg = json.encode{
-     service_name   = self._service_name;
-     service_job_id = self._service_job_id;
-     source_files   = self._source_files;
+      service_name   = self._service_name;
+      service_job_id = self._service_job_id;
+      source_files   = self._source_files;
    }
    self:write(msg)
 end

@@ -107,10 +107,10 @@ function ReporterBase:new(conf)
    if not out then return nil, err end
 
    local o = setmetatable({
-     _out  = out;
-     _cfg  = conf;
-     _data = data;
-     _mhit = most_hits;
+      _out  = out;
+      _cfg  = conf;
+      _data = data;
+      _mhit = most_hits;
    }, self)
   
   return o

@@ -1,22 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head>
-    <title>
-    luacov: 
-     Luadocs Index</title>
+    <title>Reference</title>
     <link rel="stylesheet" href="luadoc.css" type="text/css" />
-    <!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
 </head>
 
 <body>
 <div id="container">
 
 <div id="product">
-    <div id="product_logo"></div>
-    <div id="product_name"><big><b></b></big></div>
-    <div id="product_description"></div>
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
 </div> <!-- id="product" -->
 
 <div id="main">
@@ -24,7 +21,7 @@
 <div id="navigation">
 
 
-<h2>LuaDoc</h2>
+<h1>LuaDoc</h1>
 <ul>
 	
 	<li><strong>Index</strong></li>
@@ -34,52 +31,27 @@
 
 <!-- Module list -->
 
-<h2>Modules</h2>
-<ul>
-
-	<li>
-		<a href="modules/luacov.html">luacov</a>
-	</li>
-
-	<li>
-		<a href="modules/luacov.defaults.html">luacov.defaults</a>
-	</li>
-
-	<li>
-		<a href="modules/luacov.reporter.html">luacov.reporter</a>
-	</li>
-
-	<li>
-		<a href="modules/luacov.runner.html">luacov.runner</a>
-	</li>
-
-	<li>
-		<a href="modules/luacov.stats.html">luacov.stats</a>
-	</li>
-
-	<li>
-		<a href="modules/luacov.tick.html">luacov.tick</a>
-	</li>
-
-</ul>
-
 
 
 <!-- File list -->
 
-<h2>Files</h2>
+<h1>Files</h1>
 <ul>
+
+	<li>
+		<a href="files/src/luacov.html">src/luacov.lua</a>
+	</li>
 
 	<li>
 		<a href="files/src/luacov/defaults.html">src/luacov/defaults.lua</a>
 	</li>
 
 	<li>
-		<a href="files/src/luacov/init.html">src/luacov/init.lua</a>
+		<a href="files/src/luacov/reporter.html">src/luacov/reporter.lua</a>
 	</li>
 
 	<li>
-		<a href="files/src/luacov/reporter.html">src/luacov/reporter.lua</a>
+		<a href="files/src/luacov/reporter/coveralls.html">src/luacov/reporter/coveralls.lua</a>
 	</li>
 
 	<li>
@@ -106,47 +78,6 @@
 <div id="content">
 
 
-<div id="readme">
-<br/><h2>Overview</h2><br/><br/><p>LuaCov is a simple coverage analyzer for <a href="http://www.lua.org">Lua</a> scripts. When a Lua script is run with the <code>luacov</code> module loaded, it generates a stats file with the number of executions of each line of the script and its loaded modules. The <code>luacov</code> command-line script then processes this file generating a report file which allows one to visualize which code paths were not traversed, which is useful for verifying the effectiveness of a test suite.</p><br/><br/><p>LuaCov is free software and, like Lua, is released under the <a href="http://www.lua.org/license.html">MIT License</a>.</p><br/><br/><h2>Download and Installation</h2><br/><br/><p>LuaCov can be downloaded from its <a href="http://luaforge.net/projects/luacov/files">LuaForge page</a>.</p><br/><br/><p>It can also be installed using Luarocks:</p><br/><br/><pre><code>luarocks install luacov<br/></code></pre><br/><br/><p>LuaCov is written in pure Lua and has no external dependencies.</p><br/><br/><h2>Instructions</h2><br/><br/><p>Using LuaCov consists of two steps: running your script to collect coverage data, and then running <code>luacov</code> on the collected data to generate a report (see <em>configuration</em> below for other options).</p><br/><br/><p>To collect coverage data, your script needs to load the <code>luacov</code> Lua module. This can be done from the command-line, without modifying your script, like this:</p><br/><br/><pre><code>lua -lluacov test.lua<br/></code></pre><br/><br/><p>Alternatively, you can add <code>require("luacov")</code> to the first line of your script.</p><br/><br/><p>Once the script is run, a file called <code>luacov.stats.out</code> is generated. If the file already exists, statistics are <em>added</em> to it. This is useful, for example, for making a series of runs with different input parameters in<br/>a test suite. To start the accounting from scratch, just delete the stats file.</p><br/><br/><p>To generate a report, just run the <code>luacov</code> command-line script. It expects to find a file named <code>luacov.stats.out</code> in the current directory, and outputs a file named <code>luacov.report.out</code>. The script take the following parameters;</p><br/><br/><pre><code>luacov [-c=configfile] [filename [ filename[ ...]]]<br/></code></pre><br/><br/><p>For the <code>-c</code> option see below at <em>configuration</em>. The filenames (actually patterns) indicate the files to include in the report, specifying them here equals to adding them to the <code>include</code> list in the configuration file.</p><br/><br/><p>This is an example output of the report file:</p><br/><br/><pre><code>============================================================<br/>../test.lua<br/>============================================================<br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- Which branch will run?<br/>1       if 10 &gt; 100 then<br/>0          print("I don't think this line will execute.")<br/>0       else<br/>1          print("Hello, LuaCov!")<br/>1       end<br/></code></pre><br/><br/><p>Note that to generate this report, <code>luacov</code> reads the source files. Therefore, it expects to find them in the same location they were when the <code>luacov</code> module ran (the stats file stores the filenames, but not the sources themselves).</p><br/><br/><p>LuaCov saves its stats upon normal program termination. If your program is a daemon -- in other words, if it does not terminate normally -- you can use the <code>luacov.tick</code> module, which periodically saves the stats file. For example, to run (on Unix systems) LuaCov on<br/><a href="http://www.keplerproject.org/xavante">Xavante</a>, just modify the first line of <code>xavante_start.lua</code> so it reads:</p><br/><br/><pre><code>#!/usr/bin/env lua -lluacov.tick<br/></code></pre><br/><br/><br/><h2>Configuration</h2><br/><br/><p>LuaCov includes several configuration options, which have their defaults stored in <code>/luacov/defaults.lua</code>. These are the global defaults. To create project specific defaults, copy the file and store it as <code>.luacov</code> in the project directory from where <code>luacov</code> is being run.</p><br/><br/><p>Options include changing filenames, automatic report generation upon completion and removal of the stats after generating the report.</p><br/><br/><br/><h2>Credits</h2><br/><br/><p>LuaCov was designed and implemented by Hisham Muhammad as a tool for testing <a href="http://luarocks.luaforge.net">Luarocks</a>.</p><br/><br/>
-</div>
-
-
-
-<h2>Modules</h2>
-<table class="module_list">
-<!--<tr><td colspan="2">Modules</td></tr>-->
-
-    <tr>
-        <td class="name"><a href="modules/luacov.html">luacov</a></td>
-        <td class="summary">Loads <code>luacov.runner</code> and immediately starts it by calling the module table without a configfile.</td>
-    </tr>
-
-    <tr>
-        <td class="name"><a href="modules/luacov.defaults.html">luacov.defaults</a></td>
-        <td class="summary">Global configuration file.</td>
-    </tr>
-
-    <tr>
-        <td class="name"><a href="modules/luacov.reporter.html">luacov.reporter</a></td>
-        <td class="summary">Report module, will transform statistics file into a report.</td>
-    </tr>
-
-    <tr>
-        <td class="name"><a href="modules/luacov.runner.html">luacov.runner</a></td>
-        <td class="summary">Statistics collecting module.</td>
-    </tr>
-
-    <tr>
-        <td class="name"><a href="modules/luacov.stats.html">luacov.stats</a></td>
-        <td class="summary">Manages the file with statistics (being) collected.</td>
-    </tr>
-
-    <tr>
-        <td class="name"><a href="modules/luacov.tick.html">luacov.tick</a></td>
-        <td class="summary">Load luacov using this if you want it to periodically save the stats file.</td>
-    </tr>
-
-</table>
 
 
 
@@ -156,35 +87,40 @@
 <table class="file_list">
 <!--<tr><td colspan="2">Files</td></tr>-->
 
-    <tr>
-        <td class="name"><a href="files/src/luacov/defaults.html">src/luacov/defaults.lua</a></td>
-        <td class="summary"></td>
-    </tr>
+	<tr>
+		<td class="name"><a href="files/src/luacov.html">src/luacov.lua</a></td>
+		<td class="summary"></td>
+	</tr>
 
-    <tr>
-        <td class="name"><a href="files/src/luacov/init.html">src/luacov/init.lua</a></td>
-        <td class="summary"></td>
-    </tr>
+	<tr>
+		<td class="name"><a href="files/src/luacov/defaults.html">src/luacov/defaults.lua</a></td>
+		<td class="summary"></td>
+	</tr>
 
-    <tr>
-        <td class="name"><a href="files/src/luacov/reporter.html">src/luacov/reporter.lua</a></td>
-        <td class="summary"></td>
-    </tr>
+	<tr>
+		<td class="name"><a href="files/src/luacov/reporter.html">src/luacov/reporter.lua</a></td>
+		<td class="summary"></td>
+	</tr>
 
-    <tr>
-        <td class="name"><a href="files/src/luacov/runner.html">src/luacov/runner.lua</a></td>
-        <td class="summary"></td>
-    </tr>
+	<tr>
+		<td class="name"><a href="files/src/luacov/reporter/coveralls.html">src/luacov/reporter/coveralls.lua</a></td>
+		<td class="summary"></td>
+	</tr>
 
-    <tr>
-        <td class="name"><a href="files/src/luacov/stats.html">src/luacov/stats.lua</a></td>
-        <td class="summary"></td>
-    </tr>
+	<tr>
+		<td class="name"><a href="files/src/luacov/runner.html">src/luacov/runner.lua</a></td>
+		<td class="summary"></td>
+	</tr>
 
-    <tr>
-        <td class="name"><a href="files/src/luacov/tick.html">src/luacov/tick.lua</a></td>
-        <td class="summary"></td>
-    </tr>
+	<tr>
+		<td class="name"><a href="files/src/luacov/stats.html">src/luacov/stats.lua</a></td>
+		<td class="summary"></td>
+	</tr>
+
+	<tr>
+		<td class="name"><a href="files/src/luacov/tick.html">src/luacov/tick.lua</a></td>
+		<td class="summary"></td>
+	</tr>
 
 </table>
 
@@ -194,9 +130,9 @@
 </div> <!-- id="main" -->
 
 <div id="about">
-    <p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
+	<p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
 </div> <!-- id="about" -->
 
-</div> <!-- id="container" -->
+</div> <!-- id="container" -->	
 </body>
 </html>

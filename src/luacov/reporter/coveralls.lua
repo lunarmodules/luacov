@@ -1,3 +1,6 @@
+
+local coveralls = {}
+
 local json = require "json"
 local luacov_reporter = require "luacov.reporter"
 
@@ -73,10 +76,8 @@ end
 end
 ----------------------------------------------------------------
 
-local M = {}
-
-function M.report()
+function coveralls.report()
    return luacov_reporter.report(CoverallsReporter)
 end
 
-return M
+return coveralls

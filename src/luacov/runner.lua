@@ -4,10 +4,10 @@
 -- @class module
 -- @name luacov.runner
 
-local M = {}
+local runner = {}
 
 local stats = require("luacov.stats")
-M.defaults = require("luacov.defaults")
+runner.defaults = require("luacov.defaults")
 
 local unpack   = unpack or table.unpack
 local pack     = table.pack or function(...) return { n = select('#', ...), ... } end
@@ -19,7 +19,7 @@ local ctr = 0
 local luacovlock = os.tmpname()
 
 local filelist = {}
-M.filelist = filelist
+runner.filelist = filelist
 
 local function on_line(_, line_nr)
    if tick then
@@ -42,19 +42,19 @@ local function on_line(_, line_nr)
       local include = false
       -- normalize paths in patterns
       local path = name:gsub("\\", "/"):gsub("%.lua$", "")
-      if not M.configuration.include[1] then
+      if not runner.configuration.include[1] then
          include = true  -- no include list --> then everything is included by default
       else
          include = false
-         for _, p in ipairs(M.configuration.include or {}) do
+         for _, p in ipairs(runner.configuration.include or {}) do
             if path:match(p) then
                include = true
                break
             end
          end
       end
-      if include and M.configuration.exclude[1] then
-         for _, p in ipairs(M.configuration.exclude) do
+      if include and runner.configuration.exclude[1] then
+         for _, p in ipairs(runner.configuration.exclude) do
             if path:match(p) then
                include = false
                break
@@ -91,7 +91,7 @@ local function on_exit()
    stats.save(data, statsfile)
    stats.stop(statsfile)
 
-   if M.configuration.runreport then run_report() end
+   if runner.configuration.runreport then run_report() end
 end
 
 ------------------------------------------------------
@@ -99,14 +99,14 @@ end
 -- @param configuration user provided config (config-table or filename)
 -- @return existing configuration if already set, otherwise loads a new
 -- config from the provided data or the defaults
-function M.load_config(configuration)
-  if not M.configuration then
+function runner.load_config(configuration)
+  if not runner.configuration then
     if not configuration then
       -- nothing provided, try and load from defaults
       local success
-      success, configuration = pcall(dofile, M.defaults.configfile)
+      success, configuration = pcall(dofile, runner.defaults.configfile)
       if not success then
-        configuration = M.defaults
+        configuration = runner.defaults
       end
     elseif type(configuration) == "string" then
       configuration = dofile(configuration)
@@ -115,28 +115,28 @@ function M.load_config(configuration)
     else
       error("Expected filename, config table or nil. Got " .. type(configuration))
     end
-    M.configuration = configuration
+    runner.configuration = configuration
   end
-  return M.configuration
+  return runner.configuration
 end
 
 --------------------------------------------------
 -- Initializes LuaCov runner to start collecting data.
 -- @param configuration if string, filename of config file (used to call <code>load_config</code>).
 -- If table then config table (see file <code>luacov.default.lua</code> for an example)
-function M.init(configuration)
-  M.configuration = M.load_config(configuration)
+function runner.init(configuration)
+  runner.configuration = runner.load_config(configuration)
 
-  stats.statsfile = M.configuration.statsfile
+  stats.statsfile = runner.configuration.statsfile
 
   data = stats.load() or {}
   statsfile = stats.start()
-  M.statsfile = statsfile
+  runner.statsfile = statsfile
   tick = package.loaded["luacov.tick"]
 
    if not tick then
-      M.on_exit_trick = io.open(luacovlock, "w")
-      debug.setmetatable(M.on_exit_trick, { __gc = on_exit } )
+      runner.on_exit_trick = io.open(luacovlock, "w")
+      debug.setmetatable(runner.on_exit_trick, { __gc = on_exit } )
    end
    -- metatable trick on filehandle won't work if Lua exits through
    -- os.exit() hence wrap that with exit code as well
@@ -175,7 +175,7 @@ end
 -- Shuts down LucCov's runner.
 -- This should only be called from daemon processes or sandboxes which have
 -- disabled os.exit and other hooks that are used to determine shutdown.
-function M.shutdown()
+function runner.shutdown()
   on_exit()
 end
 
@@ -297,15 +297,15 @@ end
 --             function; where containing file is looked up,
 --             table;    module table where containing file is looked up
 -- @return the pattern as added to the list, or nil + error
-function M.excludefile(name)
-  return checkresult(pcall(addfiletolist, name, M.configuration.exclude))
+function runner.excludefile(name)
+  return checkresult(pcall(addfiletolist, name, runner.configuration.exclude))
 end
 -------------------------------------------------------------------
 -- Adds a file to the include list (see <code>defaults.lua</code>).
 -- @param name see <code>excludefile</code>
 -- @return the pattern as added to the list, or nil + error
-function M.includefile(name)
-  return checkresult(pcall(addfiletolist, name, M.configuration.include))
+function runner.includefile(name)
+  return checkresult(pcall(addfiletolist, name, runner.configuration.include))
 end
 -------------------------------------------------------------------
 -- Adds a tree to the exclude list (see <code>defaults.lua</code>).
@@ -317,17 +317,17 @@ end
 -- @param name see <code>excludefile</code>
 -- @param level if truthy then one level up is added, including the tree
 -- @return the 2 patterns as added to the list (file and tree), or nil + error
-function M.excludetree(name, level)
-  return checkresult(pcall(addtreetolist, name, level, M.configuration.exclude))
+function runner.excludetree(name, level)
+  return checkresult(pcall(addtreetolist, name, level, runner.configuration.exclude))
 end
 -------------------------------------------------------------------
 -- Adds a tree to the include list (see <code>defaults.lua</code>).
 -- @param name see <code>excludefile</code>
 -- @param level see <code>includetree</code>
 -- @return the 2 patterns as added to the list (file and tree), or nil + error
-function M.includetree(name, level)
-  return checkresult(pcall(addtreetolist, name, level, M.configuration.include))
+function runner.includetree(name, level)
+  return checkresult(pcall(addtreetolist, name, level, runner.configuration.include))
 end
 
 
-return setmetatable(M, { ["__call"] = function(self, configfile) M.init(configfile) end })
+return setmetatable(runner, { ["__call"] = function(self, configfile) runner.init(configfile) end })

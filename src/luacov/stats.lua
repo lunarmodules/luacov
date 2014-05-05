@@ -4,28 +4,28 @@
 -- has been set to the filename of the statsfile to create, load, etc.
 -- @class module
 -- @name luacov.stats
-local M = {}
+local stats = {}
 
 -----------------------------------------------------
 -- Loads the stats file.
 -- @return table with data
 -- @return hitcount of the line with the most hits (to provide the widest number format for reporting)
-function M.load()
+function stats.load()
    local data, most_hits = {}, 0
-   local stats = io.open(M.statsfile, "r")
-   if not stats then
+   local fd = io.open(stats.statsfile, "r")
+   if not fd then
       return nil
    end
    while true do
-      local nlines = stats:read("*n")
+      local nlines = fd:read("*n")
       if not nlines then
          break
       end
-      local skip = stats:read(1)
+      local skip = fd:read(1)
       if skip ~= ":" then
          break
       end
-      local filename = stats:read("*l")
+      local filename = fd:read("*l")
       if not filename then
          break
       end
@@ -33,11 +33,11 @@ function M.load()
          max=nlines
       }
       for i = 1, nlines do
-         local hits = stats:read("*n")
+         local hits = fd:read("*n")
          if not hits then
             break
          end
-         local skip = stats:read(1)
+         local skip = fd:read(1)
          if skip ~= " " then
             break
          end
@@ -47,43 +47,43 @@ function M.load()
          end
       end
    end
-   stats:close()
+   fd:close()
    return data, most_hits
 end
 
 --------------------------------
 -- Opens the statfile
 -- @return filehandle
-function M.start()
-   return io.open(M.statsfile, "w")
+function stats.start()
+   return io.open(stats.statsfile, "w")
 end
 
 --------------------------------
 -- Closes the statfile
--- @param stats filehandle to the statsfile
-function M.stop(stats)
-   stats:close()
+-- @param fd filehandle to the statsfile
+function stats.stop(fd)
+   fd:close()
 end
 
 --------------------------------
 -- Saves data to the statfile
 -- @param data data to store
--- @param stats filehandle where to store
-function M.save(data, stats)
-   stats:seek("set")
+-- @param fd filehandle where to store
+function stats.save(data, fd)
+   fd:seek("set")
    for filename, filedata in pairs(data) do
       local max = filedata.max
-      stats:write(max, ":", filename, "\n")
+      fd:write(max, ":", filename, "\n")
       for i = 1, max do
          local hits = filedata[i]
          if not hits then
             hits = 0
          end
-         stats:write(hits, " ")
+         fd:write(hits, " ")
       end
-      stats:write("\n")
+      fd:write("\n")
    end
-   stats:flush()
+   fd:flush()
 end
 
-return M
+return stats

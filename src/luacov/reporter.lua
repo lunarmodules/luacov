@@ -2,7 +2,7 @@
 -- Report module, will transform statistics file into a report.
 -- @class module
 -- @name luacov.reporter
-local M = {}
+local reporter = {}
 
 --- Utility function to make patterns more readable
 local function fixup(pat)
@@ -344,31 +344,31 @@ end
 end
 ----------------------------------------------------------------
 
-function M.report(Reporter)
+function reporter.report(reporter_class)
    local luacov = require("luacov.runner")
    local configuration = luacov.load_config()
 
-   Reporter = Reporter or DefaultReporter
+   reporter_class = reporter_class or DefaultReporter
 
-   local reporter, err = Reporter:new(configuration)
+   local rep, err = reporter_class:new(configuration)
 
-   if not reporter then
+   if not rep then
       print(err)
       print("Run your Lua program with -lluacov and then rerun luacov.")
       os.exit(1)
    end
 
-   reporter:run()
+   rep:run()
 
-   reporter:close()
+   rep:close()
 
    if configuration.deletestats then
       os.remove(configuration.statsfile)
    end
 end
 
-M.ReporterBase    = ReporterBase
+reporter.ReporterBase    = ReporterBase
 
-M.DefaultReporter = DefaultReporter
+reporter.DefaultReporter = DefaultReporter
 
-return M
+return reporter

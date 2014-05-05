@@ -212,7 +212,10 @@ function M.report()
    report:write("\n")
    
    local function write_total(hits, miss, filename)
-      report:write(hits, "\t", miss, "\t", ("%.2f%%"):format(hits/(hits+miss)*100.0), "\t", filename, "\n")
+      local total = hits + miss
+      if total == 0 then total = 1 end
+
+      report:write(hits, "\t", miss, "\t", ("%.2f%%"):format(hits/(total)*100.0), "\t", filename, "\n")
    end
    
    local total_hits, total_miss = 0, 0

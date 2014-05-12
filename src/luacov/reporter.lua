@@ -46,10 +46,12 @@ end
 local exclusions = {
    { false, "^#!" },     -- Unix hash-bang magic line
    { true, "" },         -- Empty line
-   { true, fixup "end,?" },    -- Single "end"
+   { true, fixup "end[,;)]?" },-- Single "end"
    { true, fixup "else" },     -- Single "else"
    { true, fixup "repeat" },   -- Single "repeat"
    { true, fixup "do" },       -- Single "do"
+   { true, fixup "if" },       -- Single "if"
+   { true, fixup "then" },     -- Single "then"
    { true, fixup "while true do" }, -- "while true do" generates no code
    { true, fixup "if true then" }, -- "if true then" generates no code
    { true, fixup "local <IDS>" }, -- "local var1, ..., varN"

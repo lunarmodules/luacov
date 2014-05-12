@@ -76,7 +76,7 @@ local hit0_exclusions = {
 local function excluded_(exclusions,line)
    for _, e in ipairs(exclusions) do
       if e[1] then
-         if line:match("^ *"..e[2].." *$") or line:match("^ *"..e[2].." *%-%-") then return true end
+         if line:match("^%s*"..e[2].."%s*$") or line:match("^%s*"..e[2].."%s*%-%-") then return true end
       else
          if line:match(e[2]) then return true end
       end

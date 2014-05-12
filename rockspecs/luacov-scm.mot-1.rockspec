@@ -1,5 +1,5 @@
 package = "LuaCov"
-version = "scm-mot-1"
+version = "scm.mot-1"
 source = {
    url = "git://github.com/moteus/luacov",
    branch = "moteus",
@@ -26,7 +26,7 @@ build = {
     ["luacov"                  ] = "src/luacov.lua",
     ["luacov.defaults"         ] = "src/luacov/defaults.lua",
     ["luacov.reporter"         ] = "src/luacov/reporter.lua",
-    ["luacov.reporter.default" ] = "src/luacov/reporter/.default.lua",
+    ["luacov.reporter.default" ] = "src/luacov/reporter/default.lua",
     ["luacov.runner"           ] = "src/luacov/runner.lua",
     ["luacov.stats"            ] = "src/luacov/stats.lua",
     ["luacov.tick"             ] = "src/luacov/tick.lua",

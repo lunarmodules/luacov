@@ -78,3 +78,38 @@ function test8()
 end
 test8()
 
+function test9()
+    local function foo(f)
+        return function() -- MISSED BY LUACOV
+            a = a
+        end
+    end
+    foo()()
+
+    print("test9")
+end
+test9()
+
+function test10()
+    local s = {
+        a = 1; -- MISSED BY LUACOV
+        b = 2, -- MISSED BY LUACOV
+        c = 3  -- MISSED BY LUACOV
+    }
+
+    print("test10")
+end
+test10()
+
+function test11()
+    local function foo(f)
+        return 1, 2, function() -- MISSED BY LUACOV
+            a = a
+        end
+    end
+    local a,b,c = foo()
+    c()
+
+    print("test11")
+end
+test11()

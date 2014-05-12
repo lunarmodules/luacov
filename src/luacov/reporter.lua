@@ -63,9 +63,11 @@ local exclusions = {
 --- Lines that are only excluded from accounting when they have 0 hits
 local hit0_exclusions = {
    { true, "[%w_,='\" ]+," }, -- "var1 var2," multi columns table stuff
-   { true, fixup "<FIELDNAME>=.+," }, -- "[123] = 23," "['foo'] = "asd","
+   { true, fixup "<FIELDNAME>=.+[,;]" }, -- "[123] = 23," "['foo'] = "asd","
    { true, fixup "<ARGS>*function(<ARGS>)" }, -- "1,2,function(...)"
-   { true, fixup "function(<ARGS>)" }, -- "local a = function(arg1, ..., argN)"
+   { true, fixup "return <ARGS>*function(<ARGS>)" }, -- "return 1,2,function(...)"
+   { true, fixup "return function(<ARGS>)" }, -- "return function(arg1, ..., argN)"
+   { true, fixup "function(<ARGS>)" }, -- "function(arg1, ..., argN)"
    { true, fixup "local <ID>=function(<ARGS>)" }, -- "local a = function(arg1, ..., argN)"
    { true, fixup "<FULLID>=function(<ARGS>)" }, -- "a = function(arg1, ..., argN)"
    { true, fixup "break" }, -- "break" generates no trace in Lua 5.2

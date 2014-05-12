@@ -46,10 +46,12 @@ end
 local exclusions = {
    { false, "^#!" },     -- Unix hash-bang magic line
    { true, "" },         -- Empty line
-   { true, fixup "end,?" },    -- Single "end"
+   { true, fixup "end[,;)]?" },-- Single "end"
    { true, fixup "else" },     -- Single "else"
    { true, fixup "repeat" },   -- Single "repeat"
    { true, fixup "do" },       -- Single "do"
+   { true, fixup "if" },       -- Single "if"
+   { true, fixup "then" },     -- Single "then"
    { true, fixup "while true do" }, -- "while true do" generates no code
    { true, fixup "if true then" }, -- "if true then" generates no code
    { true, fixup "local <IDS>" }, -- "local var1, ..., varN"
@@ -61,9 +63,11 @@ local exclusions = {
 --- Lines that are only excluded from accounting when they have 0 hits
 local hit0_exclusions = {
    { true, "[%w_,='\" ]+," }, -- "var1 var2," multi columns table stuff
-   { true, fixup "<FIELDNAME>=.+," }, -- "[123] = 23," "['foo'] = "asd","
+   { true, fixup "<FIELDNAME>=.+[,;]" }, -- "[123] = 23," "['foo'] = "asd","
    { true, fixup "<ARGS>*function(<ARGS>)" }, -- "1,2,function(...)"
-   { true, fixup "function(<ARGS>)" }, -- "local a = function(arg1, ..., argN)"
+   { true, fixup "return <ARGS>*function(<ARGS>)" }, -- "return 1,2,function(...)"
+   { true, fixup "return function(<ARGS>)" }, -- "return function(arg1, ..., argN)"
+   { true, fixup "function(<ARGS>)" }, -- "function(arg1, ..., argN)"
    { true, fixup "local <ID>=function(<ARGS>)" }, -- "local a = function(arg1, ..., argN)"
    { true, fixup "<FULLID>=function(<ARGS>)" }, -- "a = function(arg1, ..., argN)"
    { true, fixup "break" }, -- "break" generates no trace in Lua 5.2
@@ -76,7 +80,7 @@ local hit0_exclusions = {
 local function excluded_(exclusions,line)
    for _, e in ipairs(exclusions) do
       if e[1] then
-         if line:match("^ *"..e[2].." *$") or line:match("^ *"..e[2].." *%-%-") then return true end
+         if line:match("^%s*"..e[2].."%s*$") or line:match("^%s*"..e[2].."%s*%-%-") then return true end
       else
          if line:match(e[2]) then return true end
       end

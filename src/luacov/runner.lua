@@ -79,8 +79,13 @@ local function on_line(_, line_nr)
    file[line_nr] = (file[line_nr] or 0) + 1
 end
 
-local function run_report()
-  local success, error = pcall(function() require("luacov.reporter").report() end)
+local function run_report(configuration)
+  local reporter = "luacov.reporter"
+  if configuration.reporter then
+    reporter = reporter .. "." .. configuration.reporter
+  end
+
+  local success, error = pcall(function() require(reporter).report() end)
   if not success then
     print ("LuaCov reporting error; "..tostring(error))
   end
@@ -91,7 +96,7 @@ local function on_exit()
    stats.save(data, statsfile)
    stats.stop(statsfile)
 
-   if runner.configuration.runreport then run_report() end
+   if runner.configuration.runreport then run_report(runner.configuration) end
 end
 
 ------------------------------------------------------

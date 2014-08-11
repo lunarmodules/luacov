@@ -8,6 +8,7 @@ local arg = { ... }
 
 local runner = require("luacov.runner")
 local reporter = require("luacov.reporter")
+local custom_reporter = nil
 
 local patterns = {}
 local configfile = nil
@@ -17,7 +18,7 @@ local function show_help()
 luacov - coverage analyzer for Lua scripts
 
 Usage:
-   luacov [-c=configfile] [pattern...]
+   luacov [-c=configfile] [-r=reporter] [pattern...]
 
    Launch your Lua programs with -lluacov to perform accounting.
    
@@ -38,26 +39,59 @@ Example:
 ]])
 end
 
+local function read_key(arg, i)
+   if arg[i]:sub(1,1) ~= '-' then return nil, nil, i end
+   if not arg[i]:sub(2,2) then return "-", nil, i+1 end
+
+   local key, value
+   if arg[i]:sub(2,2) ~= '-' then
+      key   = arg[i]:sub(2,2)
+      value = arg[i]:sub(3)
+      if #value == 0 then
+         i = i + 1
+         value = arg[i]
+      elseif value:sub(1,1) == '=' then
+         value = value:sub(2)
+      end
+      return key, value, i + 1
+   end
+
+   key = arg[i]:sub(3):match("^([^=]+)=")
+   if key then
+      value = arg[i]:sub(4 + #key)
+      return key, value, i+1
+   end
+
+   return arg[i]:sub(3), arg[i+1], i+2
+end
+
+local function norm_pat(p)
+  return((p
+    :gsub("/", ".")
+    :gsub("\\", ".")
+    :gsub("%.lua$", ""))
+  )
+end
+
 -- only report on files specified on the command line
-local next_is_config = false
-for i = 1, #arg do
-   if next_is_config then
-      configfile = arg[i]
-      next_is_config = false
-   elseif arg[i] == "--help" then
-      show_help()
-      os.exit(0)
-   elseif arg[i] == "-c" then
-      next_is_config = true
-   elseif arg[i]:sub(1,3) == "-c=" then
-      configfile = arg[i]:sub(4)
-   elseif arg[i]:sub(1,9) == "--config=" then
-      configfile = arg[i]:sub(10)
-   elseif arg[i]:sub(1,2) == "-c" then
-      configfile = arg[i]:sub(3)
+
+local i = 1
+while arg[i] do
+   local key, value
+   key, value, i = read_key(arg, i)
+   if key then
+      if (key == "h") or (key == "help") then
+         show_help()
+         os.exit(0)
+      elseif (key == "c") or (key == "config") then
+         configfile = value
+      elseif (key == "r") or (key == "reporter") then
+         reporter = require("luacov.reporter." .. value)
+         custom_reporter = true
+      end
    else
-      -- normalize paths in patterns
-      table.insert(patterns, (arg[i]:gsub("/", "."):gsub("\\", "."):gsub("%.lua$", "")))
+      table.insert(patterns, norm_pat(arg[i]))
+      i = i +1
    end
 end
 
@@ -70,6 +104,10 @@ configuration.exclude = configuration.exclude or {}
 -- add elements specified on commandline to config
 for i, patt in ipairs(patterns) do
   table.insert(configuration.include, patt)
+end
+
+if (not custom_reporter) and (configuration.reporter) then
+   reporter = require("luacov.reporter." .. configuration.reporter)
 end
 
 reporter.report()

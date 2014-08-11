@@ -16,7 +16,7 @@ local data
 local statsfile
 local tick
 local ctr = 0
-local luacovlock = os.tmpname()
+local luacovlock = (os.getenv("TMP") or "") .. os.tmpname()
 
 local filelist = {}
 runner.filelist = filelist

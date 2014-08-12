@@ -108,7 +108,8 @@ end
 local function on_exit()
    -- Lua >=5.2 could call __gc when user call os.exit
    -- so this method could be called twice
-   on_exit = function() end
+   if not on_exit then return end
+   on_exit = false
 
    stats.save(data, statsfile)
    stats.stop(statsfile)
@@ -138,7 +139,7 @@ function runner.load_config(configuration)
       error("Expected filename, config table or nil. Got " .. type(configuration))
     end
     runner.configuration = configuration
-    end
+  end
   return runner.configuration
 end
 

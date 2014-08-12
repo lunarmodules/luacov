@@ -13,7 +13,8 @@ local debug    = require"debug"
 local unpack   = unpack or table.unpack
 local pack     = table.pack or function(...) return { n = select('#', ...), ... } end
 
-local on_exit_wrap do
+local on_exit_wrap
+do
   if newproxy then
     on_exit_wrap = function(fn)
       local p = newproxy()
@@ -105,11 +106,13 @@ local function run_report(configuration)
   end
 end
 
+local on_exit_run_once = false
+
 local function on_exit()
-   -- Lua >=5.2 could call __gc when user call os.exit
+   -- Lua >= 5.2 could call __gc when user call os.exit
    -- so this method could be called twice
-   if not on_exit then return end
-   on_exit = false
+   if on_exit_run_once then return end
+   on_exit_run_once = true
 
    stats.save(data, statsfile)
    stats.stop(statsfile)

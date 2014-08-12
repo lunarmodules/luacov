@@ -9,14 +9,28 @@ local runner = {}
 local stats = require("luacov.stats")
 runner.defaults = require("luacov.defaults")
 
+local debug    = require"debug"
 local unpack   = unpack or table.unpack
 local pack     = table.pack or function(...) return { n = select('#', ...), ... } end
+
+local on_exit_wrap do
+  if newproxy then
+    on_exit_wrap = function(fn)
+      local p = newproxy()
+      debug.setmetatable(p, { __gc = fn })
+      return p
+    end
+  else
+    on_exit_wrap = function(fn)
+      return setmetatable({}, { __gc = fn })
+    end
+  end
+end
 
 local data
 local statsfile
 local tick
 local ctr = 0
-local luacovlock = (os.getenv("TMP") or "") .. os.tmpname()
 
 local filelist = {}
 runner.filelist = filelist
@@ -92,7 +106,11 @@ local function run_report(configuration)
 end
 
 local function on_exit()
-   os.remove(luacovlock)
+   -- Lua >=5.2 could call __gc when user call os.exit
+   -- so this method could be called twice
+   if not on_exit then return end
+   on_exit = false
+
    stats.save(data, statsfile)
    stats.stop(statsfile)
 
@@ -140,8 +158,7 @@ function runner.init(configuration)
   tick = package.loaded["luacov.tick"]
 
    if not tick then
-      runner.on_exit_trick = io.open(luacovlock, "w")
-      debug.setmetatable(runner.on_exit_trick, { __gc = on_exit } )
+      runner.on_exit_trick = on_exit_wrap(on_exit)
    end
    -- metatable trick on filehandle won't work if Lua exits through
    -- os.exit() hence wrap that with exit code as well

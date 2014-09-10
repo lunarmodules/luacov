@@ -19,6 +19,11 @@ return {
 
   -- Delete stats file after reporting?
   deletestats = false,
+  
+  -- Process Lua code loaded from raw strings
+  -- (that is, when the 'source' field in the debug info
+  -- does not start with '@')
+  codefromstrings = false,
 
   -- Patterns for files to include when reporting
   -- all will be included if nothing is listed

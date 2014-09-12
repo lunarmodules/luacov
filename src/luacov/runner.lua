@@ -46,12 +46,11 @@ local function on_line(_, line_nr)
    end
 
    -- get name of processed file; ignore Lua code loaded from raw strings
-   local name = debug.getinfo(2, "S").source
-   local starts_with_at_sign = name:match("^@")
-   if (not starts_with_at_sign) and (not runner.configuration.codefromstrings) then
-      return
-   elseif starts_with_at_sign then
+   -- unless configuration value codefromstrings is true
+   if name:match("^@") then
       name = name:sub(2)
+   elseif not runner.configuration.codefromstrings then
+      return
    end
 
    local r = filelist[name]

@@ -89,6 +89,14 @@ project directory from where `luacov` is being run.
 Options include changing filenames, automatic report generation upon
 completion and removal of the stats after generating the report.
 
+## Custom reporter engines
+
+LuaCov supports custom reporter engines, which are distributed as separate
+packages. Check them out!
+
+* Cobertura: https://github.com/britzl/luacov-cobertura
+* Coveralls: https://github.com/moteus/luacov-coveralls
+
 ## Credits
 
 LuaCov was designed and implemented by Hisham Muhammad as a tool for testing

@@ -47,10 +47,11 @@ local function on_line(_, line_nr)
 
    -- get name of processed file; ignore Lua code loaded from raw strings
    local name = debug.getinfo(2, "S").source
-   if (not name:match("^@")) and (not runner.configuration.codefromstrings) then
+   if name:match("^@") then
+      name = name:sub(2)
+   elseif not runner.configuration.codefromstrings then
       return
    end
-   name = name:sub(2)
 
    local r = filelist[name]
    if r == nil then  -- unknown file, check our in/exclude lists

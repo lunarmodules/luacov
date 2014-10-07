@@ -46,6 +46,7 @@ local function on_line(_, line_nr)
    end
 
    -- get name of processed file; ignore Lua code loaded from raw strings
+   -- unless configuration value codefromstrings is true
    local name = debug.getinfo(2, "S").source
    if name:match("^@") then
       name = name:sub(2)

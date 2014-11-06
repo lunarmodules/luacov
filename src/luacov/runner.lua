@@ -39,7 +39,7 @@ runner.filelist = filelist
 local function on_line(_, line_nr)
    if tick then
       ctr = ctr + 1
-      if ctr == 100 then
+      if ctr == runner.configuration.savestepsize then
          ctr = 0
          stats.save(data, statsfile)
       end

@@ -11,7 +11,7 @@ local function fixup(pat)
              :gsub("%(", " *%%( *")            -- '(' may be surrounded by spaces
              :gsub("%)", " *%%) *")            -- ')' may be surrounded by spaces
              :gsub("<ID>", " *[%%w_]+ *")      -- identifier
-             :gsub("<FULLID>", " *[%%w._]+ *") -- identifier
+             :gsub("<FULLID>", " *[%%w_][%%w_.%%[%%]0-9]+ *") -- identifier
              :gsub("<BEGIN_LONG_STRING>", "%%[(=*)%%[[^]]* *")
              :gsub("<IDS>", "[%%w_, ]+")       -- comma-separated identifiers
              :gsub("<ARGS>", "[%%w_, \"'%%.]*") -- comma-separated arguments
@@ -20,8 +20,8 @@ local function fixup(pat)
              :gsub(" %+ %*", " +")             -- collapse consecutive spacing rules
 end
 
-local long_string_1 = "^() *" .. fixup"<ID>=<BEGIN_LONG_STRING>$"
-local long_string_2 = "^() *" .. fixup"local <ID>=<BEGIN_LONG_STRING>$"
+local long_string_1 = "^() *" .. fixup"<FULLID>=<BEGIN_LONG_STRING>$"
+local long_string_2 = "^() *" .. fixup"local <FULLID>=<BEGIN_LONG_STRING>$"
 
 local function check_long_string(line, in_long_string, ls_equals, linecount)
    local long_string

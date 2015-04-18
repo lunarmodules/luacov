@@ -93,16 +93,22 @@ local function on_line(_, line_nr)
    file[line_nr] = (file[line_nr] or 0) + 1
 end
 
-local function run_report(configuration)
-  local reporter = "luacov.reporter"
-  if configuration.reporter then
-    reporter = reporter .. "." .. configuration.reporter
-  end
+------------------------------------------------------
+-- Runs the reporter specified in configuration.
+-- @param configuration if string, filename of config file (used to call <code>load_config</code>).
+-- If table then config table (see file <code>luacov.default.lua</code> for an example).
+-- If <code>configuration.reporter<code> is not set, runs the default reporter;
+-- otherwise, it must be a module name in 'luacov.reporter' namespace.
+-- The module must contain 'report' function, which is called without arguments.
+function runner.run_report(configuration)
+   configuration = runner.load_config(configuration)
+   local reporter = "luacov.reporter"
 
-  local success, error = pcall(function() require(reporter).report() end)
-  if not success then
-    print ("LuaCov reporting error; "..tostring(error))
-  end
+   if configuration.reporter then
+      reporter = reporter .. "." .. configuration.reporter
+   end
+
+   require(reporter).report()
 end
 
 local on_exit_run_once = false
@@ -116,7 +122,7 @@ local function on_exit()
    stats.save(data, statsfile)
    stats.stop(statsfile)
 
-   if runner.configuration.runreport then run_report(runner.configuration) end
+   if runner.configuration.runreport then runner.run_report(runner.configuration) end
 end
 
 ------------------------------------------------------

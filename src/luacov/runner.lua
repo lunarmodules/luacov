@@ -10,7 +10,6 @@ local stats = require("luacov.stats")
 runner.defaults = require("luacov.defaults")
 
 local debug    = require"debug"
-local unpack   = unpack or table.unpack
 
 local on_exit_wrap
 do
@@ -182,15 +181,21 @@ function runner.init(configuration)
       debug.sethook(co, on_line, "l")
       return co
    end
+
+   -- Version of assert which handles non-string errors properly.
+   local function safeassert(ok, ...)
+      if ok then
+         return ...
+      else
+         error(..., 0)
+      end
+   end
+
    coroutine.wrap = function(...)
       local co = rawcoroutinecreate(...)
       debug.sethook(co, on_line, "l")
-      return function()
-         local r = { coroutine.resume(co) }
-         if not r[1] then
-            error(r[2])
-         end
-         return unpack(r, 2)
+      return function(...)
+         return safeassert(coroutine.resume(co, ...))
       end
    end
 

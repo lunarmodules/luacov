@@ -125,30 +125,40 @@ local function on_exit()
    if runner.configuration.runreport then runner.run_report(runner.configuration) end
 end
 
+-- Returns true if the given filename exists.
+local function file_exists(fname)
+   local f = io.open(fname)
+
+   if f then
+      f:close()
+      return true
+   end
+end
+
 ------------------------------------------------------
 -- Loads a valid configuration.
 -- @param configuration user provided config (config-table or filename)
 -- @return existing configuration if already set, otherwise loads a new
 -- config from the provided data or the defaults
 function runner.load_config(configuration)
-  if not runner.configuration then
-    if not configuration then
-      -- nothing provided, try and load from defaults
-      local success
-      success, configuration = pcall(dofile, runner.defaults.configfile)
-      if not success then
-        configuration = runner.defaults
+   if not runner.configuration then
+      if not configuration then
+         -- nothing provided, load from default location if possible
+         if file_exists(runner.defaults.configfile) then
+            configuration = dofile(runner.defaults.configfile)
+         else
+            configuration = runner.defaults
+         end
+      elseif type(configuration) == "string" then
+         configuration = dofile(configuration)
+      elseif type(configuration) ~= "table" then
+         error("Expected filename, config table or nil. Got " .. type(configuration))
       end
-    elseif type(configuration) == "string" then
-      configuration = dofile(configuration)
-    elseif type(configuration) == "table" then
-      -- do nothing
-    else
-      error("Expected filename, config table or nil. Got " .. type(configuration))
-    end
-    runner.configuration = configuration
-  end
-  return runner.configuration
+
+      runner.configuration = configuration
+   end
+
+   return runner.configuration
 end
 
 --------------------------------------------------
@@ -215,15 +225,6 @@ function runner.shutdown()
   on_exit()
 end
 
--- Returns true if the given filename exists
-local fileexists = function(fname)
-  local f = io.open(fname)
-  if f then
-    f:close()
-    return true
-  end
-end
-
 -- Gets the sourcefilename from a function.
 -- @param func function to lookup.
 -- @return sourcefilename or nil when not found.
@@ -283,7 +284,7 @@ local function getfilename(name)
          error("Bad argument: " .. tostring(name))
       end
 
-      if fileexists(name) then
+      if file_exists(name) then
          return name
       end
 

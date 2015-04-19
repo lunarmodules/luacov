@@ -165,7 +165,7 @@ function runner.load_config(configuration)
 end
 
 --------------------------------------------------
--- Pauses LucCov's runner.
+-- Pauses LuaCov's runner.
 -- Saves collected data and stops, allowing other processes to write to
 -- the same stats file. Data is still collected during pause.
 function runner.pause()
@@ -182,7 +182,7 @@ function runner.pause()
 end
 
 --------------------------------------------------
--- Resumes LucCov's runner.
+-- Resumes LuaCov's runner.
 -- Reloads stats file, possibly updated from other processes,
 -- and continues saving collected data.
 function runner.resume()
@@ -284,7 +284,7 @@ function runner.init(configuration)
 end
 
 --------------------------------------------------
--- Shuts down LucCov's runner.
+-- Shuts down LuaCov's runner.
 -- This should only be called from daemon processes or sandboxes which have
 -- disabled os.exit and other hooks that are used to determine shutdown.
 function runner.shutdown()

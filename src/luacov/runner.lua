@@ -29,6 +29,7 @@ end
 local data
 local statsfile
 local tick
+local paused = true
 local ctr = 0
 
 local filelist = {}
@@ -39,7 +40,10 @@ local function on_line(_, line_nr)
       ctr = ctr + 1
       if ctr == runner.configuration.savestepsize then
          ctr = 0
-         stats.save(data, statsfile)
+
+         if not paused then
+            stats.save(data, statsfile)
+         end
       end
    end
 
@@ -119,8 +123,7 @@ local function on_exit()
    if on_exit_run_once then return end
    on_exit_run_once = true
 
-   stats.save(data, statsfile)
-   stats.stop(statsfile)
+   runner.pause()
 
    if runner.configuration.runreport then runner.run_report(runner.configuration) end
 end
@@ -162,22 +165,85 @@ function runner.load_config(configuration)
 end
 
 --------------------------------------------------
+-- Pauses LucCov's runner.
+-- Saves collected data and stops, allowing other processes to write to
+-- the same stats file. Data is still collected during pause.
+function runner.pause()
+   if paused then
+      return
+   end
+
+   paused = true
+   stats.save(data, statsfile)
+   stats.stop(statsfile)
+   -- Reset data, so that after resuming it could be added to data loaded
+   -- from the stats file, possibly updated from another process.
+   data = {}
+end
+
+--------------------------------------------------
+-- Resumes LucCov's runner.
+-- Reloads stats file, possibly updated from other processes,
+-- and continues saving collected data.
+function runner.resume()
+   if not paused then
+      return
+   end
+
+   local loaded = stats.load() or {}
+
+   if data then
+      -- Merge collected and loaded data.
+      for name, file in pairs(loaded) do
+         if data[name] then
+            data[name].max = math.max(data[name].max, file.max)
+
+            -- Remove 'max' key so that it does not appear when iterating
+            -- over 'file'.
+            file.max = nil
+            
+            for line_nr, run_nr in pairs(file) do
+               data[name][line_nr] = (data[name][line_nr] or 0) + run_nr
+            end
+         else
+            data[name] = file
+         end
+      end
+   else
+      data = loaded
+   end
+
+   statsfile = stats.start()
+   runner.statsfile = statsfile
+
+
+   if not tick then
+      -- As __gc hooks are called in reverse order of their creation,
+      -- and stats file has a __gc hook closing it,
+      -- the exit __gc hook writing data to stats file must be recreated
+      -- after stats file is reopened.
+
+      if runner.on_exit_trick then
+         -- Deactivate previous handler.
+         getmetatable(runner.on_exit_trick).__gc = nil
+      end
+
+      runner.on_exit_trick = on_exit_wrap(on_exit)
+   end
+
+   paused = false
+end
+
+--------------------------------------------------
 -- Initializes LuaCov runner to start collecting data.
 -- @param configuration if string, filename of config file (used to call <code>load_config</code>).
 -- If table then config table (see file <code>luacov.default.lua</code> for an example)
 function runner.init(configuration)
-  runner.configuration = runner.load_config(configuration)
+   runner.configuration = runner.load_config(configuration)
+   stats.statsfile = runner.configuration.statsfile
+   tick = package.loaded["luacov.tick"]
+   runner.resume()
 
-  stats.statsfile = runner.configuration.statsfile
-
-  data = stats.load() or {}
-  statsfile = stats.start()
-  runner.statsfile = statsfile
-  tick = package.loaded["luacov.tick"]
-
-   if not tick then
-      runner.on_exit_trick = on_exit_wrap(on_exit)
-   end
    -- metatable trick on filehandle won't work if Lua exits through
    -- os.exit() hence wrap that with exit code as well
    local rawexit = os.exit

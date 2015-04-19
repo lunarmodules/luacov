@@ -10,8 +10,6 @@ local stats = require("luacov.stats")
 runner.defaults = require("luacov.defaults")
 
 local debug    = require"debug"
-local unpack   = unpack or table.unpack
-local pack     = table.pack or function(...) return { n = select('#', ...), ... } end
 
 local on_exit_wrap
 do
@@ -95,16 +93,22 @@ local function on_line(_, line_nr)
    file[line_nr] = (file[line_nr] or 0) + 1
 end
 
-local function run_report(configuration)
-  local reporter = "luacov.reporter"
-  if configuration.reporter then
-    reporter = reporter .. "." .. configuration.reporter
-  end
+------------------------------------------------------
+-- Runs the reporter specified in configuration.
+-- @param configuration if string, filename of config file (used to call <code>load_config</code>).
+-- If table then config table (see file <code>luacov.default.lua</code> for an example).
+-- If <code>configuration.reporter<code> is not set, runs the default reporter;
+-- otherwise, it must be a module name in 'luacov.reporter' namespace.
+-- The module must contain 'report' function, which is called without arguments.
+function runner.run_report(configuration)
+   configuration = runner.load_config(configuration)
+   local reporter = "luacov.reporter"
 
-  local success, error = pcall(function() require(reporter).report() end)
-  if not success then
-    print ("LuaCov reporting error; "..tostring(error))
-  end
+   if configuration.reporter then
+      reporter = reporter .. "." .. configuration.reporter
+   end
+
+   require(reporter).report()
 end
 
 local on_exit_run_once = false
@@ -118,7 +122,17 @@ local function on_exit()
    stats.save(data, statsfile)
    stats.stop(statsfile)
 
-   if runner.configuration.runreport then run_report(runner.configuration) end
+   if runner.configuration.runreport then runner.run_report(runner.configuration) end
+end
+
+-- Returns true if the given filename exists.
+local function file_exists(fname)
+   local f = io.open(fname)
+
+   if f then
+      f:close()
+      return true
+   end
 end
 
 ------------------------------------------------------
@@ -127,24 +141,24 @@ end
 -- @return existing configuration if already set, otherwise loads a new
 -- config from the provided data or the defaults
 function runner.load_config(configuration)
-  if not runner.configuration then
-    if not configuration then
-      -- nothing provided, try and load from defaults
-      local success
-      success, configuration = pcall(dofile, runner.defaults.configfile)
-      if not success then
-        configuration = runner.defaults
+   if not runner.configuration then
+      if not configuration then
+         -- nothing provided, load from default location if possible
+         if file_exists(runner.defaults.configfile) then
+            configuration = dofile(runner.defaults.configfile)
+         else
+            configuration = runner.defaults
+         end
+      elseif type(configuration) == "string" then
+         configuration = dofile(configuration)
+      elseif type(configuration) ~= "table" then
+         error("Expected filename, config table or nil. Got " .. type(configuration))
       end
-    elseif type(configuration) == "string" then
-      configuration = dofile(configuration)
-    elseif type(configuration) == "table" then
-      -- do nothing
-    else
-      error("Expected filename, config table or nil. Got " .. type(configuration))
-    end
-    runner.configuration = configuration
-  end
-  return runner.configuration
+
+      runner.configuration = configuration
+   end
+
+   return runner.configuration
 end
 
 --------------------------------------------------
@@ -183,15 +197,21 @@ function runner.init(configuration)
       debug.sethook(co, on_line, "l")
       return co
    end
+
+   -- Version of assert which handles non-string errors properly.
+   local function safeassert(ok, ...)
+      if ok then
+         return ...
+      else
+         error(..., 0)
+      end
+   end
+
    coroutine.wrap = function(...)
       local co = rawcoroutinecreate(...)
       debug.sethook(co, on_line, "l")
-      return function()
-         local r = { coroutine.resume(co) }
-         if not r[1] then
-            error(r[2])
-         end
-         return unpack(r, 2)
+      return function(...)
+         return safeassert(coroutine.resume(co, ...))
       end
    end
 
@@ -205,76 +225,88 @@ function runner.shutdown()
   on_exit()
 end
 
--- Returns true if the given filename exists
-local fileexists = function(fname)
-  local f = io.open(fname)
-  if f then
-    f:close()
-    return true
-  end
+-- Gets the sourcefilename from a function.
+-- @param func function to lookup.
+-- @return sourcefilename or nil when not found.
+local function getsourcefile(func)
+   assert(type(func) == "function")
+   local d = debug.getinfo(func).source
+   if d and d:sub(1, 1) == "@" then
+      return d:sub(2)
+   end
 end
 
--- gets the sourcefilename from a function
--- @param func function to lookup (if nil, it returns nil)
--- @return nil when given nil, or nil when no sourcefile found
-local getsourcefile = function(func)
-  if func == nil then return nil end
-  assert(type(func)=="function")
-  local d = debug.getinfo(func).source
-  if d and d:sub(1,1) == "@" then
-    return d:sub(2,-1)
-  end
+-- Looks for a function inside a table.
+-- @param searched set of already checked tables.
+local function findfunction(t, searched)
+   if searched[t] then
+      return
+   end
+
+   searched[t] = true
+
+   for k, v in pairs(t) do
+      if type(v) == "function" then
+         return v
+      elseif type(v) == "table" then
+         local func = findfunction(v, searched)
+         if func then return func end
+      end
+   end
 end
 
+-- Gets source filename from a file name, module name, function or table.
 -- @param name string;   filename,
 --             string;   modulename as passed to require(),
 --             function; where containing file is looked up,
 --             table;    module table where containing file is looked up
+-- @raise error message if could not find source filename.
+-- @return source filename.
 local function getfilename(name)
-  if type(name)=="function" then
-    return getsourcefile(name)
-  elseif type(name)=="table" then
-    --lookup a function in the given table and return
-    local recurse = {}
-	local function ff(t)
-	  if recurse[t] then return nil end
-	  if type(t)=="function" then return t end
-	  if type(t)~="table" then return nil end
-	  for k,v in pairs(t) do
-	    if type(v)=="function" then return v end
-	    if type(v)=="table" then
-	      recurse[t] = true
-	      local result = ff(v)
-	      if result then return result end
-	    end
-	  end
-	  return nil -- no function found
-	end
-    return getsourcefile(ff(name))
-  elseif type(name)=="string" and fileexists(name) then
-    return name
-  elseif type(name)=="string" then
-    local success, result = pcall(require, name)
-    if success then
-      if type(result)=="table" or type(result)=="function" then
-        return getfilename(result)
-      else
-        error("Module '" .. name .. "' did not return a result to lookup its file name")
+   if type(name) == "function" then
+      local sourcefile = getsourcefile(name)
+
+      if not sourcefile then
+         error("Could not infer source filename")
       end
-    else
-      error("Module/file '" .. name .. "' was not found")
-    end
-  else
-    error("Bad argument: "..tostring(name))
-  end
+
+      return sourcefile
+   elseif type(name) == "table" then
+      local func = findfunction(name, {})
+
+      if not func then
+         error("Could not find a function within " .. tostring(name))
+      end
+
+      return getfilename(func)
+   else
+      if type(name) ~= "string" then
+         error("Bad argument: " .. tostring(name))
+      end
+
+      if file_exists(name) then
+         return name
+      end
+
+      local success, result = pcall(require, name)
+
+      if not success then
+         error("Module/file '" .. name .. "' was not found")
+      end
+
+      if type(result) ~= "table" and type(result) ~= "function" then
+         error("Module '" .. name .. "' did not return a result to lookup its file name")
+      end
+
+      return getfilename(result)
+   end
 end
 
--- Escape a filename, replacing all magic string pattern matches, ()+-*?[]
--- remove .lua extension, and replace dir seps by '/'.
--- Returns nil if given nil.
-local escapefilename = function(name)
-  if name == nil then return nil end
-  return name:gsub("%.lua$", ""):gsub("%.","%%%."):gsub("\\", "/"):gsub("%(","%%%("):gsub("%)","%%%)"):gsub("%+","%%%+"):gsub("%*","%%%*"):gsub("%-","%%%-"):gsub("%?","%%%?"):gsub("%[","%%%["):gsub("%]","%%%]")
+-- Escapes a filename.
+-- Escapes magic pattern characters, removes .lua extension
+-- and replaces dir seps by '/'.
+local function escapefilename(name)
+   return name:gsub("%.lua$", ""):gsub("[%%%^%$%.%(%)%[%]%+%*%-%?]","%%%0"):gsub("\\", "/")
 end
 
 local function addfiletolist(name, list)
@@ -284,37 +316,34 @@ local function addfiletolist(name, list)
 end
 
 local function addtreetolist(name, level, list)
-  local f = escapefilename(getfilename(name))
-  if level or f:match("/init$") then
-    local cpos, pos = 0, nil
-    while true do
-      pos = f:find("/", cpos+1, true)
-      if not pos then break end
-      cpos = pos
-    end
-    f = f:sub(1,cpos-1)   -- chop last part...
-  end
-  local t = "^"..f.."/"   -- the tree behind the file
-  f = "^"..f.."$"         -- the file
-  table.insert(list, f)
-  table.insert(list, t)
-  return f, t
+   local f = escapefilename(getfilename(name))
+
+   if level or f:match("/init$") then
+      -- chop the last backslash and everything after it
+      f = f:match("^(.*)/") or f
+   end
+
+   local t = "^"..f.."/"   -- the tree behind the file
+   f = "^"..f.."$"         -- the file
+   table.insert(list, f)
+   table.insert(list, t)
+   return f, t
 end
 
--- returns a pcall result, with the initial 'true' value removed
-local function checkresult(...)
-  local t = pack(...)
-  if t[1] then
-    return unpack(t, 2, t.n)   -- success, strip 'true' value
-  else
-    return nil, unpack(t, 2, t.n) -- failure; nil + error
-  end
+-- Returns a pcall result, with the initial 'true' value removed
+-- and 'false' replaced with nil.
+local function checkresult(ok, ...)
+   if ok then
+      return ... -- success, strip 'true' value
+   else
+      return nil, ... -- failure; nil + error
+   end
 end
 
 -------------------------------------------------------------------
 -- Adds a file to the exclude list (see <code>defaults.lua</code>).
 -- If passed a function, then through debuginfo the source filename is collected. In case of a table
--- it will recursively search teh table for a function, which is then resolved to a filename through debuginfo.
+-- it will recursively search the table for a function, which is then resolved to a filename through debuginfo.
 -- If the parameter is a string, it will first check if a file by that name exists. If it doesn't exist
 -- it will call <code>require(name)</code> to load a module by that name, and the result of require (function or
 -- table expected) is used as described above to get the sourcefile.

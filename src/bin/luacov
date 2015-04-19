@@ -7,11 +7,10 @@
 local arg = { ... }
 
 local runner = require("luacov.runner")
-local reporter = require("luacov.reporter")
-local custom_reporter = nil
 
 local patterns = {}
 local configfile = nil
+local reporter = nil
 
 local function show_help()
    print([[
@@ -86,8 +85,7 @@ while arg[i] do
       elseif (key == "c") or (key == "config") then
          configfile = value
       elseif (key == "r") or (key == "reporter") then
-         reporter = require("luacov.reporter." .. value)
-         custom_reporter = true
+         reporter = value
       end
    else
       table.insert(patterns, norm_pat(arg[i]))
@@ -106,8 +104,5 @@ for i, patt in ipairs(patterns) do
   table.insert(configuration.include, patt)
 end
 
-if (not custom_reporter) and (configuration.reporter) then
-   reporter = require("luacov.reporter." .. configuration.reporter)
-end
-
-reporter.report()
+configuration.reporter = reporter or configuration.reporter
+runner.run_report(configuration)

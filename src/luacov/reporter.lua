@@ -61,7 +61,7 @@ end
 --- Lines that are always excluded from accounting
 local any_hits_exclusions = {
    "", -- Empty line
-   fixup "end[,;)]?", -- Single "end"
+   fixup "end[,;%s%)]*", -- Single "end"
    "else", -- Single "else"
    "repeat", -- Single "repeat"
    "do", -- Single "do"
@@ -87,9 +87,7 @@ local zero_hits_exclusions = {
    fixup "<FULLID>=function(<ARGS>)", -- "a = function(arg1, ..., argN)"
    "break", -- "break" generates no trace in Lua 5.2+
    "{", -- "{" opening table
-   "}", -- "{" closing table
-   fixup "})", -- function closer
-   fixup ")", -- function closer
+   "}?[%s%)]*", -- optional "{" closing table, possibly with several closing parens
 }
 
 local function excluded_(exclusions,line)

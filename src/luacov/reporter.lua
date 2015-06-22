@@ -24,6 +24,7 @@ local fixups = {
    { "<FIELDNAME>", "%[? *[\"'%w_]+ *%]?" }, -- field, possibly like ["this"]
    { " * ", " " }, -- collapse consecutive spacing rules
    { " + *", " +" }, -- collapse consecutive spacing rules
+   { " ", "%s" }, -- accept all whitespace characters as space
 }
 
 --- Utility function to make patterns more readable
@@ -35,8 +36,8 @@ local function fixup(pat)
    return pat
 end
 
-local long_string_1 = "^() *" .. fixup"<FULLID>=<BEGIN_LONG_STRING>$"
-local long_string_2 = "^() *" .. fixup"local <FULLID>=<BEGIN_LONG_STRING>$"
+local long_string_1 = "^()%s*" .. fixup "<FULLID>=<BEGIN_LONG_STRING>$"
+local long_string_2 = "^()%s*" .. fixup "local <FULLID>=<BEGIN_LONG_STRING>$"
 
 local function check_long_string(line, in_long_string, ls_equals, linecount)
    local long_string
@@ -76,7 +77,7 @@ local any_hits_exclusions = {
 
 --- Lines that are only excluded from accounting when they have 0 hits
 local zero_hits_exclusions = {
-   "[%w_,='\" ]+,", -- "var1 var2," multi columns table stuff
+   "[%w_,='\"%s]+,", -- "var1 var2," multi columns table stuff
    fixup "<FIELDNAME>=.+[,;]", -- "[123] = 23," "['foo'] = "asd","
    fixup "<ARGS>*function(<ARGS>)", -- "1,2,function(...)"
    fixup "return <ARGS>*function(<ARGS>)", -- "return 1,2,function(...)"

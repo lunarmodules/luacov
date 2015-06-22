@@ -4,20 +4,35 @@
 -- @name luacov.reporter
 local reporter = {}
 
+--- Raw version of string.gsub
+local function replace(s, old, new)
+   old = old:gsub("%p", "%%%0")
+   new = new:gsub("%%", "%%%%")
+   return (s:gsub(old, new))
+end
+
+local fixups = {
+   { " ", " +" }, -- ' ' represents "at least one space"
+   { "=", " *= *" }, -- '=' may be surrounded by spaces
+   { "(", " *%( *" }, -- '(' may be surrounded by spaces
+   { ")", " *%) *" }, -- ')' may be surrounded by spaces
+   { "<ID>", " *[%w_]+ *" }, -- identifier
+   { "<FULLID>", " *[%w_][%w_%.%[%]0-9]+ *" }, -- identifier, possibly indexed
+   { "<BEGIN_LONG_STRING>", "%[(=*)%[[^]]* *" },
+   { "<IDS>", "[%w_, ]+" }, -- comma-separated identifiers
+   { "<ARGS>", "[%w_, \"'%.]*" }, -- comma-separated arguments
+   { "<FIELDNAME>", "%[? *[\"'%w_]+ *%]?" }, -- field, possibly like ["this"]
+   { " * ", " " }, -- collapse consecutive spacing rules
+   { " + *", " +" }, -- collapse consecutive spacing rules
+}
+
 --- Utility function to make patterns more readable
 local function fixup(pat)
-   return pat:gsub(" ", " +")                  -- ' ' represents "at least one space"
-             :gsub("=", " *= *")               -- '=' may be surrounded by spaces
-             :gsub("%(", " *%%( *")            -- '(' may be surrounded by spaces
-             :gsub("%)", " *%%) *")            -- ')' may be surrounded by spaces
-             :gsub("<ID>", " *[%%w_]+ *")      -- identifier
-             :gsub("<FULLID>", " *[%%w_][%%w_.%%[%%]0-9]+ *") -- identifier
-             :gsub("<BEGIN_LONG_STRING>", "%%[(=*)%%[[^]]* *")
-             :gsub("<IDS>", "[%%w_, ]+")       -- comma-separated identifiers
-             :gsub("<ARGS>", "[%%w_, \"'%%.]*") -- comma-separated arguments
-             :gsub("<FIELDNAME>", "%%[? *[\"'%%w_]+ *%%]?") -- field, possibly like ["this"]
-             :gsub(" %* ", " ")                -- collapse consecutive spacing rules
-             :gsub(" %+ %*", " +")             -- collapse consecutive spacing rules
+   for _, fixup_pair in ipairs(fixups) do
+      pat = replace(pat, fixup_pair[1], fixup_pair[2])
+   end
+
+   return pat
 end
 
 local long_string_1 = "^() *" .. fixup"<FULLID>=<BEGIN_LONG_STRING>$"
@@ -43,54 +58,52 @@ local function check_long_string(line, in_long_string, ls_equals, linecount)
 end
 
 --- Lines that are always excluded from accounting
-local exclusions = {
-   { false, "^#!" },     -- Unix hash-bang magic line
-   { true, "" },         -- Empty line
-   { true, fixup "end[,;)]?" },-- Single "end"
-   { true, fixup "else" },     -- Single "else"
-   { true, fixup "repeat" },   -- Single "repeat"
-   { true, fixup "do" },       -- Single "do"
-   { true, fixup "if" },       -- Single "if"
-   { true, fixup "then" },     -- Single "then"
-   { true, fixup "while true do" }, -- "while true do" generates no code
-   { true, fixup "if true then" }, -- "if true then" generates no code
-   { true, fixup "local <IDS>" }, -- "local var1, ..., varN"
-   { true, fixup "local <IDS>=" }, -- "local var1, ..., varN ="
-   { true, fixup "local function(<ARGS>)" }, -- "local function(arg1, ..., argN)"
-   { true, fixup "local function <ID>(<ARGS>)" }, -- "local function f (arg1, ..., argN)"
+local any_hits_exclusions = {
+   "", -- Empty line
+   fixup "end[,;)]?", -- Single "end"
+   "else", -- Single "else"
+   "repeat", -- Single "repeat"
+   "do", -- Single "do"
+   "if", -- Single "if"
+   "then", -- Single "then"
+   fixup "while true do", -- "while true do" generates no code
+   fixup "if true then", -- "if true then" generates no code
+   fixup "local <IDS>", -- "local var1, ..., varN"
+   fixup "local <IDS>=", -- "local var1, ..., varN ="
+   fixup "local function(<ARGS>)", -- "local function(arg1, ..., argN)"
+   fixup "local function <ID>(<ARGS>)", -- "local function f (arg1, ..., argN)"
 }
 
 --- Lines that are only excluded from accounting when they have 0 hits
-local hit0_exclusions = {
-   { true, "[%w_,='\" ]+," }, -- "var1 var2," multi columns table stuff
-   { true, fixup "<FIELDNAME>=.+[,;]" }, -- "[123] = 23," "['foo'] = "asd","
-   { true, fixup "<ARGS>*function(<ARGS>)" }, -- "1,2,function(...)"
-   { true, fixup "return <ARGS>*function(<ARGS>)" }, -- "return 1,2,function(...)"
-   { true, fixup "return function(<ARGS>)" }, -- "return function(arg1, ..., argN)"
-   { true, fixup "function(<ARGS>)" }, -- "function(arg1, ..., argN)"
-   { true, fixup "local <ID>=function(<ARGS>)" }, -- "local a = function(arg1, ..., argN)"
-   { true, fixup "<FULLID>=function(<ARGS>)" }, -- "a = function(arg1, ..., argN)"
-   { true, fixup "break" }, -- "break" generates no trace in Lua 5.2
-   { true, "{" }, -- "{" opening table
-   { true, "}" }, -- "{" closing table
-   { true, fixup "})" }, -- function closer
-   { true, fixup ")" }, -- function closer
+local zero_hits_exclusions = {
+   "[%w_,='\" ]+,", -- "var1 var2," multi columns table stuff
+   fixup "<FIELDNAME>=.+[,;]", -- "[123] = 23," "['foo'] = "asd","
+   fixup "<ARGS>*function(<ARGS>)", -- "1,2,function(...)"
+   fixup "return <ARGS>*function(<ARGS>)", -- "return 1,2,function(...)"
+   fixup "return function(<ARGS>)", -- "return function(arg1, ..., argN)"
+   fixup "function(<ARGS>)", -- "function(arg1, ..., argN)"
+   fixup "local <ID>=function(<ARGS>)", -- "local a = function(arg1, ..., argN)"
+   fixup "<FULLID>=function(<ARGS>)", -- "a = function(arg1, ..., argN)"
+   "break", -- "break" generates no trace in Lua 5.2+
+   "{", -- "{" opening table
+   "}", -- "{" closing table
+   fixup "})", -- function closer
+   fixup ")", -- function closer
 }
 
 local function excluded_(exclusions,line)
    for _, e in ipairs(exclusions) do
-      if e[1] then
-         if line:match("^%s*"..e[2].."%s*$") or line:match("^%s*"..e[2].."%s*%-%-") then return true end
-      else
-         if line:match(e[2]) then return true end
+      if line:match("^%s*"..e.."%s*$") or line:match("^%s*"..e.."%s*%-%-") then
+         return true
       end
    end
+
    return false
 end
 
 local function excluded(line, hits)
-   return excluded_(exclusions, line)
-      or (hits == 0 and excluded_(hit0_exclusions,line))
+   return line:match("^#!") or excluded_(any_hits_exclusions, line)
+      or (hits == 0 and excluded_(zero_hits_exclusions,line))
 end
 
 ----------------------------------------------------------------

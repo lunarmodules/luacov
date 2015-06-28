@@ -519,4 +519,6 @@ reporter.ReporterBase    = ReporterBase
 
 reporter.DefaultReporter = DefaultReporter
 
+reporter.LineScanner     = LineScanner
+
 return reporter

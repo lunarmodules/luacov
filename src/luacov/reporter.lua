@@ -12,19 +12,15 @@ local function replace(s, old, new)
 end
 
 local fixups = {
-   { " ", " +" }, -- ' ' represents "at least one space"
-   { "=", " *= *" }, -- '=' may be surrounded by spaces
-   { "(", " *%( *" }, -- '(' may be surrounded by spaces
-   { ")", " *%) *" }, -- ')' may be surrounded by spaces
-   { "<ID>", " *[%w_]+ *" }, -- identifier
-   { "<FULLID>", " *[%w_][%w_%.%[%]0-9]+ *" }, -- identifier, possibly indexed
-   { "<BEGIN_LONG_STRING>", "%[(=*)%[[^]]* *" },
+   { "=", " ?= ?" }, -- '=' may be surrounded by spaces
+   { "(", " ?%( ?" }, -- '(' may be surrounded by spaces
+   { ")", " ?%) ?" }, -- ')' may be surrounded by spaces
+   { "<ID>", " ?[%w_]+ ?" }, -- identifier
+   { "<FULLID>", " ?[%w_][%w_%.%[%]]+ ?" }, -- identifier, possibly indexed
    { "<IDS>", "[%w_, ]+" }, -- comma-separated identifiers
-   { "<ARGS>", "[%w_, \"'%.]*" }, -- comma-separated arguments
-   { "<FIELDNAME>", "%[? *[\"'%w_]+ *%]?" }, -- field, possibly like ["this"]
-   { " * ", " " }, -- collapse consecutive spacing rules
-   { " + *", " +" }, -- collapse consecutive spacing rules
-   { " ", "%s" }, -- accept all whitespace characters as space
+   { "<ARGS>", "[%w_, '%.]*" }, -- comma-separated arguments
+   { "<FIELDNAME>", "%[? ?['%w_]+ ?%]?" }, -- field, possibly like ["this"]
+   { " [ %?]+", " " }, -- collapse consecutive spacing rules
 }
 
 --- Utility function to make patterns more readable
@@ -36,39 +32,17 @@ local function fixup(pat)
    return pat
 end
 
-local long_string_1 = "^()%s*" .. fixup "<FULLID>=<BEGIN_LONG_STRING>$"
-local long_string_2 = "^()%s*" .. fixup "local <FULLID>=<BEGIN_LONG_STRING>$"
-
-local function check_long_string(line, in_long_string, ls_equals, linecount)
-   local long_string
-   if not linecount then
-      if line:match("%[=*%[") then
-         long_string, ls_equals = line:match(long_string_1)
-         if not long_string then
-            long_string, ls_equals = line:match(long_string_2)
-         end
-      end
-   end
-   ls_equals = ls_equals or ""
-   if long_string then
-      in_long_string = true
-   elseif in_long_string and line:match("%]"..ls_equals.."%]") then
-      in_long_string = false
-   end
-   return in_long_string, ls_equals or ""
-end
-
 --- Lines that are always excluded from accounting
 local any_hits_exclusions = {
    "", -- Empty line
-   fixup "end[,;%s%)]*", -- Single "end"
+   "end[,; %)]*", -- Single "end"
    "else", -- Single "else"
    "repeat", -- Single "repeat"
    "do", -- Single "do"
    "if", -- Single "if"
    "then", -- Single "then"
-   fixup "while true do", -- "while true do" generates no code
-   fixup "if true then", -- "if true then" generates no code
+   "while true do", -- "while true do" generates no code
+   "if true then", -- "if true then" generates no code
    fixup "local <IDS>", -- "local var1, ..., varN"
    fixup "local <IDS>=", -- "local var1, ..., varN ="
    fixup "local function(<ARGS>)", -- "local function(arg1, ..., argN)"
@@ -77,7 +51,7 @@ local any_hits_exclusions = {
 
 --- Lines that are only excluded from accounting when they have 0 hits
 local zero_hits_exclusions = {
-   "[%w_,='\"%s]+,", -- "var1 var2," multi columns table stuff
+   "[%w_,=' ]+,", -- "var1 var2," multi columns table stuff
    fixup "<FIELDNAME>=.+[,;]", -- "[123] = 23," "['foo'] = "asd","
    fixup "<ARGS>*function(<ARGS>)", -- "1,2,function(...)"
    fixup "return <ARGS>*function(<ARGS>)", -- "return 1,2,function(...)"
@@ -87,12 +61,12 @@ local zero_hits_exclusions = {
    fixup "<FULLID>=function(<ARGS>)", -- "a = function(arg1, ..., argN)"
    "break", -- "break" generates no trace in Lua 5.2+
    "{", -- "{" opening table
-   "}?[%s%)]*", -- optional "{" closing table, possibly with several closing parens
+   "}?[ %)]*", -- optional "{" closing table, possibly with several closing parens
 }
 
-local function excluded_(exclusions,line)
+local function excluded(exclusions, line)
    for _, e in ipairs(exclusions) do
-      if line:match("^%s*"..e.."%s*$") or line:match("^%s*"..e.."%s*%-%-") then
+      if line:match("^ *"..e.." *$") then
          return true
       end
    end
@@ -100,9 +74,188 @@ local function excluded_(exclusions,line)
    return false
 end
 
-local function excluded(line, hits)
-   return line:match("^#!") or excluded_(any_hits_exclusions, line)
-      or (hits == 0 and excluded_(zero_hits_exclusions,line))
+local LineScanner = {} do
+LineScanner.__index = LineScanner
+
+function LineScanner:new()
+   return setmetatable({first = true, comment = false}, self)
+end
+
+function LineScanner:find(pattern)
+   return self.line:find(pattern, self.i)
+end
+
+-- Skips string literal with quote stored as self.quote.
+-- @return boolean indicating success.
+function LineScanner:skip_string()
+   -- Look for closing quote, possibly after even number of backslashes.
+   local _, quote_i = self:find("^(\\*)%1"..self.quote)
+   if not quote_i then
+      _, quote_i = self:find("[^\\](\\*)%1"..self.quote)
+   end
+
+   if quote_i then
+      self.i = quote_i + 1
+      self.quote = nil
+      table.insert(self.simple_line_buffer, "'")
+      return true
+   else
+      return false
+   end
+end
+
+-- Skips long string literal with equal signs stored as self.equals.
+-- @return boolean indicating success.
+function LineScanner:skip_long_string()
+   local _, bracket_i = self:find("%]"..self.equals.."%]")
+
+   if bracket_i then
+      self.i = bracket_i + 1
+      self.equals = nil
+
+      if self.comment then
+         self.comment = false
+      else
+         table.insert(self.simple_line_buffer, "'")
+      end
+
+      return true
+   else
+      return false
+   end
+end
+
+function LineScanner:skip_whitespace()
+   local next_i = self:find("%S") or #self.line + 1
+
+   if next_i ~= self.i then
+      self.i = next_i
+      table.insert(self.simple_line_buffer, " ")
+   end
+end
+
+function LineScanner:skip_number()
+   if self:find("^0[xX]") then
+      self.i = self.i + 2
+   end
+
+   local _
+   _, _, self.i = self:find("^[%x%.]*()")
+
+   if self:find("^[eEpP][%+%-]") then
+      -- Skip exponent, too.
+      self.i = self.i + 2
+      _, _, self.i = self:find("^[%x%.]*()")
+   end
+
+   -- Skip LuaJIT number suffixes (i, ll, ull).
+   _, _, self.i = self:find("^[iull]*()")
+   table.insert(self.simple_line_buffer, "0")
+end
+
+function LineScanner:skip_name()
+   -- It is guaranteed that the first character matches "%a_".
+   local _, _, name = self:find("^([%w_]*)")
+   self.i = self.i + #name
+   table.insert(self.simple_line_buffer, name)
+end
+
+-- Consumes and analyzes a line.
+-- @return boolean indicating whether line must be excluded.
+-- @return boolean indicating whether line must be excluded if not hit.
+function LineScanner:consume(line)
+   if self.first then
+      self.first = false
+
+      if line:match("^#!") then
+         -- Ignore Unix hash-bang magic line.
+         return true, true
+      end
+   end
+
+   self.line = line
+   -- As scanner goes through the line, it puts its simplified parts into buffer.
+   -- Identifiers and punctuation are preserved. Whitespace is replaced with single space.
+   -- Literal strings are replaced with "''", so that a string literal
+   -- containing special characters does not confuse exclusion rules.
+   -- Numbers are replaced with "0".
+   self.simple_line_buffer = {}
+   self.i = 1
+
+   while self.i <= #line do
+      -- One iteration of this loop handles one token, where
+      -- string literal start and end are considered distinct tokens.
+      if self.quote then
+         if not self:skip_string() then
+            -- String literal ends on another line.
+            break
+         end
+      elseif self.equals then
+         if not self:skip_long_string() then
+            -- Long string literal or comment ends on another line.
+            break
+         end
+      else
+         self:skip_whitespace()
+
+         if self:find("^%.%d") then
+            self.i = self.i + 1
+         end
+
+         if self:find("^%d") then
+            self:skip_number()
+         elseif self:find("^[%a_]") then
+            self:skip_name()
+         else
+            if self:find("^%-%-") then
+               self.comment = true
+               self.i = self.i + 2
+            end
+
+            local _, bracket_i, equals = self:find("^%[(=*)%[")
+            if equals then
+               self.i = bracket_i + 1
+               self.equals = equals
+
+               if not self.comment then
+                  table.insert(self.simple_line_buffer, "'")
+               end
+            elseif self.comment then
+               -- Simple comment, skip line.
+               self.comment = false
+               break
+            else
+               local char = line:sub(self.i, self.i)
+
+               if char == "." then
+                  -- Dot can't be saved as one character because of
+                  -- ".." and "..." tokens and the fact that number literals
+                  -- can start with one.
+                  local _, _, dots = self:find("^(%.*)")
+                  self.i = self.i + #dots
+                  table.insert(self.simple_line_buffer, dots)
+               else
+                  self.i = self.i + 1
+
+                  if char == "'" or char == '"' then
+                     table.insert(self.simple_line_buffer, "'")
+                     self.quote = char
+                  else
+                     -- Save other punctuation literally.
+                     -- This inserts an empty string when at the end of line,
+                     -- which is fine.
+                     table.insert(self.simple_line_buffer, char)
+                  end
+               end
+            end
+         end
+      end
+   end
+
+   local simple_line = table.concat(self.simple_line_buffer)
+   return excluded(any_hits_exclusions, simple_line), excluded(zero_hits_exclusions, simple_line)
+end
+
 end
 
 ----------------------------------------------------------------
@@ -238,45 +391,24 @@ function ReporterBase:run()
          local filedata = self:stats(filename)
 
          local line_nr = 1
-         local block_comment, equals = false, ""
-         local in_long_string, ls_equals = false, ""
+         local scanner = LineScanner:new()
 
          while true do
             local line = file:read("*l")
             if not line then break end
-            local true_line = line
 
-            local new_block_comment = false
-            if not block_comment then
-               local l
-               l, equals = line:match("^(.*)%-%-%[(=*)%[")
-               if l then
-                  line = l
-                  new_block_comment = true
-               end
-               in_long_string, ls_equals = check_long_string(line, in_long_string, ls_equals, filedata[line_nr])
-            else
-               local l = line:match("%]"..equals.."%](.*)$")
-               if l then
-                  line = l
-                  block_comment = false
-               end
-            end
-
+            local always_excluded, excluded_when_not_hit = scanner:consume(line)
             local hits = filedata[line_nr] or 0
-            if block_comment or in_long_string or excluded(line, hits) then
-               self:on_empty_line(filename, line_nr, true_line)
-            else
-               if hits == 0 then
-                  self:on_mis_line(filename, line_nr, true_line)
-                  file_miss = file_miss + 1
-               else
-                  self:on_hit_line(filename, line_nr, true_line, hits)
-                  file_hits = file_hits + 1
-               end
-            end
 
-            if new_block_comment then block_comment = true end
+            if always_excluded or (excluded_when_not_hit and hits == 0) then
+               self:on_empty_line(filename, line_nr, line)
+            elseif hits == 0 then
+               self:on_mis_line(filename, line_nr, line)
+               file_miss = file_miss + 1
+            else
+               self:on_hit_line(filename, line_nr, line, hits)
+               file_hits = file_hits + 1
+            end
 
             line_nr = line_nr + 1
          end

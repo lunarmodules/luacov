@@ -138,27 +138,42 @@ local function file_exists(fname)
    end
 end
 
+-- Sets configuration. If some options are missing, default values are used instead.
+local function set_config(configuration)
+   runner.configuration = {}
+
+   for option, default_value in pairs(runner.defaults) do
+      runner.configuration[option] = default_value
+   end
+
+   for option, value in pairs(configuration) do
+      runner.configuration[option] = value
+   end
+end
+
 ------------------------------------------------------
 -- Loads a valid configuration.
 -- @param configuration user provided config (config-table or filename)
 -- @return existing configuration if already set, otherwise loads a new
--- config from the provided data or the defaults
+-- config from the provided data or the defaults.
+-- When loading a new config, if some options are missing, default values
+-- are used instead.
 function runner.load_config(configuration)
    if not runner.configuration then
       if not configuration then
          -- nothing provided, load from default location if possible
          if file_exists(runner.defaults.configfile) then
-            configuration = dofile(runner.defaults.configfile)
+            set_config(dofile(runner.defaults.configfile))
          else
-            configuration = runner.defaults
+            runner.configuration = runner.defaults
          end
       elseif type(configuration) == "string" then
-         configuration = dofile(configuration)
-      elseif type(configuration) ~= "table" then
+         set_config(dofile(configuration))
+      elseif type(configuration) == "table" then
+         set_config(configuration)
+      else
          error("Expected filename, config table or nil. Got " .. type(configuration))
       end
-
-      runner.configuration = configuration
    end
 
    return runner.configuration

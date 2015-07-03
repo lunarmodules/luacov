@@ -1,5 +1,7 @@
 --- Global configuration file. Copy, customize and store in your
--- project folder as '.luacov' for project specific configuration
+-- project folder as '.luacov' for project specific configuration.
+-- If some options are missing, their default values from this file
+-- will be used.
 -- @class module
 -- @name luacov.defaults
 return {

@@ -35,6 +35,43 @@ local ctr = 0
 local filelist = {}
 runner.filelist = filelist
 
+-- Checks if a string matches at least one of patterns.
+-- @param patterns array of patterns or nil
+-- @param str string to match
+-- @param on_empty return value in case of empty pattern array
+local function match_any(patterns, str, on_empty)
+   if not patterns or not patterns[1] then
+      return on_empty
+   end
+
+   for _, pattern in ipairs(patterns) do
+      if str:match(pattern) then
+         return true
+      end
+   end
+
+   return false
+end
+
+--------------------------------------------------
+-- Uses LuaCov's configuration to check if a file is included for
+-- coverage data collection.
+-- @return true if file is included, false otherwise.
+function runner.file_included(filename)
+   -- Normalize file names before using patterns.
+   filename = filename:gsub("\\", "/"):gsub("%.lua$", "")
+
+   if filelist[filename] == nil then
+      -- If include list is empty, everything is included by default.
+      local included = match_any(runner.configuration.include, filename, true)
+      -- If exclude list is empty, nothing is excluded by default.
+      local excluded = match_any(runner.configuration.exclude, filename, false)
+      filelist[filename] = included and not excluded
+   end
+
+   return filelist[filename]
+end
+
 local function on_line(_, line_nr)
    if tick then
       ctr = ctr + 1
@@ -55,35 +92,8 @@ local function on_line(_, line_nr)
       return
    end
 
-   local r = filelist[name]
-   if r == nil then  -- unknown file, check our in/exclude lists
-      local include = false
-      -- normalize paths in patterns
-      local path = name:gsub("\\", "/"):gsub("%.lua$", "")
-      if not runner.configuration.include[1] then
-         include = true  -- no include list --> then everything is included by default
-      else
-         include = false
-         for _, p in ipairs(runner.configuration.include or {}) do
-            if path:match(p) then
-               include = true
-               break
-            end
-         end
-      end
-      if include and runner.configuration.exclude[1] then
-         for _, p in ipairs(runner.configuration.exclude) do
-            if path:match(p) then
-               include = false
-               break
-            end
-         end
-      end
-      if include then r = true else r = false end
-      filelist[name] = r
-   end
-   if r == false then
-     return  -- do not include
+   if not runner.file_included(name) then
+      return
    end
 
    local file = data[name]

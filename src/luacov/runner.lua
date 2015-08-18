@@ -9,21 +9,15 @@ local runner = {}
 local stats = require("luacov.stats")
 runner.defaults = require("luacov.defaults")
 
-local debug    = require"debug"
+local debug = require("debug")
 
-local on_exit_wrap
-do
-  if newproxy then
-    on_exit_wrap = function(fn)
-      local p = newproxy()
-      debug.setmetatable(p, { __gc = fn })
-      return p
-    end
-  else
-    on_exit_wrap = function(fn)
-      return setmetatable({}, { __gc = fn })
-    end
-  end
+local new_anchor = newproxy or function() return {} end
+
+-- Returns an anchor that runs fn when collected.
+local function on_exit_wrap(fn)
+   local anchor = new_anchor()
+   debug.setmetatable(anchor, {__gc = fn})
+   return anchor
 end
 
 local data

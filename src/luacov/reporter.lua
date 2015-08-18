@@ -15,12 +15,11 @@ local fixups = {
    { "=", " ?= ?" }, -- '=' may be surrounded by spaces
    { "(", " ?%( ?" }, -- '(' may be surrounded by spaces
    { ")", " ?%) ?" }, -- ')' may be surrounded by spaces
-   { "<ID>", " ?[%w_]+ ?" }, -- identifier
-   { "<FULLID>", " ?[%w_][%w_%.%[%]]+ ?" }, -- identifier, possibly indexed
+   { "<ID>", "[%w_]+" }, -- identifier
+   { "<FULLID>", "[%w_][%w_%.%[%]]+" }, -- identifier, possibly indexed
    { "<IDS>", "[%w_, ]+" }, -- comma-separated identifiers
    { "<ARGS>", "[%w_, '%.]*" }, -- comma-separated arguments
    { "<FIELDNAME>", "%[? ?['%w_]+ ?%]?" }, -- field, possibly like ["this"]
-   { " [ %?]+", " " }, -- collapse consecutive spacing rules
 }
 
 --- Utility function to make patterns more readable

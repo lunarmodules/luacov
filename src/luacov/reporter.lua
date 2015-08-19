@@ -4,6 +4,8 @@
 -- @name luacov.reporter
 local reporter = {}
 
+local luacov = require("luacov.runner")
+
 --- Raw version of string.gsub
 local function replace(s, old, new)
    old = old:gsub("%p", "%%%0")
@@ -149,50 +151,12 @@ function ReporterBase:close()
    self._private = nil
 end
 
-local function norm_path(filename)
-   -- normalize paths in patterns
-   return (filename
-      :gsub("\\", "/")
-      :gsub("%.lua$", "")
-   )
-end
-
-local function file_included(self, filename)
-   local cfg = self._cfg
-   if (not cfg.include) or (not cfg.include[1]) then
-      return true
-   end
-
-   local path = norm_path(filename)
-
-   for _, p in ipairs(cfg.include) do
-      if path:match(p) then return true end
-   end
-
-   return false
-end
-
-local function file_excluded(self, filename)
-   local cfg = self._cfg
-   if (not cfg.exclude) or (not cfg.exclude[1]) then
-     return false
-   end
-
-   local path = norm_path(filename)
-
-   for _, p in ipairs(cfg.exclude) do
-      if path:match(p) then return true end
-   end
-
-   return false
-end
-
 function ReporterBase:files()
    local data = self._data
 
    local names = {}
    for filename, _ in pairs(data) do
-      if file_included(self,filename) and not file_excluded(self, filename) then
+      if luacov.file_included(filename) then
          names[#names + 1] = filename
       end
    end
@@ -361,7 +325,6 @@ end
 ----------------------------------------------------------------
 
 function reporter.report(reporter_class)
-   local luacov = require("luacov.runner")
    local configuration = luacov.load_config()
 
    reporter_class = reporter_class or DefaultReporter

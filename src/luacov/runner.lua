@@ -66,6 +66,52 @@ function runner.file_included(filename)
    return filelist[filename]
 end
 
+local dir_sep = package.config:sub(1, 1)
+
+--------------------------------------------------
+-- Returns real name for a source file name
+-- using <code>modules</code> option.
+function runner.real_name(filename)
+   local orig_filename = filename
+   -- Normalize file names before using patterns.
+   filename = filename:gsub("\\", "/"):gsub("%.lua$", "")
+
+   for i, pattern in ipairs(runner.modules.patterns) do
+      local match = filename:match(pattern)
+
+      if match then
+         local new_filename = runner.modules.filenames[i]
+
+         if new_filename:match("[/\\]$") then
+            -- Given a prefix directory, join it
+            -- with matched part of source file name.
+            new_filename = new_filename .. match .. ".lua"
+         end
+
+         -- Switch slashes back to native.
+         return (new_filename:gsub("[/\\]", dir_sep))
+      end
+   end
+
+   return orig_filename
+end
+
+--------------------------------------------------
+-- Adds stats to an existing file stats table.
+-- @param old_stats stats to be updated.
+-- @param extra_stats another stats table, will be broken during update.
+function runner.update_stats(old_stats, extra_stats)
+   old_stats.max = math.max(old_stats.max, extra_stats.max)
+
+   -- Remove 'max' key so that it does not appear when iterating
+   -- over 'extra_stats'.
+   extra_stats.max = nil
+      
+   for line_nr, run_nr in pairs(extra_stats) do
+      old_stats[line_nr] = (old_stats[line_nr] or 0) + run_nr
+   end
+end
+
 local function on_line(_, line_nr)
    if tick then
       ctr = ctr + 1
@@ -142,6 +188,61 @@ local function file_exists(fname)
    end
 end
 
+local function escape_module_punctuation(ch)
+   if ch == "." then
+      return "/"
+   elseif ch == "*" then
+      return "[^/]+"
+   else
+      return "%" .. ch
+   end
+end
+
+-- This function is used for sorting module names.
+-- More specific (longer) names should come first.
+local function compare_names(name1, name2)
+   return #name1 > #name2 or name1 < name2
+end
+
+-- Sets runner.modules using runner.configuration.modules.
+-- Produces arrays of module patterns and filenames and sets
+-- them as runner.modules.patterns and runner.modules.filenames.
+-- Appends these patterns to the include list.
+local function acknowledge_modules()
+   runner.modules = {patterns = {}, filenames = {}}
+
+   if not runner.configuration.modules then
+      return
+   end
+
+   if not runner.configuration.include then
+      runner.configuration.include = {}
+   end
+
+   local names = {}
+
+   for name in pairs(runner.configuration.modules) do
+      table.insert(names, name)
+   end
+
+   table.sort(names, compare_names)
+
+   for _, name in ipairs(names) do
+      local pattern = name:gsub("%p", escape_module_punctuation) .. "$"
+      local filename = runner.configuration.modules[name]:gsub("[/\\]", dir_sep)
+      table.insert(runner.modules.patterns, pattern)
+      table.insert(runner.configuration.include, pattern)
+      table.insert(runner.modules.filenames, filename)
+
+      if filename:match("init%.lua$") then
+         pattern = pattern:gsub("$$", "/init$")
+         table.insert(runner.modules.patterns, pattern)
+         table.insert(runner.configuration.include, pattern)
+         table.insert(runner.modules.filenames, filename)
+      end
+   end
+end
+
 -- Sets configuration. If some options are missing, default values are used instead.
 local function set_config(configuration)
    runner.configuration = {}
@@ -153,6 +254,8 @@ local function set_config(configuration)
    for option, value in pairs(configuration) do
       runner.configuration[option] = value
    end
+
+   acknowledge_modules()
 end
 
 ------------------------------------------------------
@@ -212,18 +315,9 @@ function runner.resume()
    local loaded = stats.load() or {}
 
    if data then
-      -- Merge collected and loaded data.
       for name, file in pairs(loaded) do
          if data[name] then
-            data[name].max = math.max(data[name].max, file.max)
-
-            -- Remove 'max' key so that it does not appear when iterating
-            -- over 'file'.
-            file.max = nil
-            
-            for line_nr, run_nr in pairs(file) do
-               data[name][line_nr] = (data[name][line_nr] or 0) + run_nr
-            end
+            runner.update_stats(data[name], file)
          else
             data[name] = file
          end

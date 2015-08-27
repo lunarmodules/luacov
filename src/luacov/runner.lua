@@ -66,36 +66,6 @@ function runner.file_included(filename)
    return filelist[filename]
 end
 
-local dir_sep = package.config:sub(1, 1)
-
---------------------------------------------------
--- Returns real name for a source file name
--- using <code>modules</code> option.
-function runner.real_name(filename)
-   local orig_filename = filename
-   -- Normalize file names before using patterns.
-   filename = filename:gsub("\\", "/"):gsub("%.lua$", "")
-
-   for i, pattern in ipairs(runner.modules.patterns) do
-      local match = filename:match(pattern)
-
-      if match then
-         local new_filename = runner.modules.filenames[i]
-
-         if new_filename:match("[/\\]$") then
-            -- Given a prefix directory, join it
-            -- with matched part of source file name.
-            new_filename = new_filename .. match .. ".lua"
-         end
-
-         -- Switch slashes back to native.
-         return (new_filename:gsub("[/\\]", dir_sep))
-      end
-   end
-
-   return orig_filename
-end
-
 --------------------------------------------------
 -- Adds stats to an existing file stats table.
 -- @param old_stats stats to be updated.
@@ -191,11 +161,14 @@ local function file_exists(fname)
    end
 end
 
+local dir_sep = package.config:sub(1, 1)
+local wildcard_expansion = "[^/]+"
+
 local function escape_module_punctuation(ch)
    if ch == "." then
       return "/"
    elseif ch == "*" then
-      return "[^/]+"
+      return wildcard_expansion
    else
       return "%" .. ch
    end
@@ -244,6 +217,38 @@ local function acknowledge_modules()
          table.insert(runner.modules.filenames, filename)
       end
    end
+end
+
+--------------------------------------------------
+-- Returns real name for a source file name
+-- using <code>modules</code> option.
+function runner.real_name(filename)
+   local orig_filename = filename
+   -- Normalize file names before using patterns.
+   filename = filename:gsub("\\", "/"):gsub("%.lua$", "")
+
+   for i, pattern in ipairs(runner.modules.patterns) do
+      local match = filename:match(pattern)
+
+      if match then
+         local new_filename = runner.modules.filenames[i]
+
+         if new_filename:find(wildcard_expansion) then
+            -- Given a prefix directory, join it
+            -- with matched part of source file name.
+            if not new_filename:match("/$") then
+               new_filename = new_filename .. "/"
+            end
+
+            new_filename = new_filename .. match .. ".lua"
+         end
+
+         -- Switch slashes back to native.
+         return (new_filename:gsub("[/\\]", dir_sep))
+      end
+   end
+
+   return orig_filename
 end
 
 -- Sets configuration. If some options are missing, default values are used instead.

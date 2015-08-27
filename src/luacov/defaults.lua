@@ -56,13 +56,13 @@ return {
   -- Has no effect if empty.
   -- Real filenames mentioned here will be used for reporting
   -- even if the modules have been installed elsewhere.
-  -- Module name can contain '*' wildcard to match groups of modules.
-  -- If a module or a group of modules is mapped to a directory (path ending
-  -- with a slash), it will be used as a prefix.
+  -- Module name can contain '*' wildcard to match groups of modules,
+  -- in this case corresponding path will be used as a prefix directory
+  -- where modules from the group are located.
   -- Example:
   -- modules = {
   --   ["some_rock"] = "src/some_rock.lua",
-  --   ["some_rock.*"] = "src/"
+  --   ["some_rock.*"] = "src"
   -- }
   modules = {
   },

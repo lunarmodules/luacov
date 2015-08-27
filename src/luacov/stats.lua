@@ -8,17 +8,19 @@ local stats = {}
 
 -----------------------------------------------------
 -- Loads the stats file.
--- @return table with data
--- @return hitcount of the line with the most hits (to provide the widest number format for reporting)
+-- @return table with data. The table maps filenames to stats tables.
+-- Per-file tables map line numbers to hits or nils when there are no hits.
+-- Additionally, .max field contains maximum line number
+-- and .max_hits contains maximum number of hits in the file.
 function stats.load()
-   local data, most_hits = {}, 0
+   local data = {}
    local fd = io.open(stats.statsfile, "r")
    if not fd then
       return nil
    end
    while true do
-      local nlines = fd:read("*n")
-      if not nlines then
+      local max = fd:read("*n")
+      if not max then
          break
       end
       local skip = fd:read(1)
@@ -30,9 +32,10 @@ function stats.load()
          break
       end
       data[filename] = {
-         max=nlines
+         max = max,
+         max_hits = 0
       }
-      for i = 1, nlines do
+      for i = 1, max do
          local hits = fd:read("*n")
          if not hits then
             break
@@ -43,12 +46,12 @@ function stats.load()
          end
          if hits > 0 then
             data[filename][i] = hits
-            most_hits = math.max(most_hits, hits)
+            data[filename].max_hits = math.max(data[filename].max_hits, hits)
          end
       end
    end
    fd:close()
-   return data, most_hits
+   return data
 end
 
 --------------------------------

@@ -115,23 +115,47 @@ function ReporterBase:new(conf)
    local stats = require("luacov.stats")
 
    stats.statsfile = conf.statsfile
-   local data, most_hits = stats.load()
+   local data = stats.load()
 
    if not data then
-      return nil, "Could not load stats file " .. conf.statsfile .. ".", most_hits
+      return nil, "Could not load stats file " .. conf.statsfile .. "."
    end
+
+   local files = {}
+   local filtered_data = {}
+   local max_hits = 0
+
+   -- Several original paths can map to one real path,
+   -- their stats should be merged in this case.
+   for filename, file_stats in pairs(data) do
+      if luacov.file_included(filename) then
+         filename = luacov.real_name(filename)
+
+         if filtered_data[filename] then
+            luacov.update_stats(filtered_data[filename], file_stats)
+         else
+            table.insert(files, filename)
+            filtered_data[filename] = file_stats
+         end
+
+         max_hits = math.max(max_hits, filtered_data[filename].max_hits)
+      end
+   end
+
+   table.sort(files)
 
    local out, err = io.open(conf.reportfile, "w")
    if not out then return nil, err end
 
    local o = setmetatable({
-      _out  = out;
-      _cfg  = conf;
-      _data = data;
-      _mhit = most_hits;
+      _out  = out,
+      _cfg  = conf,
+      _data = filtered_data,
+      _files = files,
+      _mhit = max_hits,
    }, self)
   
-  return o
+   return o
 end
 
 function ReporterBase:config()
@@ -152,17 +176,7 @@ function ReporterBase:close()
 end
 
 function ReporterBase:files()
-   local data = self._data
-
-   local names = {}
-   for filename, _ in pairs(data) do
-      if luacov.file_included(filename) then
-         names[#names + 1] = filename
-      end
-   end
-   table.sort(names)
-
-   return names
+   return self._files
 end
 
 function ReporterBase:stats(filename)

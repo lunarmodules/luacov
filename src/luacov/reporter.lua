@@ -115,14 +115,15 @@ function ReporterBase:new(conf)
    local stats = require("luacov.stats")
 
    stats.statsfile = conf.statsfile
-   local data, most_hits = stats.load()
+   local data = stats.load()
 
    if not data then
-      return nil, "Could not load stats file " .. conf.statsfile .. ".", most_hits
+      return nil, "Could not load stats file " .. conf.statsfile .. "."
    end
 
    local files = {}
    local filtered_data = {}
+   local max_hits = 0
 
    -- Several original paths can map to one real path,
    -- their stats should be merged in this case.
@@ -136,6 +137,8 @@ function ReporterBase:new(conf)
             table.insert(files, filename)
             filtered_data[filename] = file_stats
          end
+
+         max_hits = math.max(max_hits, filtered_data[filename].max_hits)
       end
    end
 
@@ -149,7 +152,7 @@ function ReporterBase:new(conf)
       _cfg  = conf,
       _data = filtered_data,
       _files = files,
-      _mhit = most_hits,
+      _mhit = max_hits,
    }, self)
   
    return o

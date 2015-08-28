@@ -57,6 +57,8 @@ local zero_hits_exclusions = {
    fixup "return function(<ARGS>)", -- "return function(arg1, ..., argN)"
    fixup "function(<ARGS>)", -- "function(arg1, ..., argN)"
    fixup "local <ID>=function(<ARGS>)", -- "local a = function(arg1, ..., argN)"
+   fixup "local <ID>='", -- local a = [[
+   fixup "<FULLID>='", -- a.b = [[
    fixup "<FULLID>=function(<ARGS>)", -- "a = function(arg1, ..., argN)"
    "break", -- "break" generates no trace in Lua 5.2+
    "{", -- "{" opening table

@@ -145,13 +145,26 @@ test [[
    print("test11")            +
 ]]
 
--- Issue #25.
+-- Lines inside long strings.
 test [=[
 print([[         +
 some long string -
 ]==]             -
 still going      -
 end]])           +
+]=]
+
+-- Assignments of long strings.
+test [=[
+local s = [[ ?
+abc          -
+]]           +
+]=]
+
+test [=[
+t.k = [[ ?
+abc      -
+]]       +
 ]=]
 
 -- Inline long comments.
@@ -169,7 +182,7 @@ test [=[
 
 -- Strange strings.
 test [=[
-local a = "[[\ +
+local a = "[[\ ?
 ]]\            -
 print(b)"      +
 print(a)       +

@@ -280,7 +280,7 @@ function runner.load_config(configuration)
          if file_exists(runner.defaults.configfile) then
             set_config(dofile(runner.defaults.configfile))
          else
-            runner.configuration = runner.defaults
+            set_config(runner.defaults)
          end
       elseif type(configuration) == "string" then
          set_config(dofile(configuration))

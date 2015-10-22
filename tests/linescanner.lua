@@ -193,4 +193,27 @@ local a = ("\     +
 local function(") +
 ]=]
 
+-- Incomplete function declarations.
+test [[
+local function fff(a, -
+   b,                 -
+   c)                 -
+   return a + b + c   +
+end                   -
+]]
+
+test [[
+local function fff( -
+      a, b, c)      -
+   return a + b + c +
+end                 -
+]]
+
+test [[
+local function fff  -
+      (a, b, c)     -
+   return a + b + c +
+end                 -
+]]
+
 print(("%d LineScanner tests passed."):format(ntests))

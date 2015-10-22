@@ -162,9 +162,27 @@ abc          -
 ]=]
 
 test [=[
+s = [[ ?
+abc    -
+]]     +
+]=]
+
+test [=[
 t.k = [[ ?
 abc      -
 ]]       +
+]=]
+
+test [=[
+t.k1.k2 = [[ +
+abc          -
+]]           +
+]=]
+
+test [=[
+t["k"] = [[ ?
+abc         -
+]]          +
 ]=]
 
 -- Inline long comments.
@@ -214,6 +232,17 @@ local function fff  -
       (a, b, c)     -
    return a + b + c +
 end                 -
+]]
+
+-- Local declarations
+test [[
+local function f() end +
+local x                -
+local x, y             -
+local x =              -
+1                      +
+local x, y =           -
+2, 3                   +
 ]]
 
 print(("%d LineScanner tests passed."):format(ntests))

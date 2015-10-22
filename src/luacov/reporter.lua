@@ -18,8 +18,8 @@ local fixups = {
    { "(", " ?%( ?" }, -- '(' may be surrounded by spaces
    { ")", " ?%) ?" }, -- ')' may be surrounded by spaces
    { "<ID>", "[%w_]+" }, -- identifier
-   { "<FULLID>", "[%w_][%w_%.%[%]]+" }, -- identifier, possibly indexed
-   { "<IDS>", "[%w_, ]+" }, -- comma-separated identifiers
+   { "<FULLID>", "[%w_]+[%[%.]?[%w_']*%]?" }, -- identifier, possibly indexed once
+   { "<IDS>", "[%w_ ]+,[%w_, ]+" }, -- at least two comma-separated identifiers
    { "<ARGS>", "[%w_, '%.]*" }, -- comma-separated arguments
    { "<FIELDNAME>", "%[? ?['%w_]+ ?%]?" }, -- field, possibly like ["this"]
 }
@@ -44,6 +44,8 @@ local any_hits_exclusions = {
    "then", -- Single "then"
    "while true do", -- "while true do" generates no code
    "if true then", -- "if true then" generates no code
+   fixup "local <ID>", -- "local var"
+   fixup "local <ID>=", -- "local var ="
    fixup "local <IDS>", -- "local var1, ..., varN"
    fixup "local <IDS>=", -- "local var1, ..., varN ="
    fixup "local function <ID>", -- "local function f (arg1, ..., argN)"

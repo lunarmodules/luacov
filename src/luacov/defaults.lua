@@ -17,7 +17,7 @@ return {
   ["reportfile"] = "luacov.report.out",
 
   -- luacov.stats file updating frequency.
-  -- The lower this value - the more frequenty results will be written out to luacov.stats
+  -- The lower this value - the more frequently results will be written out to luacov.stats
   -- You may want to reduce this value for short lived scripts (to for example 2) to avoid losing coverage data.
   ["savestepsize"] = 100,
 

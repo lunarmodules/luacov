@@ -6,7 +6,7 @@ local reporter = {}
 
 local luacov = require("luacov.runner")
 
---- Raw version of string.gsub
+-- Raw version of string.gsub
 local function replace(s, old, new)
    old = old:gsub("%p", "%%%0")
    new = new:gsub("%%", "%%%%")
@@ -24,7 +24,7 @@ local fixups = {
    { "<FIELDNAME>", "%[? ?['%w_]+ ?%]?" }, -- field, possibly like ["this"]
 }
 
---- Utility function to make patterns more readable
+-- Utility function to make patterns more readable
 local function fixup(pat)
    for _, fixup_pair in ipairs(fixups) do
       pat = replace(pat, fixup_pair[1], fixup_pair[2])

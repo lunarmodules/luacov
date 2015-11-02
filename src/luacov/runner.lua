@@ -124,7 +124,7 @@ end
 -- Runs the reporter specified in configuration.
 -- @param configuration if string, filename of config file (used to call <code>load_config</code>).
 -- If table then config table (see file <code>luacov.default.lua</code> for an example).
--- If <code>configuration.reporter<code> is not set, runs the default reporter;
+-- If <code>configuration.reporter</code> is not set, runs the default reporter;
 -- otherwise, it must be a module name in 'luacov.reporter' namespace.
 -- The module must contain 'report' function, which is called without arguments.
 function runner.run_report(configuration)

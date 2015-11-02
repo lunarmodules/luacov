@@ -1,6 +1,6 @@
 ---------------------------------------------------
 -- Statistics collecting module.
--- Calling the module table is a shortcut to calling the <code>init()</code> method.
+-- Calling the module table is a shortcut to calling the `init()` method.
 -- @class module
 -- @name luacov.runner
 
@@ -122,9 +122,9 @@ end
 
 ------------------------------------------------------
 -- Runs the reporter specified in configuration.
--- @param configuration if string, filename of config file (used to call <code>load_config</code>).
--- If table then config table (see file <code>luacov.default.lua</code> for an example).
--- If <code>configuration.reporter</code> is not set, runs the default reporter;
+-- @param configuration if string, filename of config file (used to call `load_config`).
+-- If table then config table (see file `luacov.default.lua` for an example).
+-- If `configuration.reporter` is not set, runs the default reporter;
 -- otherwise, it must be a module name in 'luacov.reporter' namespace.
 -- The module must contain 'report' function, which is called without arguments.
 function runner.run_report(configuration)
@@ -221,7 +221,7 @@ end
 
 --------------------------------------------------
 -- Returns real name for a source file name
--- using <code>modules</code> option.
+-- using `modules` option.
 function runner.real_name(filename)
    local orig_filename = filename
    -- Normalize file names before using patterns.
@@ -374,8 +374,8 @@ end
 
 --------------------------------------------------
 -- Initializes LuaCov runner to start collecting data.
--- @param configuration if string, filename of config file (used to call <code>load_config</code>).
--- If table then config table (see file <code>luacov.default.lua</code> for an example)
+-- @param configuration if string, filename of config file (used to call `load_config`).
+-- If table then config table (see file `luacov.default.lua` for an example)
 function runner.init(configuration)
    runner.configuration = runner.load_config(configuration)
    stats.statsfile = runner.configuration.statsfile
@@ -545,44 +545,45 @@ local function checkresult(ok, ...)
 end
 
 -------------------------------------------------------------------
--- Adds a file to the exclude list (see <code>defaults.lua</code>).
+-- Adds a file to the exclude list (see `defaults.lua`).
 -- If passed a function, then through debuginfo the source filename is collected. In case of a table
 -- it will recursively search the table for a function, which is then resolved to a filename through debuginfo.
 -- If the parameter is a string, it will first check if a file by that name exists. If it doesn't exist
--- it will call <code>require(name)</code> to load a module by that name, and the result of require (function or
+-- it will call `require(name)` to load a module by that name, and the result of require (function or
 -- table expected) is used as described above to get the sourcefile.
--- @param name string;   literal filename,
---             string;   modulename as passed to require(),
---             function; where containing file is looked up,
---             table;    module table where containing file is looked up
+-- @param name
+-- * string;   literal filename,
+-- * string;   modulename as passed to require(),
+-- * function; where containing file is looked up,
+-- * table;    module table where containing file is looked up
 -- @return the pattern as added to the list, or nil + error
 function runner.excludefile(name)
   return checkresult(pcall(addfiletolist, name, runner.configuration.exclude))
 end
 -------------------------------------------------------------------
--- Adds a file to the include list (see <code>defaults.lua</code>).
--- @param name see <code>excludefile</code>
+-- Adds a file to the include list (see `defaults.lua`).
+-- @param name see `excludefile`
 -- @return the pattern as added to the list, or nil + error
 function runner.includefile(name)
   return checkresult(pcall(addfiletolist, name, runner.configuration.include))
 end
 -------------------------------------------------------------------
--- Adds a tree to the exclude list (see <code>defaults.lua</code>).
--- If <code>name = 'luacov'</code> and <code>level = nil</code> then
+-- Adds a tree to the exclude list (see `defaults.lua`).
+-- If `name = 'luacov'` and `level = nil` then
 -- module 'luacov' (luacov.lua) and the tree 'luacov' (containing `luacov/runner.lua` etc.) is excluded.
--- If <code>name = 'pl.path'</code> and <code>level = true</code> then
+-- If `name = 'pl.path'` and `level = true` then
 -- module 'pl' (pl.lua) and the tree 'pl' (containing `pl/path.lua` etc.) is excluded.
 -- NOTE: in case of an 'init.lua' file, the 'level' parameter will always be set
--- @param name see <code>excludefile</code>
+-- @param name see `excludefile`
 -- @param level if truthy then one level up is added, including the tree
 -- @return the 2 patterns as added to the list (file and tree), or nil + error
 function runner.excludetree(name, level)
   return checkresult(pcall(addtreetolist, name, level, runner.configuration.exclude))
 end
 -------------------------------------------------------------------
--- Adds a tree to the include list (see <code>defaults.lua</code>).
--- @param name see <code>excludefile</code>
--- @param level see <code>includetree</code>
+-- Adds a tree to the include list (see `defaults.lua`).
+-- @param name see `excludefile`
+-- @param level see `includetree`
 -- @return the 2 patterns as added to the list (file and tree), or nil + error
 function runner.includetree(name, level)
   return checkresult(pcall(addtreetolist, name, level, runner.configuration.include))

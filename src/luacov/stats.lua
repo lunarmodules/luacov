@@ -1,6 +1,6 @@
 -----------------------------------------------------
 -- Manages the file with statistics (being) collected.
--- In general the module requires that its property <code>stats.statsfile</code>
+-- In general the module requires that its property `stats.statsfile`
 -- has been set to the filename of the statsfile to create, load, etc.
 -- @class module
 -- @name luacov.stats

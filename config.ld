@@ -1,0 +1,5 @@
+project = "LuaCov"
+description = "Coverage analysis tool for Lua scripts"
+title = "LuaCov Reference"
+dir = "doc/doc"
+file = "src"

@@ -40,12 +40,6 @@ return {
   -- (exclude overrules include, do not include
   -- the .lua extension, path separator is always '/')
   ["exclude"] = {
-    "luacov$",
-    "luacov/reporter$",
-    "luacov/defaults$",
-    "luacov/runner$",
-    "luacov/stats$",
-    "luacov/tick$",
   },
 
   -- Table mapping names of modules to be included to their filenames.

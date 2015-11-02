@@ -51,7 +51,7 @@
 	</li>
 
 	<li>
-		<a href="../../../files/src/luacov/reporter/coveralls.html">src/luacov/reporter/coveralls.lua</a>
+		<a href="../../../files/src/luacov/reporter/default.html">src/luacov/reporter/default.lua</a>
 	</li>
 
 	<li><strong>src/luacov/runner.lua</strong></li>
@@ -97,6 +97,11 @@
 	</tr>
 
 	<tr>
+	<td class="name" nowrap><a href="#runner.file_included">runner.file_included</a>&nbsp;(filename)</td>
+	<td class="summary">Uses LuaCov's configuration to check if a file is included for coverage data collection.</td>
+	</tr>
+
+	<tr>
 	<td class="name" nowrap><a href="#runner.includefile">runner.includefile</a>&nbsp;(name)</td>
 	<td class="summary">Adds a file to the include list (see <code>defaults.lua</code>).</td>
 	</tr>
@@ -117,8 +122,33 @@
 	</tr>
 
 	<tr>
+	<td class="name" nowrap><a href="#runner.pause">runner.pause</a>&nbsp;()</td>
+	<td class="summary">Pauses LuaCov's runner.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#runner.real_name">runner.real_name</a>&nbsp;(filename)</td>
+	<td class="summary">Returns real name for a source file name using <code>modules</code> option.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#runner.resume">runner.resume</a>&nbsp;()</td>
+	<td class="summary">Resumes LuaCov's runner.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#runner.run_report">runner.run_report</a>&nbsp;(configuration)</td>
+	<td class="summary">Runs the reporter specified in configuration.</td>
+	</tr>
+
+	<tr>
 	<td class="name" nowrap><a href="#runner.shutdown">runner.shutdown</a>&nbsp;()</td>
 	<td class="summary">Shuts down LuaCov's runner.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#runner.update_stats">runner.update_stats</a>&nbsp;(old_stats, extra_stats)</td>
+	<td class="summary">Adds stats to an existing file stats table.</td>
 	</tr>
 
 </table>
@@ -141,7 +171,7 @@
 
 <dt><a name="runner.excludefile"></a><strong>runner.excludefile</strong>&nbsp;(name)</dt>
 <dd>
-Adds a file to the exclude list (see <code>defaults.lua</code>). If passed a function, then through debuginfo the source filename is collected. In case of a table it will recursively search teh table for a function, which is then resolved to a filename through debuginfo. If the parameter is a string, it will first check if a file by that name exists. If it doesn't exist it will call <code>require(name)</code> to load a module by that name, and the result of require (function or table expected) is used as described above to get the sourcefile.
+Adds a file to the exclude list (see <code>defaults.lua</code>). If passed a function, then through debuginfo the source filename is collected. In case of a table it will recursively search the table for a function, which is then resolved to a filename through debuginfo. If the parameter is a string, it will first check if a file by that name exists. If it doesn't exist it will call <code>require(name)</code> to load a module by that name, and the result of require (function or table expected) is used as described above to get the sourcefile.
 
 
 <h3>Parameters</h3>
@@ -193,6 +223,35 @@ Adds a tree to the exclude list (see <code>defaults.lua</code>). If <code>name =
 
 <h3>Return value:</h3>
 the 2 patterns as added to the list (file and tree), or nil + error
+
+
+
+</dd>
+
+
+
+
+<dt><a name="runner.file_included"></a><strong>runner.file_included</strong>&nbsp;(filename)</dt>
+<dd>
+Uses LuaCov's configuration to check if a file is included for coverage data collection.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  filename: 
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+true if file is included, false otherwise.
 
 
 
@@ -309,7 +368,93 @@ Loads a valid configuration.
 
 
 <h3>Return value:</h3>
-existing configuration if already set, otherwise loads a new config from the provided data or the defaults
+existing configuration if already set, otherwise loads a new config from the provided data or the defaults. When loading a new config, if some options are missing, default values are used instead.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="runner.pause"></a><strong>runner.pause</strong>&nbsp;()</dt>
+<dd>
+Pauses LuaCov's runner. Saves collected data and stops, allowing other processes to write to the same stats file. Data is still collected during pause.
+
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="runner.real_name"></a><strong>runner.real_name</strong>&nbsp;(filename)</dt>
+<dd>
+Returns real name for a source file name using <code>modules</code> option.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  filename: 
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="runner.resume"></a><strong>runner.resume</strong>&nbsp;()</dt>
+<dd>
+Resumes LuaCov's runner. Reloads stats file, possibly updated from other processes, and continues saving collected data.
+
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="runner.run_report"></a><strong>runner.run_report</strong>&nbsp;(configuration)</dt>
+<dd>
+Runs the reporter specified in configuration.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  configuration: if string, filename of config file (used to call <code>load_config</code>). If table then config table (see file <code>luacov.default.lua</code> for an example). If <code>configuration.reporter</code> is not set, runs the default reporter; otherwise, it must be a module name in 'luacov.reporter' namespace. The module must contain 'report' function, which is called without arguments.
+	</li>
+	
+</ul>
+
+
+
+
+
 
 
 
@@ -322,6 +467,36 @@ existing configuration if already set, otherwise loads a new config from the pro
 <dd>
 Shuts down LuaCov's runner. This should only be called from daemon processes or sandboxes which have disabled os.exit and other hooks that are used to determine shutdown.
 
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="runner.update_stats"></a><strong>runner.update_stats</strong>&nbsp;(old_stats, extra_stats)</dt>
+<dd>
+Adds stats to an existing file stats table.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  old_stats: stats to be updated.
+	</li>
+	
+	<li>
+	  extra_stats: another stats table, will be broken during update.
+	</li>
+	
+</ul>
 
 
 

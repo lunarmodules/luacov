@@ -266,6 +266,8 @@ local function set_config(configuration)
    acknowledge_modules()
 end
 
+local default_config_file = ".luacov"
+
 ------------------------------------------------------
 -- Loads a valid configuration.
 -- @param configuration user provided config (config-table or filename)
@@ -277,8 +279,8 @@ function runner.load_config(configuration)
    if not runner.configuration then
       if not configuration then
          -- nothing provided, load from default location if possible
-         if file_exists(runner.defaults.configfile) then
-            set_config(dofile(runner.defaults.configfile))
+         if file_exists(default_config_file) then
+            set_config(dofile(default_config_file))
          else
             set_config(runner.defaults)
          end

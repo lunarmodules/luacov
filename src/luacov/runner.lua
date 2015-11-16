@@ -1,6 +1,6 @@
 ---------------------------------------------------
 -- Statistics collecting module.
--- Calling the module table is a shortcut to calling the `init()` method.
+-- Calling the module table is a shortcut to calling the `init` function.
 -- @class module
 -- @name luacov.runner
 
@@ -221,7 +221,7 @@ end
 
 --------------------------------------------------
 -- Returns real name for a source file name
--- using `modules` option.
+-- using `luacov.defaults.modules` option.
 function runner.real_name(filename)
    local orig_filename = filename
    -- Normalize file names before using patterns.
@@ -289,7 +289,7 @@ local default_config_file = ".luacov"
 -- @return existing configuration if already set, otherwise loads a new
 -- config from the provided data or the defaults.
 -- When loading a new config, if some options are missing, default values
--- are used instead.
+-- from `luacov.defaults` are used instead.
 function runner.load_config(configuration)
    if not runner.configuration then
       if not configuration then
@@ -545,7 +545,7 @@ local function checkresult(ok, ...)
 end
 
 -------------------------------------------------------------------
--- Adds a file to the exclude list (see `defaults.lua`).
+-- Adds a file to the exclude list (see `luacov.defaults`).
 -- If passed a function, then through debuginfo the source filename is collected. In case of a table
 -- it will recursively search the table for a function, which is then resolved to a filename through debuginfo.
 -- If the parameter is a string, it will first check if a file by that name exists. If it doesn't exist
@@ -561,14 +561,14 @@ function runner.excludefile(name)
   return checkresult(pcall(addfiletolist, name, runner.configuration.exclude))
 end
 -------------------------------------------------------------------
--- Adds a file to the include list (see `defaults.lua`).
+-- Adds a file to the include list (see `luacov.defaults`).
 -- @param name see `excludefile`
 -- @return the pattern as added to the list, or nil + error
 function runner.includefile(name)
   return checkresult(pcall(addfiletolist, name, runner.configuration.include))
 end
 -------------------------------------------------------------------
--- Adds a tree to the exclude list (see `defaults.lua`).
+-- Adds a tree to the exclude list (see `luacov.defaults`).
 -- If `name = 'luacov'` and `level = nil` then
 -- module 'luacov' (luacov.lua) and the tree 'luacov' (containing `luacov/runner.lua` etc.) is excluded.
 -- If `name = 'pl.path'` and `level = true` then
@@ -581,7 +581,7 @@ function runner.excludetree(name, level)
   return checkresult(pcall(addtreetolist, name, level, runner.configuration.exclude))
 end
 -------------------------------------------------------------------
--- Adds a tree to the include list (see `defaults.lua`).
+-- Adds a tree to the include list (see `luacov.defaults`).
 -- @param name see `excludefile`
 -- @param level see `includetree`
 -- @return the 2 patterns as added to the list (file and tree), or nil + error

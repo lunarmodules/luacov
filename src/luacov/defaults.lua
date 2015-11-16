@@ -6,10 +6,6 @@
 -- @name luacov.defaults
 return {
 
-  -- default filename to load for config options if not provided
-  -- only has effect in 'luacov.defaults.lua'
-  ["configfile"] = ".luacov",
-
   -- filename to store stats collected
   ["statsfile"] = "luacov.stats.out",
 
@@ -44,12 +40,6 @@ return {
   -- (exclude overrules include, do not include
   -- the .lua extension, path separator is always '/')
   ["exclude"] = {
-    "luacov$",
-    "luacov/reporter$",
-    "luacov/defaults$",
-    "luacov/runner$",
-    "luacov/stats$",
-    "luacov/tick$",
   },
 
   -- Table mapping names of modules to be included to their filenames.

@@ -251,6 +251,17 @@ function runner.real_name(filename)
    return orig_filename
 end
 
+-- Always exclude luacov's own files.
+local luacov_excludes = {
+   "luacov$",
+   "luacov/reporter$",
+   "luacov/reporter/default$",
+   "luacov/defaults$",
+   "luacov/runner$",
+   "luacov/stats$",
+   "luacov/tick$"
+}
+
 -- Sets configuration. If some options are missing, default values are used instead.
 local function set_config(configuration)
    runner.configuration = {}
@@ -264,7 +275,13 @@ local function set_config(configuration)
    end
 
    acknowledge_modules()
+
+   for _, patt in ipairs(luacov_excludes) do
+      table.insert(runner.configuration.exclude, patt)
+   end
 end
+
+local default_config_file = ".luacov"
 
 ------------------------------------------------------
 -- Loads a valid configuration.
@@ -277,8 +294,8 @@ function runner.load_config(configuration)
    if not runner.configuration then
       if not configuration then
          -- nothing provided, load from default location if possible
-         if file_exists(runner.defaults.configfile) then
-            set_config(dofile(runner.defaults.configfile))
+         if file_exists(default_config_file) then
+            set_config(dofile(default_config_file))
          else
             set_config(runner.defaults)
          end

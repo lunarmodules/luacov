@@ -1,0 +1,454 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>LuaCov Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>LuaCov</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/luacov.html">luacov</a></li>
+  <li><a href="../modules/luacov.defaults.html">luacov.defaults</a></li>
+  <li><a href="../modules/luacov.reporter.html">luacov.reporter</a></li>
+  <li><strong>luacov.runner</strong></li>
+  <li><a href="../modules/luacov.stats.html">luacov.stats</a></li>
+  <li><a href="../modules/luacov.tick.html">luacov.tick</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>luacov.runner</code></h1>
+<p>Statistics collecting module.</p>
+<p> Calling the module table is a shortcut to calling the <a href="../modules/luacov.runner.html#init">init</a> function.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#file_included">file_included (filename)</a></td>
+	<td class="summary">Uses LuaCov's configuration to check if a file is included for
+ coverage data collection.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#update_stats">update_stats (old_stats, extra_stats)</a></td>
+	<td class="summary">Adds stats to an existing file stats table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#run_report">run_report ([configuration])</a></td>
+	<td class="summary">Runs the reporter specified in configuration.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#real_name">real_name (filename)</a></td>
+	<td class="summary">Returns real name for a source file name
+ using <a href="../modules/luacov.defaults.html#modules">luacov.defaults.modules</a> option.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#load_config">load_config ([configuration])</a></td>
+	<td class="summary">Loads a valid configuration.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pause">pause ()</a></td>
+	<td class="summary">Pauses LuaCov's runner.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#resume">resume ()</a></td>
+	<td class="summary">Resumes LuaCov's runner.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#init">init ([configuration])</a></td>
+	<td class="summary">Initializes LuaCov runner to start collecting data.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#shutdown">shutdown ()</a></td>
+	<td class="summary">Shuts down LuaCov's runner.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#excludefile">excludefile (name)</a></td>
+	<td class="summary">Adds a file to the exclude list (see <a href="../modules/luacov.defaults.html#">luacov.defaults</a>).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#includefile">includefile (name)</a></td>
+	<td class="summary">Adds a file to the include list (see <a href="../modules/luacov.defaults.html#">luacov.defaults</a>).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#excludetree">excludetree (name, level)</a></td>
+	<td class="summary">Adds a tree to the exclude list (see <a href="../modules/luacov.defaults.html#">luacov.defaults</a>).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#includetree">includetree (name, level)</a></td>
+	<td class="summary">Adds a tree to the include list (see <a href="../modules/luacov.defaults.html#">luacov.defaults</a>).</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "file_included"></a>
+    <strong>file_included (filename)</strong>
+    </dt>
+    <dd>
+    Uses LuaCov's configuration to check if a file is included for
+ coverage data collection.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+        Normalize file names before using patterns.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if file is included, false otherwise.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "update_stats"></a>
+    <strong>update_stats (old_stats, extra_stats)</strong>
+    </dt>
+    <dd>
+    Adds stats to an existing file stats table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">old_stats</span>
+         stats to be updated.
+        </li>
+        <li><span class="parameter">extra_stats</span>
+         another stats table, will be broken during update.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "run_report"></a>
+    <strong>run_report ([configuration])</strong>
+    </dt>
+    <dd>
+    Runs the reporter specified in configuration.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">configuration</span>
+         if string, filename of config file (used to call <a href="../modules/luacov.runner.html#load_config">load_config</a>).
+ If table then config table (see file <code>luacov.default.lua</code> for an example).
+ If <code>configuration.reporter</code> is not set, runs the default reporter;
+ otherwise, it must be a module name in 'luacov.reporter' namespace.
+ The module must contain 'report' function, which is called without arguments.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "real_name"></a>
+    <strong>real_name (filename)</strong>
+    </dt>
+    <dd>
+    Returns real name for a source file name
+ using <a href="../modules/luacov.defaults.html#modules">luacov.defaults.modules</a> option.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "load_config"></a>
+    <strong>load_config ([configuration])</strong>
+    </dt>
+    <dd>
+    Loads a valid configuration.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">configuration</span>
+         user provided config (config-table or filename)
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+         existing configuration if already set, otherwise loads a new
+ config from the provided data or the defaults.
+ When loading a new config, if some options are missing, default values
+ from <a href="../modules/luacov.defaults.html#">luacov.defaults</a> are used instead.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pause"></a>
+    <strong>pause ()</strong>
+    </dt>
+    <dd>
+    Pauses LuaCov's runner.
+ Saves collected data and stops, allowing other processes to write to
+ the same stats file. Data is still collected during pause.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "resume"></a>
+    <strong>resume ()</strong>
+    </dt>
+    <dd>
+    Resumes LuaCov's runner.
+ Reloads stats file, possibly updated from other processes,
+ and continues saving collected data.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "init"></a>
+    <strong>init ([configuration])</strong>
+    </dt>
+    <dd>
+    Initializes LuaCov runner to start collecting data.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">configuration</span>
+         if string, filename of config file (used to call <a href="../modules/luacov.runner.html#load_config">load_config</a>).
+ If table then config table (see file <code>luacov.default.lua</code> for an example)
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "shutdown"></a>
+    <strong>shutdown ()</strong>
+    </dt>
+    <dd>
+    Shuts down LuaCov's runner.
+ This should only be called from daemon processes or sandboxes which have
+ disabled os.exit and other hooks that are used to determine shutdown.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "excludefile"></a>
+    <strong>excludefile (name)</strong>
+    </dt>
+    <dd>
+    Adds a file to the exclude list (see <a href="../modules/luacov.defaults.html#">luacov.defaults</a>).
+ If passed a function, then through debuginfo the source filename is collected. In case of a table
+ it will recursively search the table for a function, which is then resolved to a filename through debuginfo.
+ If the parameter is a string, it will first check if a file by that name exists. If it doesn't exist
+ it will call <code>require(name)</code> to load a module by that name, and the result of require (function or
+ table expected) is used as described above to get the sourcefile.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+
+
+<ul>
+    <li>string;   literal filename,</li>
+    <li>string;   modulename as passed to require(),</li>
+    <li>function; where containing file is looked up,</li>
+    <li>table;    module table where containing file is looked up</li>
+</ul>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the pattern as added to the list, or nil + error
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "includefile"></a>
+    <strong>includefile (name)</strong>
+    </dt>
+    <dd>
+    Adds a file to the include list (see <a href="../modules/luacov.defaults.html#">luacov.defaults</a>).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         see <a href="../modules/luacov.runner.html#excludefile">excludefile</a>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the pattern as added to the list, or nil + error
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "excludetree"></a>
+    <strong>excludetree (name, level)</strong>
+    </dt>
+    <dd>
+    Adds a tree to the exclude list (see <a href="../modules/luacov.defaults.html#">luacov.defaults</a>).
+ If <code>name = &apos;luacov&apos;</code> and <code>level = nil</code> then
+ module 'luacov' (luacov.lua) and the tree 'luacov' (containing <code>luacov/runner.lua</code> etc.) is excluded.
+ If <code>name = &apos;pl.path&apos;</code> and <code>level = true</code> then
+ module 'pl' (pl.lua) and the tree 'pl' (containing <code>pl/path.lua</code> etc.) is excluded.
+ NOTE: in case of an 'init.lua' file, the 'level' parameter will always be set
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         see <a href="../modules/luacov.runner.html#excludefile">excludefile</a>
+        </li>
+        <li><span class="parameter">level</span>
+         if truthy then one level up is added, including the tree
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the 2 patterns as added to the list (file and tree), or nil + error
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "includetree"></a>
+    <strong>includetree (name, level)</strong>
+    </dt>
+    <dd>
+    Adds a tree to the include list (see <a href="../modules/luacov.defaults.html#">luacov.defaults</a>).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         see <a href="../modules/luacov.runner.html#excludefile">excludefile</a>
+        </li>
+        <li><span class="parameter">level</span>
+         see <a href="../modules/luacov.runner.html#includetree">includetree</a>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the 2 patterns as added to the list (file and tree), or nil + error
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2015-11-16 21:06:14 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

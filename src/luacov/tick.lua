@@ -4,5 +4,6 @@
 -- a daemon (i.e., does not properly terminate).
 -- @class module
 -- @name luacov.tick
+-- @see luacov.defaults.savestepsize
 require("luacov")
 return {}

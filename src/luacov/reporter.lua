@@ -545,7 +545,7 @@ end
 
 --- Runs the report generator.
 -- To load a config, use `luacov.runner.load_config` first.
--- @param reporter_class custom reporter class. Will be
+-- @param[opt] reporter_class custom reporter class. Will be
 -- instantiated using 'new' method with configuration
 -- (see `luacov.defaults`) as the argument. It should
 -- return nil + error if something went wrong.

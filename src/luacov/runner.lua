@@ -122,7 +122,7 @@ end
 
 ------------------------------------------------------
 -- Runs the reporter specified in configuration.
--- @param configuration if string, filename of config file (used to call `load_config`).
+-- @param[opt] configuration if string, filename of config file (used to call `load_config`).
 -- If table then config table (see file `luacov.default.lua` for an example).
 -- If `configuration.reporter` is not set, runs the default reporter;
 -- otherwise, it must be a module name in 'luacov.reporter' namespace.
@@ -285,7 +285,7 @@ local default_config_file = ".luacov"
 
 ------------------------------------------------------
 -- Loads a valid configuration.
--- @param configuration user provided config (config-table or filename)
+-- @param[opt] configuration user provided config (config-table or filename)
 -- @return existing configuration if already set, otherwise loads a new
 -- config from the provided data or the defaults.
 -- When loading a new config, if some options are missing, default values
@@ -374,7 +374,7 @@ end
 
 --------------------------------------------------
 -- Initializes LuaCov runner to start collecting data.
--- @param configuration if string, filename of config file (used to call `load_config`).
+-- @param[opt] configuration if string, filename of config file (used to call `load_config`).
 -- If table then config table (see file `luacov.default.lua` for an example)
 function runner.init(configuration)
    runner.configuration = runner.load_config(configuration)

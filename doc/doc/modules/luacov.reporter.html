@@ -1,0 +1,430 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>LuaCov Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>LuaCov</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Class_ReporterBase">Class ReporterBase </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/luacov.html">luacov</a></li>
+  <li><a href="../modules/luacov.defaults.html">luacov.defaults</a></li>
+  <li><strong>luacov.reporter</strong></li>
+  <li><a href="../modules/luacov.runner.html">luacov.runner</a></li>
+  <li><a href="../modules/luacov.stats.html">luacov.stats</a></li>
+  <li><a href="../modules/luacov.tick.html">luacov.tick</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>luacov.reporter</code></h1>
+<p>Report module, will transform statistics file into a report.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#report">report ([reporter_class])</a></td>
+	<td class="summary">Runs the report generator.</td>
+	</tr>
+</table>
+<h2><a href="#Class_ReporterBase">Class ReporterBase </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#ReporterBase:config">ReporterBase:config ()</a></td>
+	<td class="summary">Returns configuration table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ReporterBase:max_hits">ReporterBase:max_hits ()</a></td>
+	<td class="summary">Returns maximum number of hits per line in all coverage data.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ReporterBase:write">ReporterBase:write (...)</a></td>
+	<td class="summary">Writes strings to report file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ReporterBase:files">ReporterBase:files ()</a></td>
+	<td class="summary">Returns array of filenames to be reported.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ReporterBase:stats">ReporterBase:stats (filename)</a></td>
+	<td class="summary">Returns coverage data for a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ReporterBase:on_start">ReporterBase:on_start ()</a></td>
+	<td class="summary">Stub method called before reporting.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ReporterBase:on_new_file">ReporterBase:on_new_file (filename)</a></td>
+	<td class="summary">Stub method called before processing a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ReporterBase:on_empty_line">ReporterBase:on_empty_line (filename, lineno, line)</a></td>
+	<td class="summary">Stub method called for each empty source line
+ and other lines that can't be hit.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ReporterBase:on_mis_line">ReporterBase:on_mis_line (filename, lineno, line)</a></td>
+	<td class="summary">Stub method called for each missed source line.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ReporterBase:on_hit_line">ReporterBase:on_hit_line (filename, lineno, line, hits)</a></td>
+	<td class="summary">Stub method called for each hit source line.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ReporterBase:on_end_file">ReporterBase:on_end_file (filename, hits, miss)</a></td>
+	<td class="summary">Stub method called after a file has been processed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ReporterBase:on_end">ReporterBase:on_end ()</a></td>
+	<td class="summary">Stub method called after reporting.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "report"></a>
+    <strong>report ([reporter_class])</strong>
+    </dt>
+    <dd>
+    Runs the report generator.
+ To load a config, use <a href="../modules/luacov.runner.html#load_config">luacov.runner.load_config</a> first.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">reporter_class</span>
+         custom reporter class. Will be
+ instantiated using 'new' method with configuration
+ (see <a href="../modules/luacov.defaults.html#">luacov.defaults</a>) as the argument. It should
+ return nil + error if something went wrong.
+ After acquiring a reporter object its 'run' and 'close'
+ methods will be called.
+ The easiest way to implement a custom reporter class is to
+ extend <a href="../modules/luacov.reporter.html#ReporterBase">ReporterBase</a>.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header has-description"><a name="Class_ReporterBase"></a>Class ReporterBase </h2>
+
+          <div class="section-description">
+          Basic reporter class stub.
+ Implements 'new', 'run' and 'close' methods required by <a href="../modules/luacov.reporter.html#report">report</a>.
+ Provides some helper methods and stubs to be overridden by child classes.
+          </div>
+            <h3>Usage:</h3>
+            <pre class="example">
+ <span class="keyword">local</span> MyReporter = <span class="global">setmetatable</span>({}, ReporterBase)
+ MyReporter.__index = MyReporter
+ <span class="keyword">function</span> MyReporter:on_hit_line(...)
+    self:write((<span class="string">"File %s: hit line %s %d times"</span>):format(...))
+ <span class="keyword">end</span></pre>
+    <dl class="function">
+    <dt>
+    <a name = "ReporterBase:config"></a>
+    <strong>ReporterBase:config ()</strong>
+    </dt>
+    <dd>
+    Returns configuration table.
+
+
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/luacov.defaults.html#">luacov.defaults</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "ReporterBase:max_hits"></a>
+    <strong>ReporterBase:max_hits ()</strong>
+    </dt>
+    <dd>
+    Returns maximum number of hits per line in all coverage data.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ReporterBase:write"></a>
+    <strong>ReporterBase:write (...)</strong>
+    </dt>
+    <dd>
+    Writes strings to report file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         strings.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ReporterBase:files"></a>
+    <strong>ReporterBase:files ()</strong>
+    </dt>
+    <dd>
+    Returns array of filenames to be reported.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ReporterBase:stats"></a>
+    <strong>ReporterBase:stats (filename)</strong>
+    </dt>
+    <dd>
+    Returns coverage data for a file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+         name of the file.
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/luacov.stats.html#load">luacov.stats.load</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "ReporterBase:on_start"></a>
+    <strong>ReporterBase:on_start ()</strong>
+    </dt>
+    <dd>
+    Stub method called before reporting.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ReporterBase:on_new_file"></a>
+    <strong>ReporterBase:on_new_file (filename)</strong>
+    </dt>
+    <dd>
+    Stub method called before processing a file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+         name of the file.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ReporterBase:on_empty_line"></a>
+    <strong>ReporterBase:on_empty_line (filename, lineno, line)</strong>
+    </dt>
+    <dd>
+    Stub method called for each empty source line
+ and other lines that can't be hit.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+         name of the file.
+        </li>
+        <li><span class="parameter">lineno</span>
+         line number.
+        </li>
+        <li><span class="parameter">line</span>
+         the line itself as a string.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ReporterBase:on_mis_line"></a>
+    <strong>ReporterBase:on_mis_line (filename, lineno, line)</strong>
+    </dt>
+    <dd>
+    Stub method called for each missed source line.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+         name of the file.
+        </li>
+        <li><span class="parameter">lineno</span>
+         line number.
+        </li>
+        <li><span class="parameter">line</span>
+         the line itself as a string.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ReporterBase:on_hit_line"></a>
+    <strong>ReporterBase:on_hit_line (filename, lineno, line, hits)</strong>
+    </dt>
+    <dd>
+    Stub method called for each hit source line.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+         name of the file.
+        </li>
+        <li><span class="parameter">lineno</span>
+         line number.
+        </li>
+        <li><span class="parameter">line</span>
+         the line itself as a string.
+        </li>
+        <li><span class="parameter">hits</span>
+         number of times the line was hit. Should be positive.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ReporterBase:on_end_file"></a>
+    <strong>ReporterBase:on_end_file (filename, hits, miss)</strong>
+    </dt>
+    <dd>
+    Stub method called after a file has been processed.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+         name of the file.
+        </li>
+        <li><span class="parameter">hits</span>
+         total number of hit lines in the file.
+        </li>
+        <li><span class="parameter">miss</span>
+         total number of missed lines in the file.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ReporterBase:on_end"></a>
+    <strong>ReporterBase:on_end ()</strong>
+    </dt>
+    <dd>
+    Stub method called after reporting.
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2015-11-16 21:06:14 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

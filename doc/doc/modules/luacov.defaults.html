@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>LuaCov Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>LuaCov</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Fields">Fields</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/luacov.html">luacov</a></li>
+  <li><strong>luacov.defaults</strong></li>
+  <li><a href="../modules/luacov.reporter.html">luacov.reporter</a></li>
+  <li><a href="../modules/luacov.runner.html">luacov.runner</a></li>
+  <li><a href="../modules/luacov.stats.html">luacov.stats</a></li>
+  <li><a href="../modules/luacov.tick.html">luacov.tick</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>luacov.defaults</code></h1>
+<p>Default configuration file.</p>
+<p> Copy, customize and store in your
+ project folder as '.luacov' for project specific configuration.
+ If some options are missing, their default values from this file
+ will be used.</p>
+
+
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#include">include</a></td>
+	<td class="summary">Patterns for files to include when reporting.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#exclude">exclude</a></td>
+	<td class="summary">Patterns for files to exclude when reporting.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#modules">modules</a></td>
+	<td class="summary">Table mapping names of modules to be included to their filenames.</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#statsfile">statsfile</a></td>
+	<td class="summary">Filename to store collected stats.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#reportfile">reportfile</a></td>
+	<td class="summary">Filename to store report.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#savestepsize">savestepsize</a></td>
+	<td class="summary">Stats file updating frequency for <a href="../modules/luacov.tick.html#">luacov.tick</a>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#runreport">runreport</a></td>
+	<td class="summary">Run reporter on completion?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#deletestats">deletestats</a></td>
+	<td class="summary">Delete stats file after reporting?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#codefromstrings">codefromstrings</a></td>
+	<td class="summary">Process Lua code loaded from raw strings?</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "include"></a>
+    <strong>include</strong>
+    </dt>
+    <dd>
+    Patterns for files to include when reporting.
+ All will be included if nothing is listed.
+ Do not include the '.lua' extension. Path separator is always '/'.
+ Overruled by <a href="../modules/luacov.defaults.html#exclude">exclude</a>.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "exclude"></a>
+    <strong>exclude</strong>
+    </dt>
+    <dd>
+    Patterns for files to exclude when reporting.
+ Nothing will be excluded if nothing is listed.
+ Do not include the '.lua' extension. Path separator is always '/'.
+ Overrules <a href="../modules/luacov.defaults.html#include">include</a>.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "modules"></a>
+    <strong>modules</strong>
+    </dt>
+    <dd>
+    Table mapping names of modules to be included to their filenames.
+ Has no effect if empty.
+ Real filenames mentioned here will be used for reporting
+ even if the modules have been installed elsewhere.
+ Module name can contain '*' wildcard to match groups of modules,
+ in this case corresponding path will be used as a prefix directory
+ where modules from the group are located.
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ modules = {
+    [<span class="string">"some_rock"</span>] = <span class="string">"src/some_rock.lua"</span>,
+    [<span class="string">"some_rock.*"</span>] = <span class="string">"src"</span>
+ }</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "statsfile"></a>
+    <strong>statsfile</strong>
+    </dt>
+    <dd>
+    Filename to store collected stats.  Default: "luacov.stats.out".
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "reportfile"></a>
+    <strong>reportfile</strong>
+    </dt>
+    <dd>
+    Filename to store report.  Default: "luacov.report.out".
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "savestepsize"></a>
+    <strong>savestepsize</strong>
+    </dt>
+    <dd>
+    Stats file updating frequency for <a href="../modules/luacov.tick.html#">luacov.tick</a>.
+ The lower this value - the more frequently results will be written out to the stats file.
+ You may want to reduce this value (to, for example, 2) to avoid losing coverage data in
+ case your program may terminate without triggering luacov exit hooks that are supposed
+ to save the data. Default: 100.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "runreport"></a>
+    <strong>runreport</strong>
+    </dt>
+    <dd>
+    Run reporter on completion?  Default: false.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "deletestats"></a>
+    <strong>deletestats</strong>
+    </dt>
+    <dd>
+    Delete stats file after reporting?  Default: false.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "codefromstrings"></a>
+    <strong>codefromstrings</strong>
+    </dt>
+    <dd>
+    Process Lua code loaded from raw strings?
+ That is, when the 'source' field in the debug info
+ does not start with '@'. Default: false.
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2015-11-16 21:06:14 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

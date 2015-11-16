@@ -292,6 +292,16 @@ end
 end
 
 ----------------------------------------------------------------
+--- Basic reporter class stub.
+-- Implements 'new', 'run' and 'close' methods required by `report`.
+-- Provides some helper methods and stubs to be overridden by child classes.
+-- @usage
+-- local MyReporter = setmetatable({}, ReporterBase)
+-- MyReporter.__index = MyReporter
+-- function MyReporter:on_hit_line(...)
+--    self:write(("File %s: hit line %s %d times"):format(...))
+-- end
+-- @type ReporterBase
 local ReporterBase = {} do
 ReporterBase.__index = ReporterBase
 
@@ -342,14 +352,19 @@ function ReporterBase:new(conf)
    return o
 end
 
+--- Returns configuration table.
+-- @see luacov.defaults
 function ReporterBase:config()
    return self._cfg
 end
 
+--- Returns maximum number of hits per line in all coverage data.
 function ReporterBase:max_hits()
    return self._mhit
 end
 
+--- Writes strings to report file.
+-- @param ... strings.
 function ReporterBase:write(...)
    return self._out:write(...)
 end
@@ -359,32 +374,58 @@ function ReporterBase:close()
    self._private = nil
 end
 
+--- Returns array of filenames to be reported.
 function ReporterBase:files()
    return self._files
 end
 
+--- Returns coverage data for a file.
+-- @param filename name of the file.
+-- @see luacov.stats.load
 function ReporterBase:stats(filename)
    return self._data[filename]
 end
 
+--- Stub method called before reporting.
 function ReporterBase:on_start()
 end
 
+--- Stub method called before processing a file.
+-- @param filename name of the file.
 function ReporterBase:on_new_file(filename)
 end
 
+--- Stub method called for each empty source line
+-- and other lines that can't be hit.
+-- @param filename name of the file.
+-- @param lineno line number.
+-- @param line the line itself as a string.
 function ReporterBase:on_empty_line(filename, lineno, line)
 end
 
+--- Stub method called for each missed source line.
+-- @param filename name of the file.
+-- @param lineno line number.
+-- @param line the line itself as a string.
 function ReporterBase:on_mis_line(filename, lineno, line)
 end
 
+--- Stub method called for each hit source line.
+-- @param filename name of the file.
+-- @param lineno line number.
+-- @param line the line itself as a string.
+-- @param hits number of times the line was hit. Should be positive.
 function ReporterBase:on_hit_line(filename, lineno, line, hits)
 end
 
+--- Stub method called after a file has been processed.
+-- @param filename name of the file.
+-- @param hits total number of hit lines in the file.
+-- @param miss total number of missed lines in the file.
 function ReporterBase:on_end_file(filename, hits, miss)
 end
 
+--- Stub method called after reporting.
 function ReporterBase:on_end()
 end
 
@@ -432,6 +473,7 @@ function ReporterBase:run()
 end
 
 end
+--- @section end
 ----------------------------------------------------------------
 
 ----------------------------------------------------------------
@@ -501,6 +543,16 @@ end
 end
 ----------------------------------------------------------------
 
+--- Runs the report generator.
+-- To load a config, use `luacov.runner.load_config` first.
+-- @param reporter_class custom reporter class. Will be
+-- instantiated using 'new' method with configuration
+-- (see `luacov.defaults`) as the argument. It should
+-- return nil + error if something went wrong.
+-- After acquiring a reporter object its 'run' and 'close'
+-- methods will be called.
+-- The easiest way to implement a custom reporter class is to
+-- extend `ReporterBase`.
 function reporter.report(reporter_class)
    local configuration = luacov.load_config()
 

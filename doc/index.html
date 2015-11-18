@@ -93,6 +93,10 @@ luarocks install luacov
 LuaCov is written in pure Lua and has no external dependencies.
 </p>
 
+<p>
+Alternatively, you can get the code directly from <a href="http://github.com/keplerproject/luacov">the git repo</a>.
+</p>
+
 <h2><a name="instructions"></a>Instructions</h2>
 
 <p>
@@ -111,7 +115,9 @@ your script, like this:
 lua -lluacov test.lua
 </div>
 
-or
+<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or
+</p>
 
 <div class="Example">
 lua -erequire('luacov.runner')('myconfigfilename') test.lua
@@ -169,6 +175,71 @@ just modify the first line of <tt>xavante_start.lua</tt> so it reads:
 <div class="Example">
 #!/usr/bin/env lua -lluacov.tick
 </div>
+
+<h2><a name="history"></a>History</h2>
+
+<dl>
+    <dt><strong>0.8</strong> [September 30, 2015]</dt>
+    <dd>
+        <ul>
+            <li>Improved lexer which reduces false positives</li>
+            <li>luacov.pause() and luacov.resume() functions</li>
+            <li>"modules" option for configuration</li>
+            <li>Plus several fixes and code cleanups.</li>
+        </ul>
+    </dd>
+    <dt><strong>0.7</strong> [January 12, 2015]</dt>
+    <dd>
+        <ul>
+            <li>Improvement in detection of long strings.</li>
+            <li>Added "savestepsize" option.</li>
+            <li>Fix handling "codefromstring" option.</li>
+        </ul>
+    </dd>
+    <dt><strong>0.6</strong> [September 10, 2014]</dt>
+    <dd>
+        <ul>
+            <li>Support for custom reporter objects</li>
+            <li>Configuration option for processing/skipping strings</li>
+            <li>Several fixes: behavior of on_exit, inclusion/exclusions lists, etc.</li>
+        </ul>
+    </dd>
+    <dt><strong>0.5</strong> [February 8, 2014]</dt>
+    <dd>
+        <ul>
+            <li>Improved performance in reporter module</li>
+            <li>More improvements in exclusions list</li>
+        </ul>
+    </dd>
+    <dt><strong>0.4</strong> [December 3, 2013]</dt>
+    <dd>
+        <ul>
+            <li>Lua 5.2 compatibility fixes</li>
+            <li>Several improvements in exclusions list</li>
+        </ul>
+    </dd>
+    <dt><strong>0.3</strong> [October 10, 2012]</dt>
+    <dd>
+        <ul>
+            <li>Added configuration options and files</li>
+            <li>Summary in report</li>
+            <li>Improved handling of long strings and comments</li>
+            <li>Support for coroutines and os.exit()</li>
+        </ul>
+    </dd>
+    <dt><strong>0.2</strong> [April 30, 2009]</dt>
+    <dd>
+        <ul>
+            <li>Ignore code loaded from strings.</li>
+        </ul>
+    </dd>
+    <dt><strong>0.1</strong> [July 16, 2007]</dt>
+    <dd>
+        <ul>
+            <li>Initial release.</li>
+        </ul>
+    </dd>
+</dl>
 
 <h2><a name="credits"></a>Credits</h2>
 

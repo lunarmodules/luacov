@@ -177,7 +177,7 @@ end
 -- This function is used for sorting module names.
 -- More specific (longer) names should come first.
 local function compare_names(name1, name2)
-   return #name1 > #name2 or name1 < name2
+   return #name1 > #name2 or (#name1 == #name2 and name1 < name2)
 end
 
 -- Sets runner.modules using runner.configuration.modules.

@@ -39,7 +39,7 @@ local function match_any(patterns, str, on_empty)
    end
 
    for _, pattern in ipairs(patterns) do
-      if str:match(pattern) then
+      if string.match(str, pattern) then
          return true
       end
    end
@@ -53,7 +53,8 @@ end
 -- @return true if file is included, false otherwise.
 function runner.file_included(filename)
    -- Normalize file names before using patterns.
-   filename = filename:gsub("\\", "/"):gsub("%.lua$", "")
+   filename = string.gsub(filename, "\\", "/")
+   filename = string.gsub(filename, "%.lua$", "")
 
    if filelist[filename] == nil then
       -- If include list is empty, everything is included by default.
@@ -84,6 +85,9 @@ function runner.update_stats(old_stats, extra_stats)
    end
 end
 
+-- Do not use string metamethods within this function:
+-- they may be absent if it's called from a sandboxed environment
+-- or because of carelessly implemented monkey-patching.
 local function on_line(_, line_nr)
    if tick then
       ctr = ctr + 1
@@ -98,8 +102,8 @@ local function on_line(_, line_nr)
 
    -- get name of processed file; ignore Lua code loaded from raw strings
    local name = debug.getinfo(2, "S").source
-   if name:match("^@") then
-      name = name:sub(2)
+   if string.match(name, "^@") then
+      name = string.sub(name, 2)
    elseif not runner.configuration.codefromstrings then
       return
    end

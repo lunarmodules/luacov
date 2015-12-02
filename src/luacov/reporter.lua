@@ -56,6 +56,8 @@ local any_hits_exclusions = {
 local zero_hits_exclusions = {
    "[%w_,=' ]+,", -- "var1 var2," multi columns table stuff
    fixup "<FIELDNAME>=.+[,;]", -- "[123] = 23," "['foo'] = "asd","
+   fixup "<FIELDNAME>=function", -- "[123] = function(...)"
+   fixup "<FIELDNAME>=<PARENS>'", -- "[123] = [[", possibly with opening parens
    fixup "<ARGS>*function", -- "1,2,function(...)"
    fixup "return <ARGS>*function", -- "return 1,2,function(...)"
    "return function", -- "return function(arg1, ..., argN)"

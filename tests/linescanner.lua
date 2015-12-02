@@ -252,4 +252,19 @@ local x, y =           -
 2, 3                   +
 ]]
 
+-- Multiline declarations in tables.
+test [=[
+local t = {           +
+   ["1"] = function() ?
+      foo()           +
+   end,               -
+   ["2"] = ([[        ?
+      %s              -
+   ]]):format(var),   +
+   ["3"] = [[         ?
+      bar()           -
+   ]]                 +
+}                     ?
+]=]
+
 print(("%d LineScanner tests passed."):format(ntests))

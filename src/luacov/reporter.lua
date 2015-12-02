@@ -22,6 +22,7 @@ local fixups = {
    { "<IDS>", "[%w_ ]+,[%w_, ]+" }, -- at least two comma-separated identifiers
    { "<ARGS>", "[%w_, '%.]*" }, -- comma-separated arguments
    { "<FIELDNAME>", "%[? ?['%w_]+ ?%]?" }, -- field, possibly like ["this"]
+   { "<PARENS>", "[ %(]*" }, -- optional opening parentheses
 }
 
 -- Utility function to make patterns more readable
@@ -60,8 +61,8 @@ local zero_hits_exclusions = {
    "return function", -- "return function(arg1, ..., argN)"
    "function", -- "function(arg1, ..., argN)"
    fixup "local <ID>=function", -- "local a = function(arg1, ..., argN)"
-   fixup "local <ID>='", -- local a = [[
-   fixup "<FULLID>='", -- a.b = [[
+   fixup "local <ID>=<PARENS>'", -- "local a = [[", possibly with opening parens
+   fixup "<FULLID>=<PARENS>'", -- "a.b = [[", possibly with opening parens
    fixup "<FULLID>=function", -- "a = function(arg1, ..., argN)"
    "break", -- "break" generates no trace in Lua 5.2+
    "{", -- "{" opening table

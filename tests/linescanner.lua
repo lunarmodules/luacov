@@ -207,8 +207,15 @@ print(a)       +
 ]=]
 
 test [=[
-local a = ("\     +
+local a = ("\     ?
 local function(") +
+]=]
+
+-- String declarations with parentheses.
+test [=[
+local a = ([[   ?
+format %string  -
+]]):format(var) +
 ]=]
 
 -- Incomplete function declarations.

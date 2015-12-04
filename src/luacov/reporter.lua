@@ -66,6 +66,8 @@ local zero_hits_exclusions = {
    fixup "local <ID>=<PARENS>'", -- "local a = [[", possibly with opening parens
    fixup "<FULLID>=<PARENS>'", -- "a.b = [[", possibly with opening parens
    fixup "<FULLID>=function", -- "a = function(arg1, ..., argN)"
+   "} ?,", -- "}," generates no trace if the table ends with a key-value pair
+   "} ?, ?function", -- same with "}, function(...)"
    "break", -- "break" generates no trace in Lua 5.2+
    "{", -- "{" opening table
    "}?[ %)]*", -- optional "{" closing table, possibly with several closing parens

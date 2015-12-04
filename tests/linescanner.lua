@@ -48,7 +48,7 @@ test [[
    local stuff = function (x) return x end +
    local thing = stuff({                   +
       b = { name = 'bob',                  ?
-      },                                   +
+      },                                   ?
       -- comment                           -
    })                                      ?
    print("test2")                          +
@@ -58,7 +58,7 @@ test [[
    local stuff = function (x) return x end +
    local thing = stuff({                   +
       b = { name = 'bob',                  ?
-      },                                   +
+      },                                   ?
       -- comment                           -
    }                                       ?
    )                                       ?
@@ -266,5 +266,25 @@ local t = {           +
    ]]                 +
 }                     ?
 ]=]
+
+-- Hanging table endings.
+test [[
+local v = f({ +
+   a = "foo", ?
+   x = y      +
+},            ?
+function(g)   ?
+   g()        +
+end)          -
+]]
+
+test [[
+local v = f({  +
+   a = "foo",  ?
+   x = y       +
+}, function(g) ?
+   g()         +
+end)           -
+]]
 
 print(("%d LineScanner tests passed."):format(ntests))

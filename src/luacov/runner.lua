@@ -380,6 +380,22 @@ function runner.resume()
    paused = false
 end
 
+local hook_per_thread
+
+-- Determines whether debug hooks are separate for each thread.
+local function has_hook_per_thread()
+   if hook_per_thread == nil then
+      local old_hook, old_mask, old_count = debug.gethook()
+      local noop = function() end
+      debug.sethook(noop, "l")
+      local thread_hook = coroutine.wrap(debug.gethook)()
+      hook_per_thread = thread_hook ~= noop
+      debug.sethook(old_hook, old_mask, old_count)
+   end
+
+   return hook_per_thread
+end
+
 --------------------------------------------------
 -- Initializes LuaCov runner to start collecting data.
 -- @param[opt] configuration if string, filename of config file (used to call `load_config`).
@@ -400,33 +416,34 @@ function runner.init(configuration)
 
    debug.sethook(on_line, "l")
 
-   -- debug must be set for each coroutine separately
-   -- hence wrap coroutine function to set the hook there
-   -- as well
-   local rawcoroutinecreate = coroutine.create
-   coroutine.create = function(...)
-      local co = rawcoroutinecreate(...)
-      debug.sethook(co, on_line, "l")
-      return co
-   end
+   if has_hook_per_thread() then
+      -- debug must be set for each coroutine separately
+      -- hence wrap coroutine function to set the hook there
+      -- as well
+      local rawcoroutinecreate = coroutine.create
+      coroutine.create = function(...)
+         local co = rawcoroutinecreate(...)
+         debug.sethook(co, on_line, "l")
+         return co
+      end
 
-   -- Version of assert which handles non-string errors properly.
-   local function safeassert(ok, ...)
-      if ok then
-         return ...
-      else
-         error(..., 0)
+      -- Version of assert which handles non-string errors properly.
+      local function safeassert(ok, ...)
+         if ok then
+            return ...
+         else
+            error(..., 0)
+         end
+      end
+
+      coroutine.wrap = function(...)
+         local co = rawcoroutinecreate(...)
+         debug.sethook(co, on_line, "l")
+         return function(...)
+            return safeassert(coroutine.resume(co, ...))
+         end
       end
    end
-
-   coroutine.wrap = function(...)
-      local co = rawcoroutinecreate(...)
-      debug.sethook(co, on_line, "l")
-      return function(...)
-         return safeassert(coroutine.resume(co, ...))
-      end
-   end
-
 end
 
 --------------------------------------------------

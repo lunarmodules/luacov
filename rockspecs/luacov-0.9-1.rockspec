@@ -1,7 +1,8 @@
 package = "LuaCov"
-version = "scm-1"
+version = "0.9-1"
 source = {
    url = "git://github.com/keplerproject/luacov",
+   tag = "v0.9"
 }
 description = {
    summary = "Coverage analysis tool for Lua scripts",
@@ -20,19 +21,19 @@ dependencies = {
    "lua >= 5.1"
 }
 build = {
-  type = "builtin",
-  modules = {
-    ["luacov.defaults"] = "src/luacov/defaults.lua",
-    ["luacov"] = "src/luacov.lua",
-    ["luacov.reporter"] = "src/luacov/reporter.lua",
-    ["luacov.reporter.default"] = "src/luacov/reporter/default.lua",
-    ["luacov.runner"] = "src/luacov/runner.lua",
-    ["luacov.stats"] = "src/luacov/stats.lua",
-    ["luacov.tick"] = "src/luacov/tick.lua",
-  },
-  install = {
-    bin = {
-      ["luacov"] = "src/bin/luacov",
-    }
-  }
+   type = "builtin",
+   modules = {
+      ["luacov.defaults"] = "src/luacov/defaults.lua",
+      ["luacov"] = "src/luacov.lua",
+      ["luacov.reporter"] = "src/luacov/reporter.lua",
+      ["luacov.reporter.default"] = "src/luacov/reporter/default.lua",
+      ["luacov.runner"] = "src/luacov/runner.lua",
+      ["luacov.stats"] = "src/luacov/stats.lua",
+      ["luacov.tick"] = "src/luacov/tick.lua",
+   },
+   install = {
+      bin = {
+         ["luacov"] = "src/bin/luacov",
+      }
+   }
 }

@@ -100,4 +100,26 @@ test({
    ["path3/rock/bar.lua"] = false
 })
 
+-- Module priorities.
+
+test({
+   modules = {
+      ["rock.*"] = "src",
+      ["rock.foo"] = "foo.lua"
+   }
+}, {
+   ["path/rock/foo.lua"] = "foo.lua",
+   ["path/rock/bar.lua"] = "src/rock/bar.lua"
+})
+
+test({
+   modules = {
+      ["rock.*"] = "src",
+      ["rock.*.*.*"] = "src"
+   }
+}, {
+   ["path/rock/src/rock/foo.lua"] = "src/rock/foo.lua",
+   ["path/rock/src/rock/foo/bar/baz.lua"] = "src/rock/foo/bar/baz.lua"
+})
+
 print(("%d file filtering tests passed."):format(ntests))

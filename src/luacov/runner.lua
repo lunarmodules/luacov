@@ -179,9 +179,13 @@ local function escape_module_punctuation(ch)
 end
 
 -- This function is used for sorting module names.
--- More specific (longer) names should come first.
+-- More specific names (names with less wildcards) should come first.
+-- E.g. rule for 'foo.bar' should override rule for 'foo.*'
+-- and rule for 'foo.*' should override rule for 'foo.*.*'.
 local function compare_names(name1, name2)
-   return #name1 > #name2 or (#name1 == #name2 and name1 < name2)
+   local _, wildcards1 = name1:gsub("%*", "")
+   local _, wildcards2 = name2:gsub("%*", "")
+   return wildcards1 < wildcards2 or (wildcards1 == wildcards2 and name1 < name2)
 end
 
 -- Sets runner.modules using runner.configuration.modules.

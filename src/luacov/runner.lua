@@ -24,6 +24,7 @@ local data
 local statsfile
 local tick
 local paused = true
+local initialized = false
 local ctr = 0
 
 local filelist = {}
@@ -89,6 +90,10 @@ end
 -- they may be absent if it's called from a sandboxed environment
 -- or because of carelessly implemented monkey-patching.
 local function on_line(_, line_nr)
+   if not initialized then
+      return
+   end
+
    if tick then
       ctr = ctr + 1
       if ctr == runner.configuration.savestepsize then
@@ -397,6 +402,28 @@ local function has_hook_per_thread()
 end
 
 --------------------------------------------------
+-- Wraps a function, enabling coverage gathering in it explicitly.
+-- LuaCov gathers coverage using a debug hook, and patches coroutine
+-- library to set it on created threads when under standard Lua, where each
+-- coroutine has its own hook. If a coroutine is created using Lua C API
+-- or before the monkey-patching, this wrapper should be applied to the
+-- main function of the coroutine. Under LuaJIT this function is redundant,
+-- as there is only one, global debug hook.
+-- @param f a function
+-- @return a function that enables coverage gathering and calls the original function.
+-- @usage
+-- local coro = coroutine.create(runner.with_luacov(func))
+function runner.with_luacov(f)
+   return function(...)
+      if has_hook_per_thread() then
+         debug.sethook(on_line, "l")
+      end
+
+      return f(...)
+   end
+end
+
+--------------------------------------------------
 -- Initializes LuaCov runner to start collecting data.
 -- @param[opt] configuration if string, filename of config file (used to call `load_config`).
 -- If table then config table (see file `luacov.default.lua` for an example)
@@ -444,6 +471,8 @@ function runner.init(configuration)
          end
       end
    end
+
+   initialized = true
 end
 
 --------------------------------------------------

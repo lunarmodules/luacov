@@ -402,10 +402,17 @@ local function has_hook_per_thread()
 end
 
 --------------------------------------------------
--- Wraps a function to be used in a coroutine created via C API.
--- @param f function
--- @return function that enables coverage gathering for current thread
--- and calls original function.
+-- Wraps a function, enabling coverage gathering in it explicitly.
+-- LuaCov gathers coverage using a debug hook, and patches coroutine
+-- library to set it on created threads when under standard Lua, where each
+-- coroutine has its own hook. If a coroutine is created using Lua C API
+-- or before the monkey-patching, this wrapper should be applied to the
+-- main function of the coroutine. Under LuaJIT this function is redundant,
+-- as there is only one, global debug hook.
+-- @param f a function
+-- @return a function that enables coverage gathering and calls the original function.
+-- @usage
+-- local coro = coroutine.create(runner.with_luacov(func))
 function runner.with_luacov(f)
    return function(...)
       if has_hook_per_thread() then

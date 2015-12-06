@@ -408,7 +408,10 @@ end
 -- and calls original function.
 function runner.with_luacov(f)
    return function(...)
-      debug.sethook(on_line, "l")
+      if has_hook_per_thread() then
+         debug.sethook(on_line, "l")
+      end
+
       return f(...)
    end
 end

@@ -64,6 +64,7 @@ local zero_hits_exclusions = {
    "function", -- "function(arg1, ..., argN)"
    fixup "local <ID>=function", -- "local a = function(arg1, ..., argN)"
    fixup "local <ID>=<PARENS>'", -- "local a = [[", possibly with opening parens
+   fixup "local <ID>=nil", -- "local a = nil; local b = nil" produces no trace for the second statement
    fixup "<FULLID>=<PARENS>'", -- "a.b = [[", possibly with opening parens
    fixup "<FULLID>=function", -- "a = function(arg1, ..., argN)"
    "} ?,", -- "}," generates no trace if the table ends with a key-value pair

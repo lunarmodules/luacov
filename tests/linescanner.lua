@@ -40,7 +40,7 @@ end
 
 -- First line used to be annotated as excluded, but was not actually excluded.
 test [[
-   local thing = nil +
+   local thing = nil ?
    print("test1")    +
 ]]
 
@@ -250,6 +250,14 @@ local x =              -
 1                      +
 local x, y =           -
 2, 3                   +
+]]
+
+test [[
+local x = nil     ?
+                  -
+for i = 1, 100 do +
+   x = 1          +
+end               -
 ]]
 
 -- Multiline declarations in tables.

@@ -440,10 +440,12 @@ function ReporterBase:run()
 
    for _, filename in ipairs(self:files()) do
       local file = io.open(filename, "r")
-      local file_hits, file_miss = 0, 0
-      local ok, err
-      if file then ok, err = pcall(function() -- try
+
+      if not file then
+         print("Could not open file " .. filename)
+      else
          self:on_new_file(filename)
+         local file_hits, file_miss = 0, 0
          local filedata = self:stats(filename)
 
          local line_nr = 1
@@ -468,9 +470,8 @@ function ReporterBase:run()
 
             line_nr = line_nr + 1
          end
-      end) -- finally
+
          file:close()
-         assert(ok, err)
          self:on_end_file(filename, file_hits, file_miss)
       end
    end

@@ -36,9 +36,6 @@ local function test(source)
    end
 end
 
--- Tests from tests/issue_1.lua:
-
--- First line used to be annotated as excluded, but was not actually excluded.
 test [[
    local thing = nil ?
    print("test1")    +
@@ -120,7 +117,7 @@ test [[
    print("test9")        +
 ]]
 
--- Line 'c = 3' used to be annotated as excluded, but was not actually excluded.
+-- Line 'c = 3' should be excluded, but can not because it looks like an assignment.
 test [[
    local s = {     +
       a = 1;       ?

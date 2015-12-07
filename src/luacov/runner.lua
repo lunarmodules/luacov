@@ -393,7 +393,7 @@ local function has_hook_per_thread()
       local old_hook, old_mask, old_count = debug.gethook()
       local noop = function() end
       debug.sethook(noop, "l")
-      local thread_hook = coroutine.wrap(debug.gethook)()
+      local thread_hook = coroutine.wrap(function() return debug.gethook() end)()
       hook_per_thread = thread_hook ~= noop
       debug.sethook(old_hook, old_mask, old_count)
    end

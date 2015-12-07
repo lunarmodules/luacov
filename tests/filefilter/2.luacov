@@ -1,0 +1,4 @@
+return {
+   include = {"test$", "test2$"},
+   exclude = {"test$", "test3$"}
+}

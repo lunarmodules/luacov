@@ -1,0 +1,3 @@
+return {
+   include = {"test$", "test2"}
+}

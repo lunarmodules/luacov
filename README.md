@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/keplerproject/luacov.svg?branch=master)](https://travis-ci.org/keplerproject/luacov)
+
 ## Overview
 
 LuaCov is a simple coverage analyzer for [Lua](http://www.lua.org) scripts.

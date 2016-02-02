@@ -89,7 +89,8 @@ end
 -- Do not use string metamethods within this function:
 -- they may be absent if it's called from a sandboxed environment
 -- or because of carelessly implemented monkey-patching.
-local function on_line(_, line_nr)
+local function on_line(_, line_nr,level)
+   level = level or 2
    if not initialized then
       return
    end
@@ -106,7 +107,7 @@ local function on_line(_, line_nr)
    end
 
    -- get name of processed file; ignore Lua code loaded from raw strings
-   local name = debug.getinfo(2, "S").source
+   local name = debug.getinfo(level, "S").source
    if string.match(name, "^@") then
       name = string.sub(name, 2)
    elseif not runner.configuration.codefromstrings then

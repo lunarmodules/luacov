@@ -13,10 +13,6 @@ before_install:
   - hererocks env -r^ --$LUA
   - export PATH=$PWD/env/bin:$PATH
 
-install:
-  - luarocks make rockspecs/luacov-scm-1.rockspec
+install: luarocks make
 
-script:
-  - lua tests/cli.lua
-  - lua tests/filefilter.lua
-  - lua tests/linescanner.lua
+script: make test

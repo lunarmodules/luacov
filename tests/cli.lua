@@ -64,4 +64,6 @@ test("filefilter", "expected2.out", "-c 2.luacov")
 
 test("coroutines")
 
+test("hook")
+
 print(("%d CLI tests passed."):format(ntests))

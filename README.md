@@ -111,6 +111,14 @@ packages. Check them out!
 * Cobertura: https://github.com/britzl/luacov-cobertura
 * Coveralls: https://github.com/moteus/luacov-coveralls
 
+## Using development version
+
+After cloning this repo, these commands may be useful:
+
+* `luarocks make` to install LuaCov from local sources;
+* `make test` to run tests (does not require installing beforehand);
+* `ldoc .` to regenerate documentation using [LDoc](https://github.com/stevedonovan/LDoc).
+
 ## Credits
 
 LuaCov was designed and implemented by Hisham Muhammad as a tool for testing

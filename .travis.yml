@@ -13,6 +13,4 @@ before_install:
   - hererocks env -r^ --$LUA
   - export PATH=$PWD/env/bin:$PATH
 
-install: luarocks make
-
 script: make test

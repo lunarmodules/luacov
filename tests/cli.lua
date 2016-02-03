@@ -35,7 +35,8 @@ local function test(dir, expected_file, flags)
    local init_lua = "package.path=[[?.lua;../../src/?.lua;]]..package.path; corowrap = coroutine.wrap"
    exec(("cd %q && %q -e %q -lluacov test.lua"):format(
       test_dir, lua, init_lua))
-   exec(("cd %q && luacov %s"):format(test_dir, flags))
+   exec(("cd %q && %q -e %q ../../src/bin/luacov %s"):format(
+      test_dir, lua, init_lua, flags))
 
    expected_file = test_dir .. "/" .. expected_file
    local expected = read(expected_file)

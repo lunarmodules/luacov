@@ -61,7 +61,7 @@ local function read_key(i)
 end
 
 local function norm_pat(p)
-   return (p:gsub("[/\\]", "."):gsub("%.lua$", ""))
+   return (p:gsub("\\", "/"):gsub("%.lua$", ""))
 end
 
 local i = 1

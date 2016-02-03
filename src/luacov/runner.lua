@@ -86,10 +86,24 @@ function runner.update_stats(old_stats, extra_stats)
    end
 end
 
--- Do not use string metamethods within this function:
--- they may be absent if it's called from a sandboxed environment
--- or because of carelessly implemented monkey-patching.
-local function on_line(_, line_nr,level)
+--------------------------------------------------
+-- Debug hook set by LuaCov.
+-- Acknowledges that a line is executed, but does nothing
+-- if called manually before coverage gathering is started.
+-- @param _ event type, should always be "line".
+-- @param line_nr line number.
+-- @param[opt] level passed to debug.getinfo to get name of processed file,
+-- 2 by default. Increase it if this function is called manually
+-- from another debug hook.
+-- @usage
+-- local function custom_hook(_, line)
+--    runner.debug_hook(_, line, 3)
+--    extra_processing(line)
+-- end
+function runner.debug_hook(_, line_nr, level)
+   -- Do not use string metamethods within this function:
+   -- they may be absent if it's called from a sandboxed environment
+   -- or because of carelessly implemented monkey-patching.
    level = level or 2
    if not initialized then
       return
@@ -417,7 +431,7 @@ end
 function runner.with_luacov(f)
    return function(...)
       if has_hook_per_thread() then
-         debug.sethook(on_line, "l")
+         debug.sethook(runner.debug_hook, "l")
       end
 
       return f(...)
@@ -442,7 +456,7 @@ function runner.init(configuration)
       rawexit(...)
    end
 
-   debug.sethook(on_line, "l")
+   debug.sethook(runner.debug_hook, "l")
 
    if has_hook_per_thread() then
       -- debug must be set for each coroutine separately
@@ -451,7 +465,7 @@ function runner.init(configuration)
       local rawcoroutinecreate = coroutine.create
       coroutine.create = function(...)
          local co = rawcoroutinecreate(...)
-         debug.sethook(co, on_line, "l")
+         debug.sethook(co, runner.debug_hook, "l")
          return co
       end
 
@@ -466,7 +480,7 @@ function runner.init(configuration)
 
       coroutine.wrap = function(...)
          local co = rawcoroutinecreate(...)
-         debug.sethook(co, on_line, "l")
+         debug.sethook(co, runner.debug_hook, "l")
          return function(...)
             return safeassert(coroutine.resume(co, ...))
          end

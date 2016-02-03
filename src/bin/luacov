@@ -1,86 +1,76 @@
 #!/usr/bin/env lua
--- commandline;
--- luacov [-c configfile] filename filename ...
--- the -c option will load the specifed configfile
--- the filenames are the ones that need to be reported on
-
-local arg = { ... }
-
 local runner = require("luacov.runner")
 
 local patterns = {}
-local configfile = nil
-local reporter = nil
+local configfile
+local reporter
 
-local function show_help()
-   print([[
+local help_message = [[
 luacov - coverage analyzer for Lua scripts
 
 Usage:
-   luacov [-c=configfile] [-r=reporter] [pattern...]
+   luacov [options] [pattern...]
 
    Launch your Lua programs with -lluacov to perform accounting.
-   
+
    Launch this script to generate a report from collected stats.
-   
+
    By default it reports on every Lua file encountered running your
    script. To filter filenames, pass one or more patterns in the
-   command line.
+   command line, or use a config.
 
-   For details of the config file, see the luacov.defaults module.
-   (Copy it and modify it and you'll have a config file.)
+Options:
+   -c filename, --config filename
+
+   Use a config file, .luacov by default. For details see
+   luacov.defaults module.
+
+   -r name, --reporter name
+
+   Use a custom reporter - a module in luacov.reporter.* namespace.
 
 Example:
    luacov foo/bar
    
    This will report only on modules in the foo/bar subtree.
+]]
 
-]])
-end
+local function read_key(i)
+   if arg[i]:sub(1, 1) ~= "-" or #arg[i] == 1 then
+      return nil, arg[i], i + 1
+   end
 
-local function read_key(arg, i)
-   if arg[i]:sub(1,1) ~= '-' then return nil, nil, i end
-   if not arg[i]:sub(2,2) then return "-", nil, i+1 end
-
-   local key, value
-   if arg[i]:sub(2,2) ~= '-' then
-      key   = arg[i]:sub(2,2)
-      value = arg[i]:sub(3)
+   if arg[i]:sub(2, 2) == "-" then
+      local key, value = arg[i]:match("^%-%-([^=]+)=(.*)$")
+      if key then
+         return key, value, i + 1
+      else
+         return arg[i]:sub(3), arg[i + 1], i + 2
+      end
+   else
+      local key = arg[i]:sub(2, 2)
+      local value = arg[i]:sub(3)
       if #value == 0 then
          i = i + 1
          value = arg[i]
-      elseif value:sub(1,1) == '=' then
+      elseif value:sub(1, 1) == "=" then
          value = value:sub(2)
       end
       return key, value, i + 1
    end
-
-   key = arg[i]:sub(3):match("^([^=]+)=")
-   if key then
-      value = arg[i]:sub(4 + #key)
-      return key, value, i+1
-   end
-
-   return arg[i]:sub(3), arg[i+1], i+2
 end
 
 local function norm_pat(p)
-  return((p
-    :gsub("/", ".")
-    :gsub("\\", ".")
-    :gsub("%.lua$", ""))
-  )
+   return (p:gsub("[/\\]", "."):gsub("%.lua$", ""))
 end
-
--- only report on files specified on the command line
 
 local i = 1
 while arg[i] do
    local key, value
-   key, value, i = read_key(arg, i)
+   key, value, i = read_key(i)
    if key then
       if (key == "h") or (key == "help") then
-         show_help()
+         print(help_message)
          os.exit(0)
       elseif (key == "c") or (key == "config") then
          configfile = value
@@ -88,8 +78,7 @@ while arg[i] do
          reporter = value
       end
    else
-      table.insert(patterns, norm_pat(arg[i]))
-      i = i +1
+      table.insert(patterns, norm_pat(value))
    end
 end
 
@@ -100,8 +89,8 @@ configuration.include = configuration.include or {}
 configuration.exclude = configuration.exclude or {}
 
 -- add elements specified on commandline to config
-for i, patt in ipairs(patterns) do
-  table.insert(configuration.include, patt)
+for _, patt in ipairs(patterns) do
+   table.insert(configuration.include, patt)
 end
 
 configuration.reporter = reporter or configuration.reporter

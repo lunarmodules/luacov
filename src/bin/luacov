@@ -16,8 +16,8 @@ Usage:
    Launch this script to generate a report from collected stats.
 
    By default it reports on every Lua file encountered running your
-   script. To filter filenames, pass one or more patterns in the
-   command line, or use a config.
+   script. To filter filenames, pass one or more Lua patterns matching
+   files to be inclueded in the command line, or use a config.
 
 Options:
    -c filename, --config filename

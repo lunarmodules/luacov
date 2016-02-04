@@ -45,13 +45,14 @@ suite. To start the accounting from scratch, just delete the stats file.
 
 To generate a report, just run the `luacov` command-line script. It expects to
 find a file named `luacov.stats.out` in the current directory, and outputs a
-file named `luacov.report.out`. The script take the following parameters;
+file named `luacov.report.out`. The script takes the following parameters:
 
-    luacov [-c=configfile] [filename [ filename[ ...]]]
+    luacov [-c=configfile] [filename...]
 
-For the `-c` option see below at [configuration](#configuration). The filenames (actually
-patterns) indicate the files to include in the report, specifying them here
-equals to adding them to the `include` list in the configuration file.
+For the `-c` option see below at [configuration](#configuration). The filenames
+(actually Lua patterns) indicate the files to include in the report, specifying them here
+equals to adding them to the `include` list in the configuration file, with `.lua`
+extension stripped.
 
 This is an example output of the report file:
 

@@ -30,13 +30,13 @@ return {
   -- does not start with '@'. Default: false.
   codefromstrings = false,
 
-  --- Patterns for files to include when reporting.
+  --- Lua patterns for files to include when reporting.
   -- All will be included if nothing is listed.
   -- Do not include the '.lua' extension. Path separator is always '/'.
   -- Overruled by `exclude`.
   include = {},
 
-  --- Patterns for files to exclude when reporting.
+  --- Lua patterns for files to exclude when reporting.
   -- Nothing will be excluded if nothing is listed.
   -- Do not include the '.lua' extension. Path separator is always '/'.
   -- Overrules `include`.

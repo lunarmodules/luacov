@@ -198,14 +198,44 @@ local function escape_module_punctuation(ch)
    end
 end
 
+local function reversed_module_name_parts(name)
+   local parts = {}
+
+   for part in name:gmatch("[^%.]+") do
+      table.insert(parts, 1, part)
+   end
+
+   return parts
+end
+
 -- This function is used for sorting module names.
--- More specific names (names with less wildcards) should come first.
--- E.g. rule for 'foo.bar' should override rule for 'foo.*'
--- and rule for 'foo.*' should override rule for 'foo.*.*'.
+-- More specific names should come first.
+-- E.g. rule for 'foo.bar' should override rule for 'foo.*',
+-- rule for 'foo.*' should override rule for 'foo.*.*',
+-- and rule for 'a.b' should override rule for 'b'.
+-- To be more precise, because names become patterns that are matched
+-- from the end, the name that has the first (from the end) literal part
+-- (and the corresponding part for the other name is not literal)
+-- is considered more specific.
 local function compare_names(name1, name2)
-   local _, wildcards1 = name1:gsub("%*", "")
-   local _, wildcards2 = name2:gsub("%*", "")
-   return wildcards1 < wildcards2 or (wildcards1 == wildcards2 and name1 < name2)
+   local parts1 = reversed_module_name_parts(name1)
+   local parts2 = reversed_module_name_parts(name2)
+
+   for i = 1, math.max(#parts1, #parts2) do
+      if not parts1[i] then return false end
+      if not parts2[i] then return true end
+
+      local is_literal1 = not parts1[i]:find("%*")
+      local is_literal2 = not parts2[i]:find("%*")
+
+      if is_literal1 ~= is_literal2 then
+         return is_literal1
+      end
+   end
+
+   -- Names are at the same level of specificness,
+   -- fall back to lexicographical comparison.
+   return name1 < name2
 end
 
 -- Sets runner.modules using runner.configuration.modules.

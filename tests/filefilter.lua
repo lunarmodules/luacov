@@ -122,4 +122,24 @@ test({
    ["path/rock/src/rock/foo/bar/baz.lua"] = "src/rock/foo/bar/baz.lua"
 })
 
+test({
+   modules = {
+      ["b"] = "b1.lua",
+      ["a.b"] = "b2.lua"
+   }
+}, {
+   ["path/b.lua"] = "b1.lua",
+   ["path/a/b.lua"] = "b2.lua"
+})
+
+test({
+   modules = {
+      ["b"] = "b1.lua",
+      ["c.b"] = "b2.lua"
+   }
+}, {
+   ["path/b.lua"] = "b1.lua",
+   ["path/c/b.lua"] = "b2.lua"
+})
+
 print(("%d file filtering tests passed."):format(ntests))

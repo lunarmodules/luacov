@@ -57,15 +57,10 @@ function runner.file_included(filename)
    filename = string.gsub(filename, "\\", "/")
    filename = string.gsub(filename, "%.lua$", "")
 
-   if filelist[filename] == nil then
-      -- If include list is empty, everything is included by default.
-      local included = match_any(runner.configuration.include, filename, true)
-      -- If exclude list is empty, nothing is excluded by default.
-      local excluded = match_any(runner.configuration.exclude, filename, false)
-      filelist[filename] = included and not excluded
-   end
-
-   return filelist[filename]
+   -- If include list is empty, everything is included by default.
+   -- If exclude list is empty, nothing is excluded by default.
+   return match_any(runner.configuration.include, filename, true) and
+      not match_any(runner.configuration.exclude, filename, false)
 end
 
 --------------------------------------------------
@@ -122,13 +117,21 @@ function runner.debug_hook(_, line_nr, level)
 
    -- get name of processed file; ignore Lua code loaded from raw strings
    local name = debug.getinfo(level, "S").source
-   if string.match(name, "^@") then
-      name = string.sub(name, 2)
+   local prefixed_name = string.match(name, "^@(.*)")
+   if prefixed_name then
+      name = prefixed_name
    elseif not runner.configuration.codefromstrings then
       return
    end
 
-   if not runner.file_included(name) then
+   local included = filelist[name]
+
+   if included == nil then
+      included = runner.file_included(name)
+      filelist[name] = included
+   end
+
+   if not included then
       return
    end
 
@@ -140,8 +143,12 @@ function runner.debug_hook(_, line_nr, level)
    if line_nr > file.max then
       file.max = line_nr
    end
-   file[line_nr] = (file[line_nr] or 0) + 1
-   file.max_hits = math.max(file.max_hits, file[line_nr])
+
+   local hits = (file[line_nr] or 0) + 1
+   file[line_nr] = hits
+   if hits > file.max_hits then
+      file.max_hits = hits
+   end
 end
 
 ------------------------------------------------------

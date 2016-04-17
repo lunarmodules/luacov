@@ -17,11 +17,9 @@ local fixups = {
    { "=", " ?= ?" }, -- '=' may be surrounded by spaces
    { "(", " ?%( ?" }, -- '(' may be surrounded by spaces
    { ")", " ?%) ?" }, -- ')' may be surrounded by spaces
-   { "<ID>", "[%w_]+" }, -- identifier
-   { "<FULLID>", "[%w_]+[%[%.]?[%w_']*%]?" }, -- identifier, possibly indexed once
-   { "<IDS>", "[%w_ ]+,[%w_, ]+" }, -- at least two comma-separated identifiers
-   { "<ARGS>", "[%w_, '%.]*" }, -- comma-separated arguments
-   { "<FIELDNAME>", "%[? ?['%w_]+ ?%]?" }, -- field, possibly like ["this"]
+   { "<FULLID>", "x ?[%[%.]? ?[ntfx0']* ?%]?" }, -- identifier, possibly indexed once
+   { "<IDS>", "x ?, ?x[x, ]*" }, -- at least two comma-separated identifiers
+   { "<FIELDNAME>", "%[? ?[ntfx0']+ ?%]?" }, -- field, possibly like ["this"]
    { "<PARENS>", "[ %(]*" }, -- optional opening parentheses
 }
 
@@ -43,26 +41,26 @@ local any_hits_exclusions = {
    "do", -- Single "do"
    "if", -- Single "if"
    "then", -- Single "then"
-   "while true do", -- "while true do" generates no code
-   "if true then", -- "if true then" generates no code
-   fixup "local <ID>", -- "local var"
-   fixup "local <ID>=", -- "local var ="
+   "while t do", -- "while true do" generates no code
+   "if t then", -- "if true then" generates no code
+   "local x", -- "local var"
+   fixup "local x=", -- "local var ="
    fixup "local <IDS>", -- "local var1, ..., varN"
    fixup "local <IDS>=", -- "local var1, ..., varN ="
-   fixup "local function <ID>", -- "local function f (arg1, ..., argN)"
+   "local function x", -- "local function f (arg1, ..., argN)"
 }
 
 --- Lines that are only excluded from accounting when they have 0 hits
 local zero_hits_exclusions = {
-   "[%w_,=' ]+,", -- "var1 var2," multi columns table stuff
+   "[ntfx0',= ]+,", -- "var1 var2," multi columns table stuff
    fixup "<FIELDNAME>=.+[,;]", -- "[123] = 23," "['foo'] = "asd","
    fixup "<FIELDNAME>=function", -- "[123] = function(...)"
    fixup "<FIELDNAME>=<PARENS>'", -- "[123] = [[", possibly with opening parens
    "return function", -- "return function(arg1, ..., argN)"
    "function", -- "function(arg1, ..., argN)"
-   fixup "local <ID>=function", -- "local a = function(arg1, ..., argN)"
-   fixup "local <ID>=<PARENS>'", -- "local a = [[", possibly with opening parens
-   fixup "local <ID>=nil", -- "local a = nil; local b = nil" produces no trace for the second statement
+   fixup "local x=function", -- "local a = function(arg1, ..., argN)"
+   fixup "local x=<PARENS>'", -- "local a = [[", possibly with opening parens
+   fixup "local x=n", -- "local a = nil; local b = nil" produces no trace for the second statement
    fixup "<FULLID>=<PARENS>'", -- "a.b = [[", possibly with opening parens
    fixup "<FULLID>=function", -- "a = function(arg1, ..., argN)"
    "} ?,", -- "}," generates no trace if the table ends with a key-value pair
@@ -175,10 +173,25 @@ function LineScanner:skip_number()
    table.insert(self.simple_line_buffer, "0")
 end
 
+local keywords = {["nil"] = "n", ["true"] = "t", ["false"] = "f"}
+
+for _, keyword in ipairs({
+      "and", "break", "do", "else", "elseif", "end", "for", "function", "goto", "if",
+      "in", "local", "not", "or", "repeat", "return", "then", "until", "while"}) do
+   keywords[keyword] = keyword
+end
+
 function LineScanner:skip_name()
    -- It is guaranteed that the first character matches "%a_".
    local _, _, name = self:find("^([%w_]*)")
    self.i = self.i + #name
+
+   if keywords[name] then
+      name = keywords[name]
+   else
+      name = "x"
+   end
+
    table.insert(self.simple_line_buffer, name)
 
    if name == "function" then
@@ -202,10 +215,13 @@ function LineScanner:consume(line)
 
    self.line = line
    -- As scanner goes through the line, it puts its simplified parts into buffer.
-   -- Identifiers and punctuation are preserved. Whitespace is replaced with single space.
+   -- Punctuation is preserved. Whitespace is replaced with single space.
    -- Literal strings are replaced with "''", so that a string literal
    -- containing special characters does not confuse exclusion rules.
    -- Numbers are replaced with "0".
+   -- Identifiers are replaced with "x".
+   -- Literal keywords (nil, true and false) are replaced with "n", "t" and "f",
+   -- other keywords are preserved.
    -- Function declaration arguments are removed.
    self.simple_line_buffer = {}
    self.i = 1

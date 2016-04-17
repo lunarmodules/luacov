@@ -247,6 +247,8 @@ local x =              -
 1                      +
 local x, y =           -
 2, 3                   +
+local x, y = 2,        +
+3                      +
 ]]
 
 test [[

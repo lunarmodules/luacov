@@ -58,6 +58,10 @@ local zero_hits_exclusions = {
    fixup "<FIELDNAME>=<PARENS>'", -- "[123] = [[", possibly with opening parens
    "return function", -- "return function(arg1, ..., argN)"
    "function", -- "function(arg1, ..., argN)"
+   "[ntfx0]", -- Single token expressions leave no trace in tables, function calls and sometimes assignments
+   "''", -- Same for strings
+   "{ ?}", -- Same for empty tables
+   fixup "<FULLID>", -- Same for local variables indexed once
    fixup "local x=function", -- "local a = function(arg1, ..., argN)"
    fixup "local x=<PARENS>'", -- "local a = [[", possibly with opening parens
    fixup "local x=n", -- "local a = nil; local b = nil" produces no trace for the second statement

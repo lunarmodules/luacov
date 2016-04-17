@@ -244,11 +244,11 @@ local function f() end +
 local x                -
 local x, y             -
 local x =              -
-1                      +
+1                      ?
 local x, y =           -
 2, 3                   +
 local x, y = 2,        +
-3                      +
+3                      ?
 ]]
 
 test [[
@@ -272,6 +272,39 @@ local t = {           +
       bar()           -
    ]]                 +
 }                     ?
+]=]
+
+-- Single expressions in tables and calls.
+test [=[
+local x = {  +
+   1,        ?
+   2         ?
+}            ?
+local y = {  +
+   3,        ?
+   id        ?
+}            ?
+local z = {  +
+   ""        ?
+}            ?
+local a = f( +
+   true      ?
+)            ?
+local b = {  +
+   id[1]     ?
+}            ?
+local c = {  +
+   id.abcd   ?
+}            ?
+local d = {  +
+   id.k1.k2  +
+}            ?
+local e = {  +
+   {}        ?
+}            ?
+local f = {  +
+   {foo}     +
+}            ?
 ]=]
 
 -- Hanging table endings.

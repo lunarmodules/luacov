@@ -3,8 +3,6 @@ local luacov = require "luacov.runner"
 
 testlib.f1()
 
-luacov.pause()
-
 local cmd = arg[-5] or "lua"
 local slash = cmd:find("/")
 
@@ -20,7 +18,5 @@ cmd = cmd .. " -e 'dofile([[script.lua]])'"
 
 local ok = os.execute("cd subdir && " .. cmd)
 assert(ok == 0 or ok == true)
-
-luacov.resume()
 
 testlib.f2()

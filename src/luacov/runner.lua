@@ -476,7 +476,7 @@ end
 function runner.init(configuration)
    runner.configuration = runner.load_config(configuration)
    stats.statsfile = runner.configuration.statsfile
-   tick = package.loaded["luacov.tick"]
+   tick = runner.tick
    runner.resume()
 
    -- metatable trick on filehandle won't work if Lua exits through

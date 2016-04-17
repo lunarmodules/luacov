@@ -5,5 +5,7 @@
 -- @class module
 -- @name luacov.tick
 -- @see luacov.defaults.savestepsize
-require("luacov")
+local runner = require("luacov.runner")
+runner.tick = true
+runner.init()
 return {}

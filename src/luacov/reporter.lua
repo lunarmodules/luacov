@@ -58,8 +58,6 @@ local zero_hits_exclusions = {
    fixup "<FIELDNAME>=.+[,;]", -- "[123] = 23," "['foo'] = "asd","
    fixup "<FIELDNAME>=function", -- "[123] = function(...)"
    fixup "<FIELDNAME>=<PARENS>'", -- "[123] = [[", possibly with opening parens
-   fixup "<ARGS>*function", -- "1,2,function(...)"
-   fixup "return <ARGS>*function", -- "return 1,2,function(...)"
    "return function", -- "return function(arg1, ..., argN)"
    "function", -- "function(arg1, ..., argN)"
    fixup "local <ID>=function", -- "local a = function(arg1, ..., argN)"

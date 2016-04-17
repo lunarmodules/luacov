@@ -103,17 +103,6 @@ function runner.debug_hook(_, line_nr, level)
       return
    end
 
-   if tick then
-      ctr = ctr + 1
-      if ctr == runner.configuration.savestepsize then
-         ctr = 0
-
-         if not paused then
-            stats.save(runner.configuration.statsfile, data)
-         end
-      end
-   end
-
    -- get name of processed file; ignore Lua code loaded from raw strings
    local name = debug.getinfo(level, "S").source
    local prefixed_name = string.match(name, "^@(.*)")
@@ -147,6 +136,17 @@ function runner.debug_hook(_, line_nr, level)
    file[line_nr] = hits
    if hits > file.max_hits then
       file.max_hits = hits
+   end
+
+   if tick then
+      ctr = ctr + 1
+      if ctr == runner.configuration.savestepsize then
+         ctr = 0
+
+         if not paused then
+            stats.save(runner.configuration.statsfile, data)
+         end
+      end
    end
 end
 

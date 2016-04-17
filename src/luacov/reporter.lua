@@ -520,56 +520,116 @@ function DefaultReporter:on_start()
    self._empty_format = (" "):rep(most_hits_length + 1)
    self._zero_format  = ("*"):rep(most_hits_length).."0"
    self._count_format = ("%% %dd"):format(most_hits_length+1)
+   self._printed_first_header = false
 end
 
 function DefaultReporter:on_new_file(filename)
-   self:write("\n")
-   self:write("==============================================================================\n")
+   if self._printed_first_header then
+      self:write("\n")
+   else
+      self._printed_first_header = true
+   end
+
+   self:write(("="):rep(78), "\n")
    self:write(filename, "\n")
-   self:write("==============================================================================\n")
+   self:write(("="):rep(78), "\n")
 end
 
 function DefaultReporter:on_empty_line(_, _, line)
-   self:write(self._empty_format, "\t", line, "\n")
+   if line == "" then
+      self:write("\n")
+   else
+      self:write(self._empty_format, " ", line, "\n")
+   end
 end
 
 function DefaultReporter:on_mis_line(_, _, line)
-   self:write(self._zero_format, "\t", line, "\n")
+   self:write(self._zero_format, " ", line, "\n")
 end
 
 function DefaultReporter:on_hit_line(_, _, line, hits)
-   self:write(self._count_format:format(hits), "\t", line, "\n")
+   self:write(self._count_format:format(hits), " ", line, "\n")
 end
 
 function DefaultReporter:on_end_file(filename, hits, miss)
    self._summary[filename] = { hits = hits, miss = miss }
 end
 
+local function coverage_to_string(hits, missed)
+   local total = hits + missed
+
+   if total == 0 then
+      total = 1
+   end
+
+   return ("%.2f%%"):format(hits/total*100.0)
+end
+
 function DefaultReporter:on_end()
    self:write("\n")
-   self:write("==============================================================================\n")
+   self:write(("="):rep(78), "\n")
    self:write("Summary\n")
-   self:write("==============================================================================\n")
+   self:write(("="):rep(78), "\n")
    self:write("\n")
 
-   local function write_total(hits, miss, filename)
-      local total = hits + miss
-      if total == 0 then total = 1 end
+   local lines = {{"File", "Hits", "Missed", "Coverage"}}
+   local total_hits, total_missed = 0, 0
 
-      self:write(hits, "\t", miss, "\t", ("%.2f%%"):format(hits/(total)*100.0), "\t", filename, "\n")
-   end
-
-   local total_hits, total_miss = 0, 0
    for _, filename in ipairs(self:files()) do
-      local s = self._summary[filename]
-      if s then
-         write_total(s.hits, s.miss, filename)
-         total_hits = total_hits + s.hits
-         total_miss = total_miss + s.miss
+      local summary = self._summary[filename]
+
+      if summary then
+         local hits, missed = summary.hits, summary.miss
+
+         table.insert(lines, {
+            filename,
+            tostring(summary.hits),
+            tostring(summary.miss),
+            coverage_to_string(hits, missed)
+         })
+
+         total_hits = total_hits + hits
+         total_missed = total_missed + missed
       end
    end
-   self:write("------------------------\n")
-   write_total(total_hits, total_miss, "")
+
+   table.insert(lines, {
+      "Total",
+      tostring(total_hits),
+      tostring(total_missed),
+      coverage_to_string(total_hits, total_missed)
+   })
+
+   local max_column_lengths = {}
+
+   for _, line in ipairs(lines) do
+      for column_nr, column in ipairs(line) do
+         max_column_lengths[column_nr] = math.max(max_column_lengths[column_nr] or -1, #column)
+      end
+   end
+
+   local table_width = #max_column_lengths - 1
+
+   for _, column_length in ipairs(max_column_lengths) do
+      table_width = table_width + column_length
+   end
+
+
+   for line_nr, line in ipairs(lines) do
+      if line_nr == #lines or line_nr == 2 then
+         self:write(("-"):rep(table_width), "\n")
+      end
+
+      for column_nr, column in ipairs(line) do
+         self:write(column)
+
+         if column_nr == #line then
+            self:write("\n")
+         else
+            self:write((" "):rep(max_column_lengths[column_nr] - #column + 1))
+         end
+      end
+   end
 end
 
 end

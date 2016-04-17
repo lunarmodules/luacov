@@ -1,29 +1,30 @@
-
 ==============================================================================
 test.lua
 ==============================================================================
- 1	local runner = require "luacov.runner"
-  	
-  	local function f(x)
- H	   return coroutine.yield(x + 1) + 2
-  	end
-  	
-  	local function g(x)
- H	   return coroutine.yield(x + 3) + 4
-  	end
-  	
- H	local wf = coroutine.wrap(f)
- H	local wg = corowrap(runner.with_luacov(g))
-  	
- 1	assert(wf(3) == 4)
- 1	assert(wf(5) == 7)
- 1	assert(wg(8) == 11)
- 1	assert(wg(10) == 14)
+ 1 local runner = require "luacov.runner"
+
+   local function f(x)
+ X    return coroutine.yield(x + 1) + 2
+   end
+
+   local function g(x)
+ X    return coroutine.yield(x + 3) + 4
+   end
+
+ X local wf = coroutine.wrap(f)
+ X local wg = corowrap(runner.with_luacov(g))
+
+ 1 assert(wf(3) == 4)
+ 1 assert(wf(5) == 7)
+ 1 assert(wg(8) == 11)
+ 1 assert(wg(10) == 14)
 
 ==============================================================================
 Summary
 ==============================================================================
 
-9	0	100.00%	test.lua
-------------------------
-9	0	100.00%	
+File     Hits Missed Coverage
+-----------------------------
+test.lua 9    0      100.00%
+-----------------------------
+Total    9    0      100.00%

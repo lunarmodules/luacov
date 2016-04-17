@@ -22,7 +22,7 @@ local function read(file)
 end
 
 -- dir must be a subdir of tests/ containing expected.out or expected_file.
--- The file can contain 'H' to match any number of hits.
+-- The file can contain 'X' to match any number of hits.
 -- flags will be passed to luacov.
 local function test(dir, expected_file, flags)
    ntests = ntests + 1
@@ -45,8 +45,8 @@ local function test(dir, expected_file, flags)
 
    local ok
 
-   if expected:find("H") then
-      local expected_pattern = expected:gsub("%p", "%%%0"):gsub("H", "%%d+")
+   if expected:find("X") then
+      local expected_pattern = expected:gsub("%p", "%%%0"):gsub("X", "%%d+")
       ok = actual:match("^" .. expected_pattern .. "$")
    else
       ok = actual == expected

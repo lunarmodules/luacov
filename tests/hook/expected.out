@@ -1,25 +1,26 @@
-
 ==============================================================================
 my_hook.lua
 ==============================================================================
- 1	local runner = require "luacov.runner"
- 1	return function(_, line) runner.debug_hook(_, line, 3) end
+ 1 local runner = require "luacov.runner"
+ 1 return function(_, line) runner.debug_hook(_, line, 3) end
 
 ==============================================================================
 test.lua
 ==============================================================================
- 1	local runner = require "luacov.runner"
- 1	local my_hook = require "my_hook"
- 1	debug.sethook(my_hook, "line")
- 1	local a = 2
- 1	debug.sethook(runner.debug_hook, "line")
- 1	local b = 3
+ 1 local runner = require "luacov.runner"
+ 1 local my_hook = require "my_hook"
+ 1 debug.sethook(my_hook, "line")
+ 1 local a = 2
+ 1 debug.sethook(runner.debug_hook, "line")
+ 1 local b = 3
 
 ==============================================================================
 Summary
 ==============================================================================
 
-2	0	100.00%	my_hook.lua
-6	0	100.00%	test.lua
-------------------------
-8	0	100.00%	
+File        Hits Missed Coverage
+--------------------------------
+my_hook.lua 2    0      100.00%
+test.lua    6    0      100.00%
+--------------------------------
+Total       8    0      100.00%

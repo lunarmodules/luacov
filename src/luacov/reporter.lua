@@ -53,6 +53,7 @@ local any_hits_exclusions = {
 --- Lines that are only excluded from accounting when they have 0 hits
 local zero_hits_exclusions = {
    "[ntfx0',= ]+,", -- "var1 var2," multi columns table stuff
+   "{ ?} ?,", -- Empty table before comma leaves no trace in tables and calls
    fixup "<FIELDNAME>=.+[,;]", -- "[123] = 23," "['foo'] = "asd","
    fixup "<FIELDNAME>=function", -- "[123] = function(...)"
    fixup "<FIELDNAME>=<PARENS>'", -- "[123] = [[", possibly with opening parens

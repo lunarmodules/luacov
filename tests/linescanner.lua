@@ -300,6 +300,7 @@ local d = {  +
    id.k1.k2  +
 }            ?
 local e = {  +
+   {},       ?
    {}        ?
 }            ?
 local f = {  +

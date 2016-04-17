@@ -66,4 +66,6 @@ test("coroutines")
 
 test("hook")
 
+test("nested")
+
 print(("%d CLI tests passed."):format(ntests))

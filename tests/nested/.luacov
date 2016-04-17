@@ -1,0 +1,5 @@
+return {
+   modules = {
+      testlib = "testlib.lua"
+   }
+}

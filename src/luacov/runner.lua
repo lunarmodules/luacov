@@ -21,7 +21,6 @@ local function on_exit_wrap(fn)
 end
 
 local data
-local statsfile
 local tick
 local paused = true
 local initialized = false
@@ -386,8 +385,7 @@ function runner.pause()
    end
 
    paused = true
-   stats.save(data, statsfile)
-   stats.stop(statsfile)
+   stats.save(data)
    -- Reset data, so that after resuming it could be added to data loaded
    -- from the stats file, possibly updated from another process.
    data = {}
@@ -415,10 +413,6 @@ function runner.resume()
    else
       data = loaded
    end
-
-   statsfile = stats.start()
-   runner.statsfile = statsfile
-
 
    if not tick then
       -- As __gc hooks are called in reverse order of their creation,

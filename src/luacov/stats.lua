@@ -55,25 +55,11 @@ function stats.load()
 end
 
 --------------------------------
--- Opens the statfile
--- @return filehandle
-function stats.start()
-   return io.open(stats.statsfile, "w")
-end
-
---------------------------------
--- Closes the statfile
--- @param fd filehandle to the statsfile
-function stats.stop(fd)
-   fd:close()
-end
-
---------------------------------
 -- Saves data to the statfile
 -- @param data data to store
--- @param fd filehandle where to store
-function stats.save(data, fd)
-   fd:seek("set")
+function stats.save(data)
+   local fd = io.open(stats.statsfile, "w")
+
    for filename, filedata in pairs(data) do
       local max = filedata.max
       fd:write(max, ":", filename, "\n")
@@ -86,7 +72,7 @@ function stats.save(data, fd)
       end
       fd:write("\n")
    end
-   fd:flush()
+   fd:close()
 end
 
 return stats

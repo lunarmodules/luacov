@@ -65,6 +65,8 @@ local zero_hits_exclusions = {
    fixup "<FULLID>", -- Same for local variables indexed once
    fixup "local x=function", -- "local a = function(arg1, ..., argN)"
    fixup "local x=<PARENS>'", -- "local a = [[", possibly with opening parens
+   fixup "local x=(<PARENS>", -- "local a = (", possibly with several parens
+   fixup "local <IDS>=(<PARENS>", -- "local a, b = (", possibly with several parens
    fixup "local x=n", -- "local a = nil; local b = nil" produces no trace for the second statement
    fixup "<FULLID>=<PARENS>'", -- "a.b = [[", possibly with opening parens
    fixup "<FULLID>=function", -- "a = function(arg1, ..., argN)"

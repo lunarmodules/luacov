@@ -249,6 +249,10 @@ local x, y =           -
 2, 3                   +
 local x, y = 2,        +
 3                      ?
+local x = (            ?
+   a + b)              +
+local x, y = (         ?
+   a + b), c           +
 ]]
 
 test [[

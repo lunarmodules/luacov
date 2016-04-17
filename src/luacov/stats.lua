@@ -7,7 +7,8 @@ local stats = {}
 -----------------------------------------------------
 -- Loads the stats file.
 -- @param statsfile path to the stats file.
--- @return table with data. The table maps filenames to stats tables.
+-- @return table with data or nil if couldn't load.
+-- The table maps filenames to stats tables.
 -- Per-file tables map line numbers to hits or nils when there are no hits.
 -- Additionally, .max field contains maximum line number
 -- and .max_hits contains maximum number of hits in the file.
@@ -51,22 +52,25 @@ function stats.load(statsfile)
    return data
 end
 
---------------------------------
--- Saves data to the statfile
+-----------------------------------------------------
+-- Saves data to the stats file.
 -- @param statsfile path to the stats file.
--- @param data data to store
+-- @param data data to store.
 function stats.save(statsfile, data)
-   local fd = io.open(statsfile, "w")
+   local fd = assert(io.open(statsfile, "w"))
 
-   for filename, filedata in pairs(data) do
-      local max = filedata.max
-      fd:write(max, ":", filename, "\n")
-      for i = 1, max do
-         local hits = filedata[i]
-         if not hits then
-            hits = 0
-         end
-         fd:write(hits, " ")
+   local filenames = {}
+   for filename in pairs(data) do
+      table.insert(filenames, filename)
+   end
+   table.sort(filenames)
+
+   for _, filename in ipairs(filenames) do
+      local filedata = data[filename]
+      fd:write(filedata.max, ":", filename, "\n")
+
+      for i = 1, filedata.max do
+         fd:write(tostring(filedata[i] or 0), " ")
       end
       fd:write("\n")
    end

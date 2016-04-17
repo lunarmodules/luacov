@@ -74,7 +74,8 @@ local zero_hits_exclusions = {
    "} ?, ?function", -- same with "}, function(...)"
    "break", -- "break" generates no trace in Lua 5.2+
    "{", -- "{" opening table
-   "}?[ %)]*", -- optional "{" closing table, possibly with several closing parens
+   "}?[ %)]*", -- optional closing paren, possibly with several closing parens
+   "[ntf0']+ ?}[ %)]*" -- a constant at the end of a table, possibly with closing parens (for LuaJIT)
 }
 
 local function excluded(exclusions, line)

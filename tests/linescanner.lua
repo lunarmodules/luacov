@@ -312,6 +312,18 @@ local f = {  +
 }            ?
 ]=]
 
+-- Constants in tables.
+test [=[
+local t1 = {   +
+   1,          ?
+   2}          ?
+local t2 = f({ +
+   1,          ?
+   false})     ?
+local t3 = {   +
+   var}        +
+]=]
+
 -- Hanging table endings.
 test [[
 local v = f({ +

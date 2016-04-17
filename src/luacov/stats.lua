@@ -1,20 +1,19 @@
 -----------------------------------------------------
 -- Manages the file with statistics (being) collected.
--- In general the module requires that its property `stats.statsfile`
--- has been set to the filename of the statsfile to create, load, etc.
 -- @class module
 -- @name luacov.stats
 local stats = {}
 
 -----------------------------------------------------
 -- Loads the stats file.
+-- @param statsfile path to the stats file.
 -- @return table with data. The table maps filenames to stats tables.
 -- Per-file tables map line numbers to hits or nils when there are no hits.
 -- Additionally, .max field contains maximum line number
 -- and .max_hits contains maximum number of hits in the file.
-function stats.load()
+function stats.load(statsfile)
    local data = {}
-   local fd = io.open(stats.statsfile, "r")
+   local fd = io.open(statsfile, "r")
    if not fd then
       return nil
    end
@@ -54,9 +53,10 @@ end
 
 --------------------------------
 -- Saves data to the statfile
+-- @param statsfile path to the stats file.
 -- @param data data to store
-function stats.save(data)
-   local fd = io.open(stats.statsfile, "w")
+function stats.save(statsfile, data)
+   local fd = io.open(statsfile, "w")
 
    for filename, filedata in pairs(data) do
       local max = filedata.max

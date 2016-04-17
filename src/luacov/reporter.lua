@@ -335,9 +335,7 @@ ReporterBase.__index = ReporterBase
 
 function ReporterBase:new(conf)
    local stats = require("luacov.stats")
-
-   stats.statsfile = conf.statsfile
-   local data = stats.load()
+   local data = stats.load(conf.statsfile)
 
    if not data then
       return nil, "Could not load stats file " .. conf.statsfile .. "."

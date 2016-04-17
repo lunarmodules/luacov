@@ -109,7 +109,7 @@ function runner.debug_hook(_, line_nr, level)
          ctr = 0
 
          if not paused then
-            stats.save(data)
+            stats.save(runner.configuration.statsfile, data)
          end
       end
    end
@@ -385,7 +385,7 @@ function runner.pause()
    end
 
    paused = true
-   stats.save(data)
+   stats.save(runner.configuration.statsfile, data)
    -- Reset data, so that after resuming it could be added to data loaded
    -- from the stats file, possibly updated from another process.
    data = {}
@@ -400,7 +400,7 @@ function runner.resume()
       return
    end
 
-   local loaded = stats.load() or {}
+   local loaded = stats.load(runner.configuration.statsfile) or {}
 
    if data then
       for name, file in pairs(loaded) do
@@ -475,7 +475,6 @@ end
 -- If table then config table (see file `luacov.default.lua` for an example)
 function runner.init(configuration)
    runner.configuration = runner.load_config(configuration)
-   stats.statsfile = runner.configuration.statsfile
    tick = runner.tick
    runner.resume()
 

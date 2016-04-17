@@ -11,7 +11,7 @@ runner.defaults = require("luacov.defaults")
 
 local debug = require("debug")
 
-local new_anchor = newproxy or function() return {} end
+local new_anchor = newproxy or function() return {} end -- luacheck: compat
 
 -- Returns an anchor that runs fn when collected.
 local function on_exit_wrap(fn)
@@ -109,7 +109,7 @@ function runner.debug_hook(_, line_nr, level)
          ctr = 0
 
          if not paused then
-            stats.save(data, statsfile)
+            stats.save(data)
          end
       end
    end
@@ -482,7 +482,7 @@ function runner.init(configuration)
    -- metatable trick on filehandle won't work if Lua exits through
    -- os.exit() hence wrap that with exit code as well
    local rawexit = os.exit
-   os.exit = function(...)
+   os.exit = function(...) -- luacheck: no global
       on_exit()
       rawexit(...)
    end
@@ -494,7 +494,7 @@ function runner.init(configuration)
       -- hence wrap coroutine function to set the hook there
       -- as well
       local rawcoroutinecreate = coroutine.create
-      coroutine.create = function(...)
+      coroutine.create = function(...) -- luacheck: no global
          local co = rawcoroutinecreate(...)
          debug.sethook(co, runner.debug_hook, "l")
          return co
@@ -509,7 +509,7 @@ function runner.init(configuration)
          end
       end
 
-      coroutine.wrap = function(...)
+      coroutine.wrap = function(...) -- luacheck: no global
          local co = rawcoroutinecreate(...)
          debug.sethook(co, runner.debug_hook, "l")
          return function(...)
@@ -549,7 +549,7 @@ local function findfunction(t, searched)
 
    searched[t] = true
 
-   for k, v in pairs(t) do
+   for _, v in pairs(t) do
       if type(v) == "function" then
          return v
       elseif type(v) == "table" then
@@ -690,4 +690,4 @@ function runner.includetree(name, level)
 end
 
 
-return setmetatable(runner, { ["__call"] = function(self, configfile) runner.init(configfile) end })
+return setmetatable(runner, {__call = function(_, configfile) runner.init(configfile) end})

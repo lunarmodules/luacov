@@ -414,6 +414,9 @@ function ReporterBase:stats(filename)
    return self._data[filename]
 end
 
+-- Stub methods follow.
+-- luacheck: push no unused args
+
 --- Stub method called before reporting.
 function ReporterBase:on_start()
 end
@@ -456,6 +459,8 @@ end
 --- Stub method called after reporting.
 function ReporterBase:on_end()
 end
+
+-- luacheck: pop
 
 function ReporterBase:run()
    self:on_start()
@@ -526,15 +531,15 @@ function DefaultReporter:on_new_file(filename)
    self:write("==============================================================================\n")
 end
 
-function DefaultReporter:on_empty_line(filename, lineno, line)
+function DefaultReporter:on_empty_line(_, _, line)
    self:write(self._empty_format, "\t", line, "\n")
 end
 
-function DefaultReporter:on_mis_line(filename, lineno, line)
+function DefaultReporter:on_mis_line(_, _, line)
    self:write(self._zero_format, "\t", line, "\n")
 end
 
-function DefaultReporter:on_hit_line(filename, lineno, line, hits)
+function DefaultReporter:on_hit_line(_, _, line, hits)
    self:write(self._count_format:format(hits), "\t", line, "\n")
 end
 

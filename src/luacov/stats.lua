@@ -23,8 +23,7 @@ function stats.load()
       if not max then
          break
       end
-      local skip = fd:read(1)
-      if skip ~= ":" then
+      if fd:read(1) ~= ":" then
          break
       end
       local filename = fd:read("*l")
@@ -40,8 +39,7 @@ function stats.load()
          if not hits then
             break
          end
-         local skip = fd:read(1)
-         if skip ~= " " then
+         if fd:read(1) ~= " " then
             break
          end
          if hits > 0 then

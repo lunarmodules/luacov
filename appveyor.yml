@@ -1,0 +1,21 @@
+version: 1.0.{build}
+
+environment:
+  matrix:
+  - LUA: "lua 5.1"
+  - LUA: "lua 5.2"
+  - LUA: "lua 5.3"
+  - LUA: "luajit 2.0"
+  - LUA: "luajit 2.1"
+
+before_build:
+  - ps: Invoke-WebRequest https://raw.githubusercontent.com/mpeterv/hererocks/1745496/hererocks.py -OutFile hererocks.py
+
+build_script:
+  - python hererocks.py here --%LUA%
+  - PATH %CD%\here\bin;%PATH%
+
+test_script:
+  - lua tests\linescanner.lua
+  - lua tests\filefilter.lua
+  - lua tests\cli.lua

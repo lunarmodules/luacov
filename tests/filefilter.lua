@@ -1,5 +1,6 @@
--- Allow testing without installing,
-package.path = "src/?.lua;"..package.path
+local dir_sep = package.config:sub(1, 1)
+-- Allow testing without installing.
+package.path = "src" .. dir_sep .. "?.lua;"..package.path
 
 local ntests = 0
 
@@ -21,7 +22,8 @@ local function test(config, files)
    runner.load_config(config)
 
    for _, filename in ipairs(filenames) do
-      local expected = files[filename]
+      local expected = files[filename] and files[filename]:gsub("/", dir_sep)
+      filename = filename:gsub("/", dir_sep)
       local actual = runner.file_included(filename) and runner.real_name(filename)
 
       if actual ~= expected then

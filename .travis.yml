@@ -10,7 +10,7 @@ env:
 
 before_install:
   - pip install hererocks
-  - hererocks env -r^ --$LUA
+  - hererocks env --$LUA
   - export PATH=$PWD/env/bin:$PATH
 
 script: make test

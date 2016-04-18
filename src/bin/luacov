@@ -5,35 +5,37 @@ local patterns = {}
 local configfile
 local reporter
 
-local help_message = [[
-luacov - coverage analyzer for Lua scripts
+local help_message = ([[
+LuaCov %s - coverage analyzer for Lua scripts
 
 Usage:
    luacov [options] [pattern...]
 
    Launch your Lua programs with -lluacov to perform accounting.
-
    Launch this script to generate a report from collected stats.
-
    By default it reports on every Lua file encountered running your
    script. To filter filenames, pass one or more Lua patterns matching
-   files to be inclueded in the command line, or use a config.
+   files to be included in the command line, or use a config.
 
 Options:
    -c filename, --config filename
 
-   Use a config file, .luacov by default. For details see
-   luacov.defaults module.
+      Use a config file, .luacov by default. For details see
+      luacov.defaults module.
 
    -r name, --reporter name
 
-   Use a custom reporter - a module in luacov.reporter.* namespace.
+      Use a custom reporter - a module in luacov.reporter.* namespace.
 
-Example:
+   -h, --help
+
+      Show this help message and exit.
+
+Examples:
    luacov foo/bar
-   
-   This will report only on modules in the foo/bar subtree.
-]]
+
+      This will report only on modules in the foo/bar subtree.
+]]):format(runner.version)
 
 local function read_key(i)
    if arg[i]:sub(1, 1) ~= "-" or #arg[i] == 1 then

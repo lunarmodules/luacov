@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/keplerproject/luacov.svg?branch=master)](https://travis-ci.org/keplerproject/luacov)
+[![Windows build status](https://ci.appveyor.com/api/projects/status/dd9gk87cpkqo5s58?svg=true)](https://ci.appveyor.com/project/mpeterv/luacov)
 
 ## Overview
 

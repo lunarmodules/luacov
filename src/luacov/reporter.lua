@@ -524,12 +524,6 @@ function DefaultReporter:on_start()
 end
 
 function DefaultReporter:on_new_file(filename)
-   if self._printed_first_header then
-      self:write("\n")
-   else
-      self._printed_first_header = true
-   end
-
    self:write(("="):rep(78), "\n")
    self:write(filename, "\n")
    self:write(("="):rep(78), "\n")
@@ -553,6 +547,7 @@ end
 
 function DefaultReporter:on_end_file(filename, hits, miss)
    self._summary[filename] = { hits = hits, miss = miss }
+   self:write("\n")
 end
 
 local function coverage_to_string(hits, missed)
@@ -566,7 +561,6 @@ local function coverage_to_string(hits, missed)
 end
 
 function DefaultReporter:on_end()
-   self:write("\n")
    self:write(("="):rep(78), "\n")
    self:write("Summary\n")
    self:write(("="):rep(78), "\n")

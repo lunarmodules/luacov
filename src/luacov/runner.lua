@@ -5,6 +5,7 @@
 -- @name luacov.runner
 
 local runner = {}
+--- LuaCov version in `MAJOR.MINOR.PATCH` format.
 runner.version = "0.10.0"
 
 local stats = require("luacov.stats")
@@ -51,6 +52,7 @@ end
 --------------------------------------------------
 -- Uses LuaCov's configuration to check if a file is included for
 -- coverage data collection.
+-- @param filename name of the file.
 -- @return true if file is included, false otherwise.
 function runner.file_included(filename)
    -- Normalize file names before using patterns.
@@ -304,6 +306,7 @@ end
 --------------------------------------------------
 -- Returns real name for a source file name
 -- using `luacov.defaults.modules` option.
+-- @param filename name of the file.
 function runner.real_name(filename)
    local orig_filename = filename
    -- Normalize file names before using patterns.

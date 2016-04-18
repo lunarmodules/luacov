@@ -11,11 +11,11 @@ if slash and slash ~= 1 then
    cmd = ".." .. dir_sep .. cmd
 end
 
-cmd = cmd .. " -e 'package.path=[[../?.lua;../../../src/?.lua;]]'"
-cmd = cmd .. " -e 'osexit = os.exit'"
-cmd = cmd .. " -e 'require([[luacov.runner]]).load_config({statsfile = [[../luacov.stats.out]], savestepsize = 1})'"
+cmd = ("%q"):format(cmd) .. ' -e "package.path=[[../?.lua;../../../src/?.lua;]]"'
+cmd = cmd .. ' -e "osexit = os.exit"'
+cmd = cmd .. ' -e "require([[luacov.runner]]).load_config({statsfile = [[../luacov.stats.out]], savestepsize = 1})"'
 cmd = cmd .. " -l luacov.tick"
-cmd = cmd .. " -e 'dofile([[script.lua]])'"
+cmd = cmd .. ' -e "dofile([[script.lua]])"'
 cmd = cmd:gsub("/", dir_sep)
 
 local ok = os.execute("cd subdir && " .. cmd)

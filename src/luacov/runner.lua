@@ -5,6 +5,7 @@
 -- @name luacov.runner
 
 local runner = {}
+runner.version = "0.10.0"
 
 local stats = require("luacov.stats")
 runner.defaults = require("luacov.defaults")

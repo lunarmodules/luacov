@@ -57,16 +57,16 @@ extension stripped.
 
 This is an example output of the report file:
 
-    ============================================================
-    ../test.lua
-    ============================================================
-
-            -- Which branch will run?
-    1       if 10 > 100 then
-    0          print("I don't think this line will execute.")
-    0       else
-    1          print("Hello, LuaCov!")
-    1       end
+```
+==============================================================================
+test.lua
+==============================================================================
+ 1 if 10 > 100 then
+*0    print("I don't think this line will execute.")
+   else
+ 1    print("Hello, LuaCov!")
+   end
+```
 
 Note that to generate this report, `luacov` reads the source files. Therefore,
 it expects to find them in the same location they were when the `luacov`

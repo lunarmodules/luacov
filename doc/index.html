@@ -143,16 +143,14 @@ directory, and outputs a file named <tt>luacov.report.out</tt>.
 <p>This is an example output of the report file:</p>
 
 <div class="Example"><pre>
-============================================================
-../test.lua
-============================================================
-
-        -- Which branch will run?
-1       if 10 > 100 then
-0          print("I don't think this line will execute.")
-0       else
-1          print("Hello, LuaCov!")
-1       end
+==============================================================================
+test.lua
+==============================================================================
+ 1 if 10 > 100 then
+*0    print("I don't think this line will execute.")
+   else
+ 1    print("Hello, LuaCov!")
+   end
 </pre></div>
 
 <p>
@@ -178,6 +176,17 @@ just modify the first line of <tt>xavante_start.lua</tt> so it reads:
 <h2><a name="history"></a>History</h2>
 
 <dl>
+    <dt><strong>0.11.0</strong> [April 18, 2016]</dt>
+    <dd>
+        <ul>
+            <li>Fixed several cases of lines falsely reported as missed.</li>
+            <li>Fixed <tt>luacov.tick</tt> module not working.</li>
+            <li>Improved default reporter output format.</li>
+            <li>Reduced coverage collection overhead.</li>
+            <li>Changed how coverage is saved, it's now possible to start a child Lua process with LuaCov enabled without wrapping the launch in <tt>luacov.pause</tt> and <tt>luacov.resume</tt> in the parent.
+            <li>Several minor fixes and improvements.</li>
+        </ul>
+    </dd>
     <dt><strong>0.10.0</strong> [February 9, 2016]</dt>
     <dd>
         <ul>

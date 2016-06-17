@@ -22,14 +22,10 @@ local function on_exit_wrap(fn)
    return anchor
 end
 
-local data = {}
-local tick
-local paused = true
-local initialized = false
-local ctr = 0
-
-local filelist = {}
-runner.filelist = filelist
+runner.data = {}
+runner.paused = true
+runner.initialized = false
+runner.tick = false
 
 -- Checks if a string matches at least one of patterns.
 -- @param patterns array of patterns or nil
@@ -84,10 +80,10 @@ function runner.update_stats(old_stats, extra_stats)
 end
 
 -- Adds accumulated stats to existing stats file or writes a new one, then resets data.
-local function save_stats()
+function runner.save_stats()
    local loaded = stats.load(runner.configuration.statsfile) or {}
 
-   for name, file_data in pairs(data) do
+   for name, file_data in pairs(runner.data) do
       if loaded[name] then
          runner.update_stats(loaded[name], file_data)
       else
@@ -96,7 +92,7 @@ local function save_stats()
    end
 
    stats.save(runner.configuration.statsfile, loaded)
-   data = {}
+   runner.data = {}
 end
 
 --------------------------------------------------
@@ -113,61 +109,8 @@ end
 --    runner.debug_hook(_, line, 3)
 --    extra_processing(line)
 -- end
-function runner.debug_hook(_, line_nr, level)
-   -- Do not use string metamethods within this function:
-   -- they may be absent if it's called from a sandboxed environment
-   -- or because of carelessly implemented monkey-patching.
-   level = level or 2
-   if not initialized then
-      return
-   end
-
-   -- get name of processed file; ignore Lua code loaded from raw strings
-   local name = debug.getinfo(level, "S").source
-   local prefixed_name = string.match(name, "^@(.*)")
-   if prefixed_name then
-      name = prefixed_name
-   elseif not runner.configuration.codefromstrings then
-      return
-   end
-
-   local included = filelist[name]
-
-   if included == nil then
-      included = runner.file_included(name)
-      filelist[name] = included
-   end
-
-   if not included then
-      return
-   end
-
-   local file = data[name]
-   if not file then
-      file = {max = 0, max_hits = 0}
-      data[name] = file
-   end
-   if line_nr > file.max then
-      file.max = line_nr
-   end
-
-   local hits = (file[line_nr] or 0) + 1
-   file[line_nr] = hits
-   if hits > file.max_hits then
-      file.max_hits = hits
-   end
-
-   if tick then
-      ctr = ctr + 1
-      if ctr == runner.configuration.savestepsize then
-         ctr = 0
-
-         if not paused then
-            save_stats()
-         end
-      end
-   end
-end
+-- @function debug_hook
+runner.debug_hook = require("luacov.hook").new(runner)
 
 ------------------------------------------------------
 -- Runs the reporter specified in configuration.
@@ -194,7 +137,7 @@ local function on_exit()
    -- so this method could be called twice
    if on_exit_run_once then return end
    on_exit_run_once = true
-   save_stats()
+   runner.save_stats()
 
    if runner.configuration.runreport then
       runner.run_report(runner.configuration)
@@ -339,6 +282,7 @@ end
 -- Always exclude luacov's own files.
 local luacov_excludes = {
    "luacov$",
+   "luacov/hook$",
    "luacov/reporter$",
    "luacov/reporter/default$",
    "luacov/defaults$",
@@ -401,13 +345,13 @@ end
 -- Allows other processes to write to the same stats file.
 -- Data is still collected during pause.
 function runner.pause()
-   paused = true
+   runner.paused = true
 end
 
 --------------------------------------------------
 -- Resumes saving data collected by LuaCov's runner.
 function runner.resume()
-   paused = false
+   runner.paused = false
 end
 
 local hook_per_thread
@@ -454,7 +398,6 @@ end
 -- If table then config table (see file `luacov.default.lua` for an example)
 function runner.init(configuration)
    runner.configuration = runner.load_config(configuration)
-   tick = runner.tick
 
    -- metatable trick on filehandle won't work if Lua exits through
    -- os.exit() hence wrap that with exit code as well
@@ -495,12 +438,12 @@ function runner.init(configuration)
       end
    end
 
-   if not tick then
+   if not runner.tick then
       runner.on_exit_trick = on_exit_wrap(on_exit)
    end
 
-   initialized = true
-   paused = false
+   runner.initialized = true
+   runner.paused = false
 end
 
 --------------------------------------------------

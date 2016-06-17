@@ -29,6 +29,7 @@ build = {
     ["luacov.runner"] = "src/luacov/runner.lua",
     ["luacov.stats"] = "src/luacov/stats.lua",
     ["luacov.tick"] = "src/luacov/tick.lua",
+    ["luacov.hook"] = "src/luacov/hook.lua",
   },
   install = {
     bin = {

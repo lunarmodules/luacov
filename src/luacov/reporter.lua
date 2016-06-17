@@ -5,6 +5,7 @@
 local reporter = {}
 
 local luacov = require("luacov.runner")
+local load = loadstring or load -- luacheck: compat
 
 -- Raw version of string.gsub
 local function replace(s, old, new)
@@ -460,45 +461,85 @@ end
 
 -- luacheck: pop
 
+local cluacov_ok = pcall(require, "cluacov.version")
+local deepactivelines
+
+if cluacov_ok then
+   deepactivelines = require("cluacov.deepactivelines")
+end
+
+function ReporterBase:_run_file(filename)
+   local file = io.open(filename)
+
+   if not file then
+      print("Could not open file " .. filename)
+      return
+   end
+
+   local active_lines
+
+   if cluacov_ok then
+      local src = file:read("*a")
+
+      if not src then
+         print("Could not read file " .. filename)
+         return
+      end
+
+      local func = load(src)
+
+      if not func then
+         print("Could not load file " .. filename)
+         return
+      end
+
+      active_lines = deepactivelines.get(func)
+      file:seek("set")
+   end
+
+   self:on_new_file(filename)
+   local file_hits, file_miss = 0, 0
+   local filedata = self:stats(filename)
+
+   local line_nr = 1
+   local scanner = LineScanner:new()
+
+   while true do
+      local line = file:read("*l")
+      if not line then break end
+
+      local always_excluded, excluded_when_not_hit = scanner:consume(line)
+      local hits = filedata[line_nr] or 0
+      local included = not always_excluded and (not excluded_when_not_hit or hits ~= 0)
+
+      if cluacov_ok then
+         included = included and active_lines[line_nr]
+      end
+
+      if included then
+         if hits == 0 then
+            self:on_mis_line(filename, line_nr, line)
+            file_miss = file_miss + 1
+         else
+            self:on_hit_line(filename, line_nr, line, hits)
+            file_hits = file_hits + 1
+         end
+      else
+         self:on_empty_line(filename, line_nr, line)
+      end
+
+      line_nr = line_nr + 1
+   end
+
+   file:close()
+   self:on_end_file(filename, file_hits, file_miss)
+end
+
 function ReporterBase:run()
    self:on_start()
 
    for _, filename in ipairs(self:files()) do
-      local file = io.open(filename, "r")
-
-      if not file then
-         print("Could not open file " .. filename)
-      else
-         self:on_new_file(filename)
-         local file_hits, file_miss = 0, 0
-         local filedata = self:stats(filename)
-
-         local line_nr = 1
-         local scanner = LineScanner:new()
-
-         while true do
-            local line = file:read("*l")
-            if not line then break end
-
-            local always_excluded, excluded_when_not_hit = scanner:consume(line)
-            local hits = filedata[line_nr] or 0
-
-            if always_excluded or (excluded_when_not_hit and hits == 0) then
-               self:on_empty_line(filename, line_nr, line)
-            elseif hits == 0 then
-               self:on_mis_line(filename, line_nr, line)
-               file_miss = file_miss + 1
-            else
-               self:on_hit_line(filename, line_nr, line, hits)
-               file_hits = file_hits + 1
-            end
-
-            line_nr = line_nr + 1
-         end
-
-         file:close()
-         self:on_end_file(filename, file_hits, file_miss)
-      end
+      self:_run_file(filename)
    end
 
    self:on_end()

@@ -28,7 +28,7 @@ function hook.new(runner)
       if prefixed_name then
          name = prefixed_name
       elseif not runner.configuration.codefromstrings then
-         -- Ignore Lua code loaded from raw strings bu default.
+         -- Ignore Lua code loaded from raw strings by default.
          return
       end
 

@@ -95,6 +95,8 @@ function runner.save_stats()
    runner.data = {}
 end
 
+local cluacov_ok = pcall(require, "cluacov.version")
+
 --------------------------------------------------
 -- Debug hook set by LuaCov.
 -- Acknowledges that a line is executed, but does nothing
@@ -110,7 +112,7 @@ end
 --    extra_processing(line)
 -- end
 -- @function debug_hook
-runner.debug_hook = require("luacov.hook").new(runner)
+runner.debug_hook = require(cluacov_ok and "cluacov.hook" or "luacov.hook").new(runner)
 
 ------------------------------------------------------
 -- Runs the reporter specified in configuration.

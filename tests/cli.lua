@@ -71,4 +71,8 @@ test("hook")
 
 test("nested")
 
+if pcall(require, "cluacov.version") then
+   test("cluacov")
+end
+
 print(("%d CLI tests passed."):format(ntests))

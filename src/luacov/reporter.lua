@@ -425,6 +425,13 @@ end
 function ReporterBase:on_new_file(filename)
 end
 
+--- Stub method called if a file couldn't be processed due to an error.
+-- @param filename name of the file.
+-- @param error_type "open", "read" or "load".
+-- @param message error message.
+function ReporterBase:on_file_error(filename, error_type, message)
+end
+
 --- Stub method called for each empty source line
 -- and other lines that can't be hit.
 -- @param filename name of the file.
@@ -469,27 +476,31 @@ if cluacov_ok then
 end
 
 function ReporterBase:_run_file(filename)
-   local file = io.open(filename)
+   local file, open_err = io.open(filename)
 
    if not file then
-      print("Could not open file " .. filename)
+      open_err = open_err:gsub("^" .. filename:gsub("%p", "%%%0") .. ": ", "")
+      self:on_file_error(filename, "open", open_err)
       return
    end
 
    local active_lines
 
    if cluacov_ok then
-      local src = file:read("*a")
+      local src, read_err = file:read("*a")
 
       if not src then
-         print("Could not read file " .. filename)
+         self:on_file_error(filename, "read", read_err)
          return
       end
 
-      local func = load(src)
+      local func, load_err = load(src, "@file")
 
       if not func then
-         print("Could not load file " .. filename)
+         local line_number
+         line_number, load_err = load_err:match("^file:(%d+): (.*)")
+         self:on_file_error(filename, "load",
+            load_err and ("line %d: %s"):format(line_number, load_err) or "error")
          return
       end
 
@@ -568,6 +579,10 @@ function DefaultReporter:on_new_file(filename)
    self:write(("="):rep(78), "\n")
    self:write(filename, "\n")
    self:write(("="):rep(78), "\n")
+end
+
+function DefaultReporter:on_file_error(filename, error_type, message) --luacheck: no self
+   io.stderr:write(("Couldn't %s %s: %s\n"):format(error_type, filename, message))
 end
 
 function DefaultReporter:on_empty_line(_, _, line)

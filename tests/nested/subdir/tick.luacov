@@ -1,0 +1,5 @@
+return {
+   savestepsize = 1,
+   statsfile = "../luacov.stats.out",
+   tick = true
+}

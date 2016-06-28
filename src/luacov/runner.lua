@@ -311,6 +311,8 @@ local function set_config(configuration)
    for _, patt in ipairs(luacov_excludes) do
       table.insert(runner.configuration.exclude, patt)
    end
+
+   runner.tick = runner.tick or runner.configuration.tick
 end
 
 local default_config_file = ".luacov"

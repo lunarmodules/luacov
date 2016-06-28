@@ -12,6 +12,11 @@ return {
   --- Filename to store report. Default: "luacov.report.out".
   reportfile = "luacov.report.out",
 
+  --- Enable saving coverage data after every `savestepsize` lines?
+  -- Setting this flag to `true` in config is equivalent to running LuaCov
+  -- using `luacov.tick` module.
+  tick = false,
+
   --- Stats file updating frequency for `luacov.tick`.
   -- The lower this value - the more frequently results will be written out to the stats file.
   -- You may want to reduce this value (to, for example, 2) to avoid losing coverage data in

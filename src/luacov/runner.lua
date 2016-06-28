@@ -290,7 +290,8 @@ local luacov_excludes = {
    "luacov/defaults$",
    "luacov/runner$",
    "luacov/stats$",
-   "luacov/tick$"
+   "luacov/tick$",
+   "cluacov/version$"
 }
 
 -- Sets configuration. If some options are missing, default values are used instead.

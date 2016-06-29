@@ -41,19 +41,19 @@ end
 -- @param[opt] chunkname chunk name.
 function util.load_string(str, env, chunkname)
    if _VERSION:find("5%.1") then
-      local func, err = loadstring(str, chunkname)
+      local func, err = loadstring(str, chunkname) -- luacheck: compat
 
       if not func then
          return nil, err
       end
 
       if env then
-         setfenv(func, env)
+         setfenv(func, env) -- luacheck: compat
       end
 
       return func
    else
-      return load(str, chunkname, "bt", env or _ENV)
+      return load(str, chunkname, "bt", env or _ENV) -- luacheck: compat
    end
 end
 

@@ -1,2 +1,2 @@
-std = "max"
+std = "min"
 exclude_files = {"tests/*/*"}

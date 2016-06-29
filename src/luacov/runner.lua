@@ -332,6 +332,7 @@ local function load_config_file(name, is_default)
    end
 
    io.stderr:write(("Error: couldn't %s config file %s: %s\n"):format(error_type, name, error_msg))
+   raw_os_exit(1)
 end
 
 local default_config_file = ".luacov"

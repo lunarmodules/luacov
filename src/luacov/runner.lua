@@ -307,29 +307,30 @@ local function set_config(configuration)
    runner.tick = runner.tick or runner.configuration.tick
 end
 
-local function die(error_msg)
-   io.stderr:write(("Error: %s\n"):format(error_msg))
-   raw_os_exit(1)
-end
-
 local function load_config_file(name, is_default)
-   local ok, conf, error_msg = util.load_config(name, _G)
+   local conf = setmetatable({}, {__index = _G})
+
+   local ok, ret, error_msg = util.load_config(name, conf)
 
    if ok then
-      if type(conf) ~= "table" then
-         die("config is not a table")
+      if type(ret) == "table" then
+         for key, value in pairs(ret) do
+            if conf[key] == nil then
+               conf[key] = value
+            end
+         end
       end
 
       return conf
    end
 
-   local error_type = conf
+   local error_type = ret
 
    if error_type == "read" and is_default then
       return nil
    end
 
-   die(("couldn't %s config file %s: %s"):format(error_type, name, error_msg))
+   io.stderr:write(("Error: couldn't %s config file %s: %s\n"):format(error_type, name, error_msg))
 end
 
 local default_config_file = ".luacov"

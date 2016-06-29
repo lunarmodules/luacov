@@ -14,7 +14,7 @@ return {
 
   --- Enable saving coverage data after every `savestepsize` lines?
   -- Setting this flag to `true` in config is equivalent to running LuaCov
-  -- using `luacov.tick` module.
+  -- using `luacov.tick` module. Default: false.
   tick = false,
 
   --- Stats file updating frequency for `luacov.tick`.

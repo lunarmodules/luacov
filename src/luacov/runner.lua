@@ -283,6 +283,7 @@ local luacov_excludes = {
    "luacov/runner$",
    "luacov/stats$",
    "luacov/tick$",
+   "luacov/util$",
    "cluacov/version$"
 }
 

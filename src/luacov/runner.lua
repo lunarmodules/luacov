@@ -9,9 +9,11 @@ local runner = {}
 runner.version = "0.11.0"
 
 local stats = require("luacov.stats")
+local util = require("luacov.util")
 runner.defaults = require("luacov.defaults")
 
 local debug = require("debug")
+local raw_os_exit = os.exit
 
 local new_anchor = newproxy or function() return {} end -- luacheck: compat
 
@@ -143,16 +145,6 @@ local function on_exit()
 
    if runner.configuration.runreport then
       runner.run_report(runner.configuration)
-   end
-end
-
--- Returns true if the given filename exists.
-local function file_exists(fname)
-   local f = io.open(fname)
-
-   if f then
-      f:close()
-      return true
    end
 end
 
@@ -315,6 +307,31 @@ local function set_config(configuration)
    runner.tick = runner.tick or runner.configuration.tick
 end
 
+local function die(error_msg)
+   io.stderr:write(("Error: %s\n"):format(error_msg))
+   raw_os_exit(1)
+end
+
+local function load_config_file(name, is_default)
+   local ok, conf, error_msg = util.load_config(name, _G)
+
+   if ok then
+      if type(conf) ~= "table" then
+         die("config is not a table")
+      end
+
+      return conf
+   end
+
+   local error_type = conf
+
+   if error_type == "read" and is_default then
+      return nil
+   end
+
+   die(("couldn't %s config file %s: %s"):format(error_type, name, error_msg))
+end
+
 local default_config_file = ".luacov"
 
 ------------------------------------------------------
@@ -327,14 +344,10 @@ local default_config_file = ".luacov"
 function runner.load_config(configuration)
    if not runner.configuration then
       if not configuration then
-         -- nothing provided, load from default location if possible
-         if file_exists(default_config_file) then
-            set_config(dofile(default_config_file))
-         else
-            set_config(runner.defaults)
-         end
+         -- Nothing provided, load from default location if possible.
+         set_config(load_config_file(default_config_file, true) or runner.defaults)
       elseif type(configuration) == "string" then
-         set_config(dofile(configuration))
+         set_config(load_config_file(configuration))
       elseif type(configuration) == "table" then
          set_config(configuration)
       else
@@ -406,10 +419,9 @@ function runner.init(configuration)
 
    -- metatable trick on filehandle won't work if Lua exits through
    -- os.exit() hence wrap that with exit code as well
-   local rawexit = os.exit
    os.exit = function(...) -- luacheck: no global
       on_exit()
-      rawexit(...)
+      raw_os_exit(...)
    end
 
    debug.sethook(runner.debug_hook, "l")
@@ -518,7 +530,7 @@ local function getfilename(name)
          error("Bad argument: " .. tostring(name))
       end
 
-      if file_exists(name) then
+      if util.file_exists(name) then
          return name
       end
 

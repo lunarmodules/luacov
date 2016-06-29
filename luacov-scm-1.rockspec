@@ -30,6 +30,7 @@ build = {
     ["luacov.stats"] = "src/luacov/stats.lua",
     ["luacov.tick"] = "src/luacov/tick.lua",
     ["luacov.hook"] = "src/luacov/hook.lua",
+    ["luacov.util"] = "src/luacov/util.lua"
   },
   install = {
     bin = {

@@ -5,7 +5,7 @@
 local reporter = {}
 
 local luacov = require("luacov.runner")
-local load = loadstring or load -- luacheck: compat
+local util = require("luacov.util")
 
 -- Raw version of string.gsub
 local function replace(s, old, new)
@@ -479,8 +479,7 @@ function ReporterBase:_run_file(filename)
    local file, open_err = io.open(filename)
 
    if not file then
-      open_err = open_err:gsub("^" .. filename:gsub("%p", "%%%0") .. ": ", "")
-      self:on_file_error(filename, "open", open_err)
+      self:on_file_error(filename, "open", util.unprefix(open_err, filename .. ": "))
       return
    end
 
@@ -494,13 +493,10 @@ function ReporterBase:_run_file(filename)
          return
       end
 
-      local func, load_err = load(src, "@file")
+      local func, load_err = util.load_string(src, nil, "@file")
 
       if not func then
-         local line_number
-         line_number, load_err = load_err:match("^file:(%d+): (.*)")
-         self:on_file_error(filename, "load",
-            load_err and ("line %d: %s"):format(line_number, load_err) or "error")
+         self:on_file_error(filename, "load", "line " .. util.unprefix(load_err, "file:"))
          return
       end
 

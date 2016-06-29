@@ -6,7 +6,7 @@
 
 local runner = {}
 --- LuaCov version in `MAJOR.MINOR.PATCH` format.
-runner.version = "0.11.0"
+runner.version = "0.12.0"
 
 local stats = require("luacov.stats")
 local util = require("luacov.util")

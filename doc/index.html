@@ -89,11 +89,21 @@ luarocks install luacov
 </div>
 
 <p>
-LuaCov is written in pure Lua and has no external dependencies.
+There are some C extensions LuaCov can use (if they are available) to improve performance
+and analysis accuracy. To install LuaCov with these extensions install
+<a href="https://github.com/mpeterv/cluacov">CLuaCov</a> package instead:
+</p>
+
+<div class="Example">
+luarocks install cluacov
+</div>
+
+<p>
+LuaCov itself is written in pure Lua and has no external dependencies.
 </p>
 
 <p>
-Alternatively, you can get the code directly from <a href="http://github.com/keplerproject/luacov">the git repo</a>.
+You can also get the code directly from <a href="http://github.com/keplerproject/luacov">the git repo</a>.
 </p>
 
 <h2><a name="instructions"></a>Instructions</h2>
@@ -163,9 +173,9 @@ not the sources themselves).
 <p>
 LuaCov saves its stats upon normal program termination. If your program
 is a daemon -- in other words, if it does not terminate normally -- you
-can use the <tt>luacov.tick</tt> module, which periodically saves the
-stats file. For example, to run (on Unix systems) LuaCov on
-<a href="http://keplerproject.github.io/xavante/">Xavante</a>,
+can use the <tt>luacov.tick</tt> module or the <tt>tick</tt> configuration option,
+which periodically saves the stats file. For example, to run (on Unix systems)
+LuaCov on <a href="http://keplerproject.github.io/xavante/">Xavante</a>,
 just modify the first line of <tt>xavante_start.lua</tt> so it reads:
 </p>
 
@@ -173,9 +183,41 @@ just modify the first line of <tt>xavante_start.lua</tt> so it reads:
 #!/usr/bin/env lua -lluacov.tick
 </div>
 
+or add this to <tt>.luacov</tt> config file:
+
+<div class="Example">
+tick = true
+</div>
+
+LuaCov includes several configuration options, which have their defaults
+stored in <a href="doc/modules/luacov.defaults.html">luacov.defaults module</a>.
+These are the global defaults. To use project specific configuration, create a Lua script
+setting options as globals or returning a table with some options and store it as
+<tt>.luacov</tt> in the project directory from where <tt>luacov</tt> is being run.
+For example, this config informs LuaCov that only <tt>foo</tt> module and its submodules
+should be covered and that they are located inside <tt>src</tt> directory:
+
+<div class="Example"><pre>
+modules = {
+   ["foo"] = "src/foo/init.lua",
+   ["foo.*"] = "src"
+}
+</pre></div>
+
 <h2><a name="history"></a>History</h2>
 
 <dl>
+    <dt><strong>0.12.0</strong> [June 29, 2016]</dt>
+    <dd>
+        <ul>
+            <li>Added support for experimental C extensions (<a href="https://github.com/mpeterv/cluacov">CLuaCov</a>).</li>
+            <li>Changed config format: options are now set by assigning to globals, old format (returning a table) is still supported.</li>
+            <li>Added <tt>tick</tt>config option, equivalent to using <tt>luacov.tick</tt> module.</li>
+            <li>Fixed coverage data being saved to wrong file when using relative <tt>statsfile</tt> path and the program running LuaCov changes directories.</li>
+            <li>Improved config loading error handling.</li>
+            <li>Added <tt>:on_file_error()</tt> stub method to base reporter class, used for reporting problems when analyzing coverage data related to a file.</li>
+        </ul>
+    </dd>
     <dt><strong>0.11.0</strong> [April 18, 2016]</dt>
     <dd>
         <ul>

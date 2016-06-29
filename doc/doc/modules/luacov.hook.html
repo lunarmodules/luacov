@@ -40,10 +40,10 @@
 <ul class="nowrap">
   <li><a href="../modules/luacov.html">luacov</a></li>
   <li><a href="../modules/luacov.defaults.html">luacov.defaults</a></li>
-  <li><a href="../modules/luacov.hook.html">luacov.hook</a></li>
+  <li><strong>luacov.hook</strong></li>
   <li><a href="../modules/luacov.reporter.html">luacov.reporter</a></li>
   <li><a href="../modules/luacov.runner.html">luacov.runner</a></li>
-  <li><strong>luacov.stats</strong></li>
+  <li><a href="../modules/luacov.stats.html">luacov.stats</a></li>
   <li><a href="../modules/luacov.tick.html">luacov.tick</a></li>
   <li><a href="../modules/luacov.util.html">luacov.util</a></li>
 </ul>
@@ -52,8 +52,8 @@
 
 <div id="content">
 
-<h1>Module <code>luacov.stats</code></h1>
-<p>Manages the file with statistics (being) collected.</p>
+<h1>Module <code>luacov.hook</code></h1>
+<p>Hook module, creates debug hook used by LuaCov.</p>
 <p>
 
 </p>
@@ -62,12 +62,8 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#load">load (statsfile)</a></td>
-	<td class="summary">Loads the stats file.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#save">save (statsfile, data)</a></td>
-	<td class="summary">Saves data to the stats file.</td>
+	<td class="name" nowrap><a href="#new">new (runner)</a></td>
+	<td class="summary">Creates a new debug hook.</td>
 	</tr>
 </table>
 
@@ -79,52 +75,26 @@
 
     <dl class="function">
     <dt>
-    <a name = "load"></a>
-    <strong>load (statsfile)</strong>
+    <a name = "new"></a>
+    <strong>new (runner)</strong>
     </dt>
     <dd>
-    Loads the stats file.
+    Creates a new debug hook.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">statsfile</span>
-         path to the stats file.
+        <li><span class="parameter">runner</span>
+         runner module.
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-         table with data or nil if couldn't load.
- The table maps filenames to stats tables.
- Per-file tables map line numbers to hits or nils when there are no hits.
- Additionally, .max field contains maximum line number
- and .max_hits contains maximum number of hits in the file.
+        debug hook function that uses runner fields and functions
+ and sets <code>runner.data</code>.
     </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "save"></a>
-    <strong>save (statsfile, data)</strong>
-    </dt>
-    <dd>
-    Saves data to the stats file.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">statsfile</span>
-         path to the stats file.
-        </li>
-        <li><span class="parameter">data</span>
-         data to store.
-        </li>
-    </ul>
-
 
 
 

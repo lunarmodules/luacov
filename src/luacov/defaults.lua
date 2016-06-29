@@ -1,7 +1,7 @@
---- Default configuration file. Copy, customize and store in your
--- project folder as '.luacov' for project specific configuration.
--- If some options are missing, their default values from this file
--- will be used.
+--- Default values for configuration options.
+-- For project specific configuration create '.luacov' file in your project
+-- folder. It should be a Lua script setting various options as globals
+-- or returning table of options.
 -- @class module
 -- @name luacov.defaults
 return {

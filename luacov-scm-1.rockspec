@@ -13,11 +13,11 @@ description = {
       paths were not traversed, which is useful for verifying the
       effectiveness of a test suite.
    ]],
-   homepage = "http://keplerproject.github.com/luacov/",
+   homepage = "http://keplerproject.github.io/luacov/",
    license = "MIT/X11"
 }
 dependencies = {
-   "lua >= 5.1"
+   "lua >= 5.1, < 5.4"
 }
 build = {
   type = "builtin",

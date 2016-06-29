@@ -151,6 +151,10 @@ end
 local dir_sep = package.config:sub(1, 1)
 local wildcard_expansion = "[^/]+"
 
+if not dir_sep:find("[/\\]") then
+   dir_sep = "/"
+end
+
 local function escape_module_punctuation(ch)
    if ch == "." then
       return "/"
@@ -287,6 +291,32 @@ local luacov_excludes = {
    "cluacov/version$"
 }
 
+local function is_absolute(path)
+   if path:sub(1, 1) == dir_sep or path:sub(1, 1) == "/" then
+      return true
+   end
+
+   if dir_sep == "\\" and path:find("^%a:") then
+      return true
+   end
+
+   return false
+end
+
+local function get_cur_dir()
+   local pwd_cmd = dir_sep == "\\" and "cd 2>nul" or "pwd 2>/dev/null"
+   local handler = io.popen(pwd_cmd, "r")
+   local cur_dir = handler:read("*a")
+   handler:close()
+   cur_dir = cur_dir:gsub("\r?\n$", "")
+
+   if cur_dir:sub(-1) ~= dir_sep and cur_dir:sub(-1) ~= "/" then
+      cur_dir = cur_dir .. dir_sep
+   end
+
+   return cur_dir
+end
+
 -- Sets configuration. If some options are missing, default values are used instead.
 local function set_config(configuration)
    runner.configuration = {}
@@ -297,6 +327,19 @@ local function set_config(configuration)
 
    for option, value in pairs(configuration) do
       runner.configuration[option] = value
+   end
+
+   -- Program using LuaCov may change directory during its execution.
+   -- Convert path options to absolute paths to use correct paths anyway.
+   local cur_dir
+
+   for _, option in ipairs({"statsfile", "reportfile"}) do
+      local path = runner.configuration[option]
+
+      if not is_absolute(path) then
+         cur_dir = cur_dir or get_cur_dir()
+         runner.configuration[option] = cur_dir .. path
+      end
    end
 
    acknowledge_modules()

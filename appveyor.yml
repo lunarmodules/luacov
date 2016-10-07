@@ -9,7 +9,7 @@ environment:
   - LUA: "luajit 2.1"
 
 before_build:
-  - ps: Invoke-WebRequest https://raw.githubusercontent.com/mpeterv/hererocks/1745496/hererocks.py -OutFile hererocks.py
+  - ps: Invoke-WebRequest https://raw.githubusercontent.com/mpeterv/hererocks/latest/hererocks.py -OutFile hererocks.py
 
 build_script:
   - python hererocks.py here --%LUA%

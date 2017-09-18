@@ -84,9 +84,9 @@ LuaCov is free software and uses the same <a href="license.html">license</a> as 
 LuaCov can be downloaded via LuaRocks:
 </p>
 
-<div class="Example">
+<pre class="example">
 luarocks install luacov
-</div>
+</pre>
 
 <p>
 There are some C extensions LuaCov can use (if they are available) to improve performance
@@ -94,9 +94,9 @@ and analysis accuracy. To install LuaCov with these extensions install
 <a href="https://github.com/mpeterv/cluacov">CLuaCov</a> package instead:
 </p>
 
-<div class="Example">
+<pre class="example">
 luarocks install cluacov
-</div>
+</pre>
 
 <p>
 LuaCov itself is written in pure Lua and has no external dependencies.
@@ -120,17 +120,17 @@ Lua module. This can be done from the command-line, without modifying
 your script, like this:
 </p>
 
-<div class="Example">
+<pre class="example">
 lua -lluacov test.lua
-</div>
+</pre>
 
 <p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or
 </p>
 
-<div class="Example">
+<pre class="example">
 lua -erequire('luacov.runner')('myconfigfilename') test.lua
-</div>
+</pre>
 
 <p>
 (Alternatively, you can add <tt>require("luacov")</tt> to the first line
@@ -152,7 +152,7 @@ directory, and outputs a file named <tt>luacov.report.out</tt>.
 
 <p>This is an example output of the report file:</p>
 
-<div class="Example"><pre>
+<pre class="example">
 ==============================================================================
 test.lua
 ==============================================================================
@@ -161,7 +161,7 @@ test.lua
    else
  1    print("Hello, LuaCov!")
    end
-</pre></div>
+</pre>
 
 <p>
 Note that to generate this report, <tt>luacov</tt> reads the source files.
@@ -179,15 +179,15 @@ LuaCov on <a href="http://keplerproject.github.io/xavante/">Xavante</a>,
 just modify the first line of <tt>xavante_start.lua</tt> so it reads:
 </p>
 
-<div class="Example">
+<pre class="example">
 #!/usr/bin/env lua -lluacov.tick
-</div>
+</pre>
 
 or add this to <tt>.luacov</tt> config file:
 
-<div class="Example">
+<pre class="example">
 tick = true
-</div>
+</pre>
 
 LuaCov includes several configuration options, which have their defaults
 stored in <a href="doc/modules/luacov.defaults.html">luacov.defaults module</a>.
@@ -197,12 +197,12 @@ setting options as globals or returning a table with some options and store it a
 For example, this config informs LuaCov that only <tt>foo</tt> module and its submodules
 should be covered and that they are located inside <tt>src</tt> directory:
 
-<div class="Example"><pre>
+<pre class="example">
 modules = {
    ["foo"] = "src/foo/init.lua",
    ["foo.*"] = "src"
 }
-</pre></div>
+</pre>
 
 <h2><a name="history"></a>History</h2>
 

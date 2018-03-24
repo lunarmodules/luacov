@@ -10,13 +10,13 @@ modules. The `luacov` command-line script then processes this file generating
 a report file which allows one to visualize which code paths were not
 traversed, which is useful for verifying the effectiveness of a test suite.
 
-LuaCov is free software and, like Lua, is released under the [MIT
-License](http://www.lua.org/license.html).
+LuaCov is free software and, like Lua, is released under the
+[MIT License](https://www.lua.org/license.html).
 
 ## Download and Installation
 
-LuaCov can be downloaded from its [Github downloads
-page](https://github.com/keplerproject/luacov/releases).
+LuaCov can be downloaded from its
+[Github downloads page](https://github.com/keplerproject/luacov/releases).
 
 It can also be installed using Luarocks:
 
@@ -25,8 +25,8 @@ luarocks install luacov
 ```
 
 In order to additionally install experimental C extensions that improve
-performance and analysis accuracy install [CLuaCov]
-(https://github.com/mpeterv/cluacov) package instead:
+performance and analysis accuracy install
+[CLuaCov](https://github.com/mpeterv/cluacov) package instead:
 
 ```
 luarocks install cluacov
@@ -87,7 +87,7 @@ LuaCov saves its stats upon normal program termination. If your program is a
 daemon -- in other words, if it does not terminate normally -- you can use the
 `luacov.tick` module or `tick` configuration option, which periodically saves
 the stats file. For example, to run (on Unix systems) LuaCov on
-[Xavante](http://keplerproject.github.io/xavante/), just modify the first line
+[Xavante](httpsf://keplerproject.github.io/xavante/), just modify the first line
 of `xavante_start.lua` so it reads:
 
 ```
@@ -121,8 +121,7 @@ modules = {
 ```
 
 For a full list of options, see
-[`luacov.defaults` documentation]
-(http://keplerproject.github.io/luacov/doc/modules/luacov.defaults.html).
+[`luacov.defaults` documentation](https://keplerproject.github.io/luacov/doc/modules/luacov.defaults.html).
 
 ## Custom reporter engines
 
@@ -131,7 +130,7 @@ packages. Check them out!
 
 * Cobertura: https://github.com/britzl/luacov-cobertura
 * Coveralls: https://github.com/moteus/luacov-coveralls
-* Console:   https://github.com/spacewander/luacov-console
+* Console: https://github.com/spacewander/luacov-console
 
 ## Using development version
 
@@ -139,8 +138,8 @@ After cloning this repo, these commands may be useful:
 
 * `luarocks make` to install LuaCov from local sources;
 * `make test` to run tests (does not require installing beforehand);
-* `ldoc .` to regenerate documentation using [LDoc]
-  (https://github.com/stevedonovan/LDoc).
+* `ldoc .` to regenerate documentation using
+  [LDoc](https://github.com/stevedonovan/LDoc).
 * `luacheck .` to lint using [Luacheck](https://github.com/mpeterv/luacheck).
 
 ## Credits

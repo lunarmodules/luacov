@@ -493,6 +493,7 @@ function ReporterBase:_run_file(filename)
          return
       end
 
+      src = src:gsub("^#![^\n]*", "")
       local func, load_err = util.load_string(src, nil, "@file")
 
       if not func then

@@ -61,6 +61,7 @@ local function test(dir, expected_file, flags)
 end
 
 test("simple")
+test("shebang")
 
 test("filefilter")
 test("filefilter", "expected2.out", "-c 2.luacov")

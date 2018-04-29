@@ -344,4 +344,19 @@ local v = f({  +
 end)           -
 ]]
 
+-- Inline options.
+test [[
+outside()              +
+-- luacov: enable      -
+explicitly_enabled()   +
+-- luacov: disable     -
+disabled()             -
+-- luacov: disable     -
+still_disabled()       -
+-- luacov: enable      -
+enabled()              +
+-- luacov: unknown     -
+unknown_opts_ignored() +
+]]
+
 print(("%d LineScanner tests passed."):format(ntests))

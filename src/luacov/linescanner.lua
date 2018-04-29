@@ -2,7 +2,12 @@ local LineScanner = {}
 LineScanner.__index = LineScanner
 
 function LineScanner:new()
-   return setmetatable({first = true, comment = false, after_function = false}, self)
+   return setmetatable({
+      first = true,
+      comment = false,
+      after_function = false,
+      enabled = true
+   }, self)
 end
 
 -- Raw version of string.gsub
@@ -200,6 +205,20 @@ function LineScanner:skip_name()
    end
 end
 
+-- Source lines can be explicitly ignored using `enable` and `disable` inline options.
+-- An inline option is a simple comment: `-- luacov: enable` or `-- luacov: disable`.
+-- Inline option parsing is not whitespace sensitive.
+-- All lines starting from a line containing `disable` option and up to a line containing `enable`
+-- option (or end of file) are excluded.
+
+function LineScanner:check_inline_options(comment_body)
+   if comment_body:find("^%s*luacov:%s*enable%s*$") then
+      self.enabled = true
+   elseif comment_body:find("^%s*luacov:%s*disable%s*$") then
+      self.enabled = false
+   end
+end
+
 -- Consumes and analyzes a line.
 -- @return boolean indicating whether line must be excluded.
 -- @return boolean indicating whether line must be excluded if not hit.
@@ -270,8 +289,10 @@ function LineScanner:consume(line)
                   table.insert(self.simple_line_buffer, "'")
                end
             elseif self.comment then
-               -- Simple comment, skip line.
+               -- Simple comment, check if it contains inline options and skip line.
                self.comment = false
+               local comment_body = self.line:sub(self.i)
+               self:check_inline_options(comment_body)
                break
             else
                local char = line:sub(self.i, self.i)
@@ -303,6 +324,11 @@ function LineScanner:consume(line)
             end
          end
       end
+   end
+
+   if not self.enabled then
+      -- Disabled by inline options, always exclude the line.
+      return true, true
    end
 
    local simple_line = table.concat(self.simple_line_buffer)

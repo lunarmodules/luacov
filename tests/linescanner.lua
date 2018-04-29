@@ -1,7 +1,7 @@
 -- Allow testing without installing,
 package.path = "src/?.lua;"..package.path
 
-local LineScanner = require("luacov.reporter").LineScanner
+local LineScanner = require("luacov.linescanner")
 
 local ntests = 0
 

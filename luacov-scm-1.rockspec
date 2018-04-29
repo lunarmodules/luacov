@@ -25,6 +25,7 @@ build = {
       luacov = "src/luacov.lua",
       ["luacov.defaults"] = "src/luacov/defaults.lua",
       ["luacov.hook"] = "src/luacov/hook.lua",
+      ["luacov.linescanner"] = "src/luacov/linescanner.lua",
       ["luacov.reporter"] = "src/luacov/reporter.lua",
       ["luacov.reporter.default"] = "src/luacov/reporter/default.lua",
       ["luacov.runner"] = "src/luacov/runner.lua",

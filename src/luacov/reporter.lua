@@ -63,7 +63,7 @@ function ReporterBase:new(conf)
       _files = files,
       _mhit = max_hits,
    }, self)
-  
+
    return o
 end
 

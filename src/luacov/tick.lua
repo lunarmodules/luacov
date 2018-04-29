@@ -1,5 +1,5 @@
 
---- Load luacov using this if you want it to periodically 
+--- Load luacov using this if you want it to periodically
 -- save the stats file. This is useful if your script is
 -- a daemon (i.e., does not properly terminate).
 -- @class module

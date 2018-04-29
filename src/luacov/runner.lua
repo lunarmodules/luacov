@@ -74,7 +74,7 @@ function runner.update_stats(old_stats, extra_stats)
    -- over 'extra_stats'.
    extra_stats.max = nil
    extra_stats.max_hits = nil
-      
+
    for line_nr, run_nr in pairs(extra_stats) do
       old_stats[line_nr] = (old_stats[line_nr] or 0) + run_nr
       old_stats.max_hits = math.max(old_stats.max_hits, old_stats[line_nr])

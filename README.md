@@ -137,7 +137,7 @@ packages. Check them out!
 After cloning this repo, these commands may be useful:
 
 * `luarocks make` to install LuaCov from local sources;
-* `make test` to run tests (does not require installing beforehand);
+* `busted` to run tests using [busted](https://github.com/Olivine-Labs/busted).
 * `ldoc .` to regenerate documentation using
   [LDoc](https://github.com/stevedonovan/LDoc).
 * `luacheck .` to lint using [Luacheck](https://github.com/mpeterv/luacheck).

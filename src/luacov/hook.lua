@@ -27,6 +27,13 @@ function hook.new(runner)
       local prefixed_name = string.match(name, "^@(.*)")
       if prefixed_name then
          name = prefixed_name
+
+         local first, second = name:byte(1, 2)
+         -- '.' => 46, '/' => 47, '\' -> 92
+         if first == 46 and (second == 47 or second == 92) then
+            name = name:sub(3)
+         end
+
       elseif not runner.configuration.codefromstrings then
          -- Ignore Lua code loaded from raw strings by default.
          return

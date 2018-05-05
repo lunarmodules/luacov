@@ -83,6 +83,19 @@ it expects to find them in the same location they were when the `luacov`
 module ran (the stats file stores the filenames, but not the sources
 themselves).
 
+To silence missed line reporting for a group of lines, place inline options
+`luacov: disable` and `luacov: enable` in short comments around them:
+
+```lua
+if SOME_DEBUG_CONDITION_THAT_IS_ALWAYS_FALSE_IN_TESTS then
+   -- luacov: disable
+
+   -- Lines here are not marked as missed even though they are not covered.
+
+   -- luacov: enable
+end
+```
+
 LuaCov saves its stats upon normal program termination. If your program is a
 daemon -- in other words, if it does not terminate normally -- you can use the
 `luacov.tick` module or `tick` configuration option, which periodically saves

@@ -75,7 +75,7 @@ effectiveness of a test suite.
 </p>
 
 <p>
-LuaCov is free software and uses the same <a href="license.html">license</a> as Lua.
+LuaCov is free software and uses the same <a href="license.html">license</a> as Lua (MIT).
 </p>
 
 <h2><a name="download"></a>Download</h2>
@@ -171,6 +171,21 @@ not the sources themselves).
 </p>
 
 <p>
+To silence missed line reporting for a group of lines, place inline options
+<tt>luacov: disable</tt> and <tt>luacov: enable</tt> in short comments around them:
+</p>
+
+<pre class="example">
+if SOME_DEBUG_CONDITION_THAT_IS_ALWAYS_FALSE_IN_TESTS then
+   -- luacov: disable
+
+   -- Lines here are not marked as missed even though they are not covered.
+
+   -- luacov: enable
+end
+</pre>
+
+<p>
 LuaCov saves its stats upon normal program termination. If your program
 is a daemon -- in other words, if it does not terminate normally -- you
 can use the <tt>luacov.tick</tt> module or the <tt>tick</tt> configuration option,
@@ -207,6 +222,13 @@ modules = {
 <h2><a name="history"></a>History</h2>
 
 <dl>
+    <dt><strong>0.13.0</strong> [May 5, 2018]</dt>
+    <dd>
+        <ul>
+            <li>Added <tt>luacov: disable</tt> and <tt>luacov: enable</tt> inline options that mark source lines between them as impossible to hit.</li>
+            <li>Fixed error when reporing coverage for files with a shebang lines using CLuaCov.</li>
+        </ul>
+    </dd>
     <dt><strong>0.12.0</strong> [June 29, 2016]</dt>
     <dd>
         <ul>

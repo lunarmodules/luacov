@@ -3,13 +3,20 @@ local luacov = require "luacov.runner"
 
 testlib.f1()
 
-local dir_sep = package.config:sub(1, 1)
-local lua = arg[-4] or "lua"
-local slash = lua:find(dir_sep)
+local function get_lua()
+   local index = -1
+   local res = "lua"
 
-if slash and slash ~= 1 then
-   lua = ".." .. dir_sep .. lua
+   while arg[index] do
+      res = arg[index]
+      index = index - 1
+   end
+
+   return res
 end
+
+local lua = get_lua()
+local dir_sep = package.config:sub(1, 1)
 
 local function test(tick_as_module)
    local config = tick_as_module and ".luacov" or "tick.luacov"

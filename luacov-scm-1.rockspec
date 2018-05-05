@@ -17,7 +17,7 @@ effectiveness of a test suite.
    license = "MIT"
 }
 dependencies = {
-   "lua >= 5.1, < 5.5"
+   "lua >= 5.1, < 5.4"
 }
 build = {
    type = "builtin",

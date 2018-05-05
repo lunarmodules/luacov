@@ -14,6 +14,7 @@ before_install:
   - source lua_install/bin/activate
   - luarocks install busted
   - luarocks install luacheck
+  - luarocks install cluacov --deps-mode=none
 
 install:
   - luarocks make

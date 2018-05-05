@@ -15,6 +15,7 @@ before_build:
   - call lua_install\bin\activate
   - luarocks install busted
   - luarocks install luacheck
+  - luarocks install cluacov --deps-mode=none
 
 build_script:
   - luarocks make

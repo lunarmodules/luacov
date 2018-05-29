@@ -39,6 +39,11 @@ return {
   -- All will be included if nothing is listed.
   -- Do not include the '.lua' extension. Path separator is always '/'.
   -- Overruled by `exclude`.
+  -- @usage
+  -- include = {
+  --    "mymodule$",      -- the main module
+  --    "mymodule%/.+$",  -- and everything namespaced underneath it
+  -- }
   include = {},
 
   --- Lua patterns for files to exclude when reporting.

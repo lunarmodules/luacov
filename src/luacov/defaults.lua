@@ -66,4 +66,8 @@ return {
   -- }
   modules = {},
 
+  --- Enable including untested files in report.
+  -- Default: false.
+  includeuntestedfiles = false,
+
 }

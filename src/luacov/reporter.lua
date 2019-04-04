@@ -7,6 +7,42 @@ local reporter = {}
 local LineScanner = require("luacov.linescanner")
 local luacov = require("luacov.runner")
 local util = require("luacov.util")
+require "lfs"
+
+----------------------------------------------------------------
+--- returns all files inside dir
+--- @param dir directory to be listed
+--- @treturn table with filenames and attributes
+function dirtree(dir)
+   assert(dir and dir ~= "", "Please pass directory parameter")
+   if string.sub(dir, -1) == "/" then
+       dir=string.sub(dir, 1, -2)
+   end
+
+   local function yieldtree(dir)
+       for entry in lfs.dir(dir) do
+           if entry ~= "." and entry ~= ".." then
+               entry=dir.."/"..entry
+               local attr=lfs.attributes(entry)
+               coroutine.yield(entry,attr)
+               if attr.mode == "directory" then
+                   yieldtree(entry)
+               end
+           end
+       end
+   end
+
+   return coroutine.wrap(function() yieldtree(dir) end)
+end
+
+----------------------------------------------------------------
+--- checks if string 'filename' has pattern 'pattern'
+--- @param filename
+--- @param pattern
+--- @return boolean
+function fileMaches(filename, pattern)
+   return string.find(filename, pattern)
+end
 
 ----------------------------------------------------------------
 --- Basic reporter class stub.
@@ -48,6 +84,25 @@ function ReporterBase:new(conf)
          end
 
          max_hits = math.max(max_hits, filtered_data[filename].max_hits)
+      end
+   end
+
+   -- including files without tests
+   -- only .lua files
+   if conf.includeuntestedfiles then
+      for filename, attr in dirtree("./") do
+         if attr.mode == "file" and fileMaches(filename, '.%.lua$') then
+            local file_stats = {}
+            file_stats[0] = 0
+            if luacov.file_included(filename) then
+               filename = luacov.real_name(filename)
+
+               if not filtered_data[filename] then
+                  table.insert(files, filename)
+                  filtered_data[filename] = file_stats
+               end
+            end
+         end
       end
    end
 

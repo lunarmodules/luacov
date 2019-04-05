@@ -40,7 +40,7 @@ end
 --- @param filename
 --- @param pattern
 --- @return boolean
-local function fileMaches(filename, pattern)
+local function fileMatches(filename, pattern)
    return string.find(filename, pattern)
 end
 
@@ -91,7 +91,7 @@ function ReporterBase:new(conf)
    -- only .lua files
    if conf.includeuntestedfiles then
       for filename, attr in dirtree("./") do
-         if attr.mode == "file" and fileMaches(filename, '.%.lua$') then
+         if attr.mode == "file" and fileMatches(filename, '.%.lua$') then
             local file_stats = {}
             file_stats[0] = 0
             if luacov.file_included(filename) then

@@ -7,22 +7,22 @@ local reporter = {}
 local LineScanner = require("luacov.linescanner")
 local luacov = require("luacov.runner")
 local util = require("luacov.util")
-require "lfs"
+local lfs = require("lfs")
 
 ----------------------------------------------------------------
 --- returns all files inside dir
 --- @param dir directory to be listed
 --- @treturn table with filenames and attributes
-function dirtree(dir)
+local function dirtree(dir)
    assert(dir and dir ~= "", "Please pass directory parameter")
    if string.sub(dir, -1) == "/" then
        dir=string.sub(dir, 1, -2)
    end
 
-   local function yieldtree(dir)
-       for entry in lfs.dir(dir) do
+   local function yieldtree(directory)
+       for entry in lfs.dir(directory) do
            if entry ~= "." and entry ~= ".." then
-               entry=dir.."/"..entry
+               entry=directory.."/"..entry
                local attr=lfs.attributes(entry)
                coroutine.yield(entry,attr)
                if attr.mode == "directory" then
@@ -40,7 +40,7 @@ end
 --- @param filename
 --- @param pattern
 --- @return boolean
-function fileMaches(filename, pattern)
+local function fileMaches(filename, pattern)
    return string.find(filename, pattern)
 end
 

@@ -17,7 +17,11 @@ return {
   -- using `luacov.tick` module. Default: false.
   tick = false,
 
+<<<<<<< HEAD
+  --- Include all files including untested ones in the report
+=======
   --- Include all files including untested ones in the report 
+>>>>>>> dd87bce... Added reporting untested file feature
   includeuntested = false,
 
   --- Stats file updating frequency for `luacov.tick`.

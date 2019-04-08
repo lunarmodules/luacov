@@ -55,6 +55,22 @@ function ReporterBase:new(conf)
       end
    end
 
+<<<<<<< HEAD
+   -- Add untested files to the files table
+   if conf.includeuntested then
+      for entry in lfs.dir(lfs.currentdir()) do
+         if string.find(entry,"%.lua$") then
+            if luacov.file_included(entry) then
+               local realname = luacov.real_name(entry)
+
+               if not filtered_data[realname] then
+                  table.insert(files,realname)
+                  filtered_data[realname] = {0}
+               end
+            end
+         end
+      end
+=======
    
    -- Add untested files to the files table 
    if conf.includeuntested then
@@ -73,6 +89,7 @@ function ReporterBase:new(conf)
             end
          end
       end         
+>>>>>>> dd87bce... Added reporting untested file feature
    end
 
    table.sort(files)

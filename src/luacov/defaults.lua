@@ -17,6 +17,9 @@ return {
   -- using `luacov.tick` module. Default: false.
   tick = false,
 
+  --- Include all files including untested ones in the report 
+  includeuntested = false,
+
   --- Stats file updating frequency for `luacov.tick`.
   -- The lower this value - the more frequently results will be written out to the stats file.
   -- You may want to reduce this value (to, for example, 2) to avoid losing coverage data in
@@ -34,6 +37,7 @@ return {
   -- That is, when the 'source' field in the debug info
   -- does not start with '@'. Default: false.
   codefromstrings = false,
+
 
   --- Lua patterns for files to include when reporting.
   -- All will be included if nothing is listed.

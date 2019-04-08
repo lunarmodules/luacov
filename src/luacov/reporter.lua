@@ -7,6 +7,7 @@ local reporter = {}
 local LineScanner = require("luacov.linescanner")
 local luacov = require("luacov.runner")
 local util = require("luacov.util")
+local lfs = require("lfs")
 
 ----------------------------------------------------------------
 --- Basic reporter class stub.
@@ -34,9 +35,12 @@ function ReporterBase:new(conf)
    local filtered_data = {}
    local max_hits = 0
 
+   
    -- Several original paths can map to one real path,
    -- their stats should be merged in this case.
    for filename, file_stats in pairs(data) do
+
+
       if luacov.file_included(filename) then
          filename = luacov.real_name(filename)
 
@@ -49,6 +53,26 @@ function ReporterBase:new(conf)
 
          max_hits = math.max(max_hits, filtered_data[filename].max_hits)
       end
+   end
+
+   
+   -- Add untested files to the files table 
+   if conf.includeuntested then
+      
+      for entry in lfs.dir(lfs.currentdir()) do
+         
+         if string.find(entry,"%.lua$") then
+            if luacov.file_included(entry) then 
+               realname = luacov.real_name(entry)
+            
+
+               if not filtered_data[realname] then 
+                  table.insert(files,realname)
+                  filtered_data[realname] = {0}
+               end      
+            end
+         end
+      end         
    end
 
    table.sort(files)

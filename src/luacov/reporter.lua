@@ -7,7 +7,7 @@ local reporter = {}
 local LineScanner = require("luacov.linescanner")
 local luacov = require("luacov.runner")
 local util = require("luacov.util")
-local lfs = require("lfs")
+local lfs_ok, lfs = pcall(require, "lfs")
 
 ----------------------------------------------------------------
 --- returns all files inside dir
@@ -90,6 +90,10 @@ function ReporterBase:new(conf)
    -- including files without tests
    -- only .lua files
    if conf.includeuntestedfiles then
+      if not lfs_ok then
+         print("The option includeuntestedfiles requires the lfs module (from luafilesystem) to be installed.")
+         os.exit(1)
+      end
       for filename, attr in dirtree("./") do
          if attr.mode == "file" and fileMatches(filename, '.%.lua$') then
             local file_stats = {}

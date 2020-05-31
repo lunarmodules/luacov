@@ -94,23 +94,45 @@ function ReporterBase:new(conf)
          print("The option includeuntestedfiles requires the lfs module (from luafilesystem) to be installed.")
          os.exit(1)
       end
-      for filename, attr in dirtree("./") do
-         filename = filename:gsub("^%./", "")
-         if attr.mode == "file" and fileMatches(filename, '.%.lua$') then
+
+      local function add_empty_file_coverage_data(file_path)
+
+         if luacov.file_included(file_path) then
             local file_stats = {
                max = 0,
                max_hits = 0
             }
-            if luacov.file_included(filename) then
-               filename = luacov.real_name(filename)
 
-               if not filtered_data[filename] then
-                  table.insert(files, filename)
-                  filtered_data[filename] = file_stats
-               end
+            local filename = luacov.real_name(file_path)
+
+            if not filtered_data[filename] then
+               table.insert(files, filename)
+               filtered_data[filename] = file_stats
             end
          end
+
       end
+
+      local function add_empty_dir_coverage_data(directory_path)
+
+         for filename, attr in dirtree(directory_path) do
+            if attr.mode == "file" and fileMatches(filename, '.%.lua$') then
+               add_empty_file_coverage_data(filename)
+            end
+         end
+
+      end
+
+
+      if (type(conf.include) == "table") then
+         for _, include_dir_path in ipairs(conf.include) do
+            add_empty_dir_coverage_data(include_dir_path)
+         end
+
+      end
+
+      add_empty_dir_coverage_data("./")
+
    end
 
    table.sort(files)

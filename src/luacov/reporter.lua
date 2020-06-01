@@ -120,9 +120,10 @@ function ReporterBase:new(conf)
         for _, includeDirectoryPath in ipairs(conf.include) do
           addEmptyCoverageDataForFilesInDirectoryRecursively(includeDirectoryPath)
         end
-      end
 
-      addEmptyCoverageDataForFilesInDirectoryRecursively("./")
+      else
+        addEmptyCoverageDataForFilesInDirectoryRecursively("./")
+      end
 
    end
 

@@ -101,7 +101,7 @@ local function register_cli_tests(enable_cluacov)
          assert_cli("nested", enable_cluacov)
       end)
 
-      if enable_cluacov then
+      if enable_cluacov and _VERSION ~= "Lua 5.4" then
          it("handles line filtering cases solved only by cluacov", function()
             assert_cli("cluacov", enable_cluacov)
          end)

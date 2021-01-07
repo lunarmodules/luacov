@@ -1,0 +1,3 @@
+return {
+   -- No custom include patterns, should include all files
+}

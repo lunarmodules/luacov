@@ -53,7 +53,7 @@ local function assert_cli(dir, enable_cluacov, expected_file, flags)
       init_lua = init_lua .. "; package.preload[ [[cluacov.version]] ] = error"
    end
 
-   exec(("cd %q && %q -e %q -lluacov test.lua"):format(test_dir, lua, init_lua))
+   exec(("cd %q && %q -e %q -lluacov test.lua %s"):format(test_dir, lua, init_lua, flags))
 
    local luacov_path = ("../../src/bin/luacov"):gsub("/", dir_sep)
    exec(("cd %q && %q -e %q %s %s"):format(test_dir, lua, init_lua, luacov_path, flags))
@@ -87,6 +87,12 @@ local function register_cli_tests(enable_cluacov)
       it("handles configs using file filtering", function()
          assert_cli("filefilter", enable_cluacov)
          assert_cli("filefilter", enable_cluacov, "expected2.out", "-c 2.luacov")
+      end)
+
+      it("handles configs using directory filtering", function()
+         assert_cli("dirfilter", enable_cluacov)
+         assert_cli("dirfilter", enable_cluacov, "expected2.out", "-c 2.luacov")
+         assert_cli("dirfilter", enable_cluacov, "expected3.out", "-c 3.luacov")
       end)
 
       it("handles files using coroutines", function()

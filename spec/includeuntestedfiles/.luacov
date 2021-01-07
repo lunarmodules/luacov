@@ -1,0 +1,4 @@
+return {
+   -- All files implicitly included
+   includeuntestedfiles = true
+}

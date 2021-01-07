@@ -1,0 +1,9 @@
+return {
+   include = {
+      "example%-src%/moduleA%/*"
+   },
+
+   includeuntestedfiles = {
+      "example-src/moduleA"
+   }
+}

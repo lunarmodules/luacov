@@ -5,6 +5,11 @@
 local hook = {}
 
 ----------------------------------------------------------------
+local dir_sep = package.config:sub(1, 1)
+if not dir_sep:find("[/\\]") then
+   dir_sep = "/"
+end
+
 --- Creates a new debug hook.
 -- @param runner runner module.
 -- @return debug hook function that uses runner fields and functions
@@ -26,7 +31,7 @@ function hook.new(runner)
       local name = debug.getinfo(level, "S").source
       local prefixed_name = string.match(name, "^@(.*)")
       if prefixed_name then
-         name = prefixed_name
+         name = prefixed_name:gsub("[/\\]", dir_sep)
       elseif not runner.configuration.codefromstrings then
          -- Ignore Lua code loaded from raw strings by default.
          return

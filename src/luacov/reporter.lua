@@ -97,6 +97,12 @@ function ReporterBase:new(conf)
 
       local function add_empty_file_coverage_data(file_path)
 
+         -- Leading "./" must be trimmed from the file paths because the paths of tested
+         -- files do not have a leading "./" either
+         if (file_path:match("^./")) then
+            file_path = file_path:sub(3)
+         end
+
          if luacov.file_included(file_path) then
             local file_stats = {
                max = 0,
@@ -123,15 +129,18 @@ function ReporterBase:new(conf)
 
       end
 
+      if (conf.includeuntestedfiles == true) then
+        add_empty_dir_coverage_data("./")
 
-      if (type(conf.include) == "table") then
-         for _, include_dir_path in ipairs(conf.include) do
-            add_empty_dir_coverage_data(include_dir_path)
+      elseif (type(conf.includeuntestedfiles) == "table" and conf.includeuntestedfiles[1]) then
+         for _, include_path in ipairs(conf.includeuntestedfiles) do
+            if (fileMatches(include_path, '.%.lua$')) then
+               add_empty_file_coverage_data(include_path)
+            else
+               add_empty_dir_coverage_data(include_path)
+            end
          end
-
       end
-
-      add_empty_dir_coverage_data("./")
 
    end
 

@@ -1,0 +1,7 @@
+return {
+   -- Filter via modules config option
+   modules = {
+      ["dirA.*"] = ".",
+      ["dirB.*"] = "."
+   }
+}

@@ -93,6 +93,7 @@ local function register_cli_tests(enable_cluacov)
          assert_cli("dirfilter", enable_cluacov)
          assert_cli("dirfilter", enable_cluacov, "expected2.out", "-c 2.luacov")
          assert_cli("dirfilter", enable_cluacov, "expected3.out", "-c 3.luacov")
+         assert_cli("dirfilter", enable_cluacov, "expected4.out", "-c 4.luacov")
       end)
 
       it("handles files using coroutines", function()

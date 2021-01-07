@@ -270,7 +270,7 @@ function runner.real_name(filename)
          end
 
          -- Switch slashes back to native.
-         return (new_filename:gsub("[/\\]", dir_sep))
+         return (new_filename:gsub("^%.[/\\]", ""):gsub("[/\\]", dir_sep))
       end
    end
 

@@ -31,7 +31,7 @@ function hook.new(runner)
       local name = debug.getinfo(level, "S").source
       local prefixed_name = string.match(name, "^@(.*)")
       if prefixed_name then
-         name = prefixed_name:gsub("[/\\]", dir_sep)
+         name = prefixed_name:gsub("^%.[/\\]", ""):gsub("[/\\]", dir_sep)
       elseif not runner.configuration.codefromstrings then
          -- Ignore Lua code loaded from raw strings by default.
          return

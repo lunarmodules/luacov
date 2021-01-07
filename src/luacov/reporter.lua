@@ -10,19 +10,25 @@ local util = require("luacov.util")
 local lfs_ok, lfs = pcall(require, "lfs")
 
 ----------------------------------------------------------------
+local dir_sep = package.config:sub(1, 1)
+if not dir_sep:find("[/\\]") then
+   dir_sep = "/"
+end
+
+
 --- returns all files inside dir
 --- @param dir directory to be listed
 --- @treturn table with filenames and attributes
 local function dirtree(dir)
    assert(dir and dir ~= "", "Please pass directory parameter")
-   if string.sub(dir, -1) == "/" then
+   if dir:sub(-1):match("[/\\]") then
        dir=string.sub(dir, 1, -2)
    end
 
    local function yieldtree(directory)
        for entry in lfs.dir(directory) do
            if entry ~= "." and entry ~= ".." then
-               entry=directory.."/"..entry
+               entry=directory..dir_sep..entry
                local attr=lfs.attributes(entry)
                coroutine.yield(entry,attr)
                if attr.mode == "directory" then
@@ -100,7 +106,7 @@ function ReporterBase:new(conf)
 
          -- Leading "./" must be trimmed from the file paths because the paths of tested
          -- files do not have a leading "./" either
-         if (file_path:match("^./")) then
+         if (file_path:match("^%.[/\\]")) then
             file_path = file_path:sub(3)
          end
 
@@ -129,7 +135,7 @@ function ReporterBase:new(conf)
       end
 
       if (conf.includeuntestedfiles == true) then
-        add_empty_dir_coverage_data("./")
+        add_empty_dir_coverage_data("." .. dir_sep)
 
       elseif (type(conf.includeuntestedfiles) == "table" and conf.includeuntestedfiles[1]) then
          for _, include_path in ipairs(conf.includeuntestedfiles) do

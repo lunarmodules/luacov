@@ -25,6 +25,8 @@ local function dirtree(dir)
        dir=string.sub(dir, 1, -2)
    end
 
+   dir = dir:gsub("[/\\]", dir_sep)
+
    local function yieldtree(directory)
        for entry in lfs.dir(directory) do
            if entry ~= "." and entry ~= ".." then

@@ -96,34 +96,41 @@ function ReporterBase:new(conf)
       end
 
 
-      local function addEmptyCoverageDataForFilesInDirectoryRecursively(_directoryPath)
+      local function add_empty_file_coverage_data(file_path)
 
-        for filename, attr in dirtree(_directoryPath) do
-          if attr.mode == "file" and fileMatches(filename, '.%.lua$') then
+         if luacov.file_included(file_path) then
             local file_stats = {}
             file_stats[0] = 0
-            if luacov.file_included(filename) then
-              filename = luacov.real_name(filename)
 
-              if not filtered_data[filename] then
-                table.insert(files, filename)
-                filtered_data[filename] = file_stats
-              end
+            local filename = luacov.real_name(file_path)
+
+            if not filtered_data[filename] then
+               table.insert(files, filename)
+               filtered_data[filename] = file_stats
             end
-          end
-        end
+         end
+
+      end
+
+      local function add_empty_dir_coverage_data(directory_path)
+
+         for filename, attr in dirtree(directory_path) do
+            if attr.mode == "file" and fileMatches(filename, '.%.lua$') then
+               add_empty_file_coverage_data(filename)
+            end
+         end
 
       end
 
 
       if (type(conf.include) == "table") then
-        for _, includeDirectoryPath in ipairs(conf.include) do
-          addEmptyCoverageDataForFilesInDirectoryRecursively(includeDirectoryPath)
-        end
+         for _, include_dir_path in ipairs(conf.include) do
+            add_empty_dir_coverage_data(include_dir_path)
+         end
 
-      else
-        addEmptyCoverageDataForFilesInDirectoryRecursively("./")
       end
+
+      add_empty_dir_coverage_data("./")
 
    end
 

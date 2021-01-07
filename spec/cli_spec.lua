@@ -35,6 +35,8 @@ end
 -- flags will be passed to luacov.
 local function assert_cli(dir, enable_cluacov, expected_file, flags)
    local test_dir = "spec" .. dir_sep .. dir
+   local _, nestingLevel = dir:gsub("/", "")
+
    expected_file = expected_file or "expected.out"
    flags = flags or ""
 
@@ -46,7 +48,8 @@ local function assert_cli(dir, enable_cluacov, expected_file, flags)
       os.remove(test_dir .. dir_sep .. "luacov.report.out")
    end)
 
-   local init_lua = "package.path=[[?.lua;../../src/?.lua;]]..package.path; corowrap = coroutine.wrap"
+   local src_path = string.rep("../", nestingLevel + 2) .. "src"
+   local init_lua = "package.path=[[?.lua;" .. src_path .. "/?.lua;]]..package.path; corowrap = coroutine.wrap"
    init_lua = init_lua:gsub("/", dir_sep)
 
    if not enable_cluacov then
@@ -55,7 +58,7 @@ local function assert_cli(dir, enable_cluacov, expected_file, flags)
 
    exec(("cd %q && %q -e %q -lluacov test.lua %s"):format(test_dir, lua, init_lua, flags))
 
-   local luacov_path = ("../../src/bin/luacov"):gsub("/", dir_sep)
+   local luacov_path = (src_path .. "/bin/luacov"):gsub("/", dir_sep)
    exec(("cd %q && %q -e %q %s %s"):format(test_dir, lua, init_lua, luacov_path, flags))
 
    expected_file = test_dir .. dir_sep .. expected_file
@@ -94,6 +97,13 @@ local function register_cli_tests(enable_cluacov)
          assert_cli("dirfilter", enable_cluacov, "expected2.out", "-c 2.luacov")
          assert_cli("dirfilter", enable_cluacov, "expected3.out", "-c 3.luacov")
          assert_cli("dirfilter", enable_cluacov, "expected4.out", "-c 4.luacov")
+      end)
+
+      it("handles configs using including of untested files", function()
+         assert_cli("includeuntestedfiles", enable_cluacov)
+         assert_cli("includeuntestedfiles", enable_cluacov, "expected2.out", "-c 2.luacov")
+         assert_cli("includeuntestedfiles", enable_cluacov, "expected3.out", "-c 3.luacov")
+         assert_cli("includeuntestedfiles/subdir", enable_cluacov)
       end)
 
       it("handles files using coroutines", function()

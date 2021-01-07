@@ -67,7 +67,7 @@ local function assert_cli(dir, enable_cluacov, expected_file, flags)
    local actual_file = test_dir .. dir_sep .. "luacov.report.out"
    local actual = read_file(actual_file)
 
-   local expected_pattern = "^" .. expected:gsub("%p", "%%%0"):gsub("X", "%%d+") .. "$"
+   local expected_pattern = "^" .. expected:gsub("%p", "%%%0"):gsub("X", "%%d+"):gsub("%%%/", "[/\\\\]") .. "$"
 
    assert.does_match(expected_pattern, actual)
 end
@@ -99,12 +99,16 @@ local function register_cli_tests(enable_cluacov)
          assert_cli("dirfilter", enable_cluacov, "expected4.out", "-c 4.luacov")
       end)
 
-      it("handles configs using including of untested files", function()
-         assert_cli("includeuntestedfiles", enable_cluacov)
-         assert_cli("includeuntestedfiles", enable_cluacov, "expected2.out", "-c 2.luacov")
-         assert_cli("includeuntestedfiles", enable_cluacov, "expected3.out", "-c 3.luacov")
-         assert_cli("includeuntestedfiles/subdir", enable_cluacov)
-      end)
+      if not enable_cluacov then
+
+         it("handles configs using including of untested files", function()
+            assert_cli("includeuntestedfiles", enable_cluacov)
+            assert_cli("includeuntestedfiles", enable_cluacov, "expected2.out", "-c 2.luacov")
+            assert_cli("includeuntestedfiles", enable_cluacov, "expected3.out", "-c 3.luacov")
+            assert_cli("includeuntestedfiles/subdir", enable_cluacov)
+         end)
+
+      end
 
       it("handles files using coroutines", function()
          assert_cli("coroutines", enable_cluacov)

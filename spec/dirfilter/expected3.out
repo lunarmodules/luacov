@@ -1,0 +1,50 @@
+==============================================================================
+dirA/fileA.lua
+==============================================================================
+ 1 return "This is file A"
+
+==============================================================================
+dirB/fileB.lua
+==============================================================================
+ 1 return "This is another file"
+
+==============================================================================
+dirC/fileC.lua
+==============================================================================
+ 1 return "This is the final file"
+
+==============================================================================
+dirC/nested/fileD.lua
+==============================================================================
+ 1 return "This is the secret nested file"
+
+==============================================================================
+test.lua
+==============================================================================
+
+   -- This script expects the arguments "-c <luacov config file name>"
+
+   -- "Unload" the luacov.runner module which was included via "-lluacov" to be able to load a specific config file
+*0 package.loaded["luacov.runner"] = nil
+
+   -- Initialize the luacov.runner module with the luacov config file for the current test case
+*0 require("luacov.runner")(arg[2])
+
+ 1 require "dirA.fileA"
+ 1 require "dirB.fileB"
+ 1 require "dirC.fileC"
+ 1 require "dirC.nested.fileD"
+
+==============================================================================
+Summary
+==============================================================================
+
+File                  Hits Missed Coverage
+------------------------------------------
+dirA/fileA.lua        1    0      100.00%
+dirB/fileB.lua        1    0      100.00%
+dirC/fileC.lua        1    0      100.00%
+dirC/nested/fileD.lua 1    0      100.00%
+test.lua              4    2      66.67%
+------------------------------------------
+Total                 8    2      80.00%

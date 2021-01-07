@@ -1,0 +1,6 @@
+return {
+   -- Include a single directory that has no nested directories
+   include = {
+      "dirA%/*"
+   }
+}

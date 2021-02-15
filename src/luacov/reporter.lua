@@ -95,6 +95,7 @@ function ReporterBase:new(conf)
          os.exit(1)
       end
       for filename, attr in dirtree("./") do
+         filename = filename:gsub("^%./", "")
          if attr.mode == "file" and fileMatches(filename, '.%.lua$') then
             local file_stats = {}
             file_stats[0] = 0

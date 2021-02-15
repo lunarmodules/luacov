@@ -222,6 +222,20 @@ modules = {
 <h2><a name="history"></a>History</h2>
 
 <dl>
+    <dt><strong>0.15.0</strong> [Feb 15, 2021]</dt>
+    <dd>
+        <ul>
+            <li>Lua 5.4 support (without CLuaCov)</li>
+            <li>Fixes in the feature for including untested files:
+                <ul>
+                    <li>paths are correctly normalized</li>
+                    <li>the stats object format is corrected.</li>
+                    <li>the <tt>include</tt> config option is honored</li>
+                </ul>
+            </li>
+            <li>The <tt>includeuntestedfiles</tt> now accepts either <tt>true</tt> or a table of files and directories to check</li>
+        </ul>
+    </dd>
     <dt><strong>0.14.0</strong> [Jan 28, 2020]</dt>
     <dd>
         <ul>

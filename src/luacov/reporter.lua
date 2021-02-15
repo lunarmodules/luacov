@@ -97,8 +97,10 @@ function ReporterBase:new(conf)
       for filename, attr in dirtree("./") do
          filename = filename:gsub("^%./", "")
          if attr.mode == "file" and fileMatches(filename, '.%.lua$') then
-            local file_stats = {}
-            file_stats[0] = 0
+            local file_stats = {
+               max = 0,
+               max_hits = 0
+            }
             if luacov.file_included(filename) then
                filename = luacov.real_name(filename)
 

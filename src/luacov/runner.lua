@@ -141,6 +141,8 @@ local function on_exit()
    -- so this method could be called twice
    if on_exit_run_once then return end
    on_exit_run_once = true
+   -- disable hooks before aggregating stats
+   debug.sethook(nil)
    runner.save_stats()
 
    if runner.configuration.runreport then

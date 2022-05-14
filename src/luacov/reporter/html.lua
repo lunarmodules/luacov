@@ -4,6 +4,13 @@ local reporter = {}
 
 local HTML_HEADER, HTML_FOOTER, HTML_TOTAL, HTML_FILE_HEADER, HTML_FILE_FOOTER, HTML_LINE_HIT, HTML_LINE_MIS
 
+function parse_template(template, values)
+    local content = template:gsub("{{([a-z_]+)}}", function(key)
+        return values[key]
+    end)
+    return content
+end
+
 ----------------------------------------------------------------
 --- parse template
 do
@@ -58,22 +65,23 @@ do
                 assets_content[tag] = ""
             end
             if (tag == "script") then
-                assets_content[tag] = assets_content[tag] .. "   <script type=\"text/javascript\">\n      "
+                assets_content[tag] = assets_content[tag] .. "\n   <script type=\"text/javascript\">\n      "
             else
-                assets_content[tag] = assets_content[tag] .. "   <" .. tag .. ">\n      "
+                assets_content[tag] = assets_content[tag] .. "\n   <" .. tag .. ">\n      "
             end
-            assets_content[tag] = assets_content[tag] .. "\n      " .. content:gsub("\n", "\n      ") .. "</" .. tag .. ">\n\n"
+            assets_content[tag] = assets_content[tag] .. content:gsub("\n", "\n      ") .. "\n   </" .. tag .. ">\n"
         end
     end
 
-    HTML_HEADER = template.HTML_HEADER:gsub("${style}", function(str)
-        return assets_content.style
-    end)
-    HTML_FOOTER = template.HTML_FOOTER:gsub("${script}", function(str)
-        return assets_content.script
-    end)                  :gsub("${timestamp}", function(str)
-        return os.date("%Y-%m-%d %H:%M:%S", os.time())
-    end)
+    HTML_HEADER = parse_template(template.HTML_HEADER, {
+        style = assets_content.style
+    })
+
+    HTML_FOOTER = parse_template(template.HTML_FOOTER, {
+        script = assets_content.script,
+        timestamp = os.date("%Y-%m-%d %H:%M:%S", os.time())
+    })
+
     HTML_TOTAL = template.HTML_TOTAL
     HTML_FILE_HEADER = template.HTML_FILE_HEADER
     HTML_FILE_FOOTER = template.HTML_FILE_FOOTER
@@ -97,14 +105,6 @@ function escape_html(s)
         ["'"] = "&#39;",
         ["/"] = "&#47;"
     }))
-end
-
-function parse_template(template, values)
-    local content = template
-    for attr, value in pairs(values) do
-        content = content:gsub("${" .. attr .. "}", value)
-    end
-    return content
 end
 
 local HtmlReporter = setmetatable({}, luacov_reporter.ReporterBase)
@@ -197,8 +197,8 @@ do
         write_to_html(parse_template(HTML_FILE_HEADER, {
             hits = hits,
             miss = miss,
-            coverage = coverage_to_string(hits, miss),
-            cssClass = coverage_to_css_class(hits, miss),
+            coverage = coverage,
+            css_class = coverage_to_css_class(hits, miss),
             filename = filename
         }))
 
@@ -224,13 +224,13 @@ do
             end
         end
 
-        self._out:write(parse_template(HTML_TOTAL, {
+        self:write(parse_template(HTML_TOTAL, {
             hits = total_hits,
             miss = total_missed,
-            cssClass = coverage_to_css_class(total_hits, total_missed),
+            css_class = coverage_to_css_class(total_hits, total_missed),
             coverage = tonumber(coverage_to_string(total_hits, total_missed)),
         }))
-        self._out:write(HTML)
+        self:write(HTML)
         self:write(HTML_FOOTER)
     end
 end

@@ -172,6 +172,17 @@ pre.prettyprint span.fc {
     display: block;
 }
 
+pre.prettyprint span.fc:before {
+    content: attr(data-hits);
+    position: absolute;
+    left: 0;
+    width: 30px;
+    margin-left: 5px;
+    text-align: center;
+    font-size: 10px;
+    color: #808080;
+}
+
 pre.prettyprint span.nc {
     background-color: #F2DEDE;
     display: block;
@@ -264,7 +275,6 @@ pre.prettyprint span.hits {
     border: 1px solid #808080;
 }
 
-
 .file .title .stats .hits {
     background: #DFF0D8;
 }
@@ -276,4 +286,3 @@ pre.prettyprint span.hits {
 .file .title .stats .miss {
     background: #F2DEDE;
 }
-

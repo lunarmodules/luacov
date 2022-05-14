@@ -1,4 +1,4 @@
-body { 
+body {
     color: #47555c;
     font-size: 16px;
     font-family: "Open Sans", sans-serif;
@@ -7,14 +7,33 @@ body {
     background: #eff4ff;
 }
 
-a:link { color: #008fee; }
-a:visited { color: #008fee; }
-a:hover { color: #22a7ff; }
+a:link {
+    color: #008fee;
+}
 
-h1 { font-size:26px; }
-h2 { font-size:24px; }
-h3 { font-size:18px; }
-h4 { font-size:16px; }
+a:visited {
+    color: #008fee;
+}
+
+a:hover {
+    color: #22a7ff;
+}
+
+h1 {
+    font-size: 26px;
+}
+
+h2 {
+    font-size: 24px;
+}
+
+h3 {
+    font-size: 18px;
+}
+
+h4 {
+    font-size: 16px;
+}
 
 hr {
     height: 1px;
@@ -24,18 +43,18 @@ hr {
 }
 
 code {
-    font-family: "Open Sans Mono", "Andale Mono", monospace; 
+    font-family: "Open Sans Mono", "Andale Mono", monospace;
 }
 
 tt {
-    font-family: "Open Sans Mono", "Andale Mono", monospace; 
+    font-family: "Open Sans Mono", "Andale Mono", monospace;
 }
 
 body, td, th {
 }
 
 textarea, pre, tt {
-    font-family: "Open Sans Mono", "Andale Mono", monospace; 
+    font-family: "Open Sans Mono", "Andale Mono", monospace;
 }
 
 img {
@@ -59,19 +78,22 @@ div.header, div.footer {
 #product {
     background-color: white;
     padding: 10px;
-    height: 130px;
+    height: 125px;
     border-bottom: solid #d3dbec 1px;
 }
 
 #product big {
     font-size: 42px;
 }
+
 #product strong {
     font-weight: normal;
 }
 
 #product_logo {
-    float: right;
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 
 #product_name {
@@ -93,7 +115,7 @@ div.header, div.footer {
 
 #navigation {
     width: 100%;
-    background-color: rgb(44,62,103);
+    background-color: rgb(44, 62, 103);
     padding: 10px;
     margin: 0;
 }
@@ -182,29 +204,46 @@ dl.reference dd {
     body {
         font: 10pt "Times New Roman", "TimeNR", Times, serif;
     }
+
     a {
-        font-weight:bold; color: #004080; text-decoration: underline;
+        font-weight: bold;
+        color: #004080;
+        text-decoration: underline;
     }
+
     #main {
-        background-color: #ffffff; border-left: 0px;
+        background-color: #ffffff;
+        border-left: 0px;
     }
+
     #container {
-        margin-left: 2%; margin-right: 2%; background-color: #ffffff;
+        margin-left: 2%;
+        margin-right: 2%;
+        background-color: #ffffff;
     }
+
     #content {
-        margin-left: 0px; padding: 1em; border-left: 0px; border-right: 0px; background-color: #ffffff;
+        margin-left: 0px;
+        padding: 1em;
+        border-left: 0px;
+        border-right: 0px;
+        background-color: #ffffff;
     }
+
     #navigation {
         display: none;
     }
+
     #product_logo {
         display: none;
     }
+
     #about img {
         display: none;
     }
+
     .example {
-        font-family: "Andale Mono", monospace; 
+        font-family: "Andale Mono", monospace;
         font-size: 8pt;
         page-break-inside: avoid;
     }

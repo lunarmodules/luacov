@@ -1,5 +1,21 @@
-[![Build Status](https://travis-ci.org/keplerproject/luacov.svg?branch=master)](https://travis-ci.org/keplerproject/luacov)
-[![Windows build status](https://ci.appveyor.com/api/projects/status/dd9gk87cpkqo5s58?svg=true)](https://ci.appveyor.com/project/mpeterv/luacov)
+<div align="center">
+    <h1>LuaCov</h1>
+    <img src="./docs/logo/luacov-144x144.png" width="144" />
+    <p align="center">
+        Coverage analyzer for Lua
+    </p>    
+    <p>
+        <a href="https://travis-ci.org/keplerproject/luacov">
+            <img src="https://travis-ci.org/keplerproject/luacov.svg?branch=master" alt="Build Status">
+        </a>
+        <a href="https://ci.appveyor.com/project/mpeterv/luacov">
+            <img src="https://ci.appveyor.com/api/projects/status/dd9gk87cpkqo5s58?svg=true" alt="Windows build status">
+        </a>
+    </p>
+</div>
+
+<br>
+
 
 ## Overview
 

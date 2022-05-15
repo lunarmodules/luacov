@@ -49,7 +49,7 @@ template.HTML_TOTAL = [[
 ]]
 
 template.HTML_FILE_HEADER = [[
-      <div class="hidden file {{css_class}}">
+      <div class="hidden file {{css_class}}" id="{{id}}">
          <h2 class="title">
             {{filename}}
             <span class="stats">

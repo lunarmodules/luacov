@@ -137,8 +137,14 @@ do
         return ("%.2f"):format(hits / total * 100.0)
     end
 
-    function coverage_to_number(hits, missed)
+    local function coverage_to_number(hits, missed)
         return tonumber(coverage_to_string(hits, missed))
+    end
+
+    local function filename_to_id(filename)
+        return filename:lower():gsub("(.lua)$", ""):gsub("([^a-z0-9_]+)", function(key)
+            return "-"
+        end)
     end
 
     local function coverage_to_css_class(hits, missed)
@@ -195,6 +201,7 @@ do
         local coverage = coverage_to_string(hits, miss)
 
         write_to_html(parse_template(HTML_FILE_HEADER, {
+            id = filename_to_id(filename),
             hits = hits,
             miss = miss,
             coverage = coverage,

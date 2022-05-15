@@ -39,7 +39,10 @@ template.HTML_TOTAL = [[
          <h1 class="title">
             Code coverage report
             <span class="stats">
-               <span class="cov"><strong>{{coverage}}%</strong> Coverage</span>
+               <span class="cov">
+                  <span class="bg" style="width: {{coverage}}%"></span>
+                  <span><strong>{{coverage}}%</strong> Coverage</span>
+               </span>
                <span class="hits"><strong>{{hits}}</strong> Hits</span>
                <span class="miss"><strong>{{miss}}</strong> Missed</span>
             </span>
@@ -53,7 +56,10 @@ template.HTML_FILE_HEADER = [[
          <h2 class="title">
             {{filename}}
             <span class="stats">
-               <span class="cov"><strong>{{coverage}}%</strong> Coverage</span>
+               <span class="cov">
+                  <span class="bg" style="width: {{coverage}}%"></span>
+                  <span><strong>{{coverage}}%</strong> Coverage</span>
+               </span>
                <span class="hits"><strong>{{hits}}</strong> Hits</span>
                <span class="miss"><strong>{{miss}}</strong> Missed</span>
             </span>

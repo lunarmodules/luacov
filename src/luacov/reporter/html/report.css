@@ -261,18 +261,20 @@ pre.prettyprint span.hits {
 
 .file .title .stats {
     font-size: 12px;
-    display: block;
     line-height: 12px;
-    color: #808080;
-    margin-top: 5px;
+    color: #444;
+    margin-top: 2px;
+    display: flex;
 }
 
 .file .title .stats .hits,
 .file .title .stats .cov,
 .file .title .stats .miss {
-    padding: 0 7px;
+    padding: 2px 6px;
     border-radius: 12px;
     border: 1px solid #808080;
+    position: relative;
+    margin-right: 10px;
 }
 
 .file .title .stats .hits {
@@ -280,7 +282,20 @@ pre.prettyprint span.hits {
 }
 
 .file .title .stats .cov {
-    background: #EEEEEE;
+    background: #F2DEDE;
+    overflow: hidden;
+}
+
+.file .title .stats .cov span {
+    position: relative;
+}
+
+.file .title .stats .cov .bg {
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: #DFF0D8;
 }
 
 .file .title .stats .miss {

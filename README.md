@@ -152,6 +152,17 @@ modules = {
 For a full list of options, see
 [`luacov.defaults` documentation](https://keplerproject.github.io/luacov/doc/modules/luacov.defaults.html).
 
+## Html reporter
+
+To generate report file as html document, adjust the `.luacov` parameters to
+
+```lua
+reporter = "html"
+reportfile = "luacov.report.html"
+```
+
+![LuaCov Html Reporter](docs/luacov-html-reporter.png)
+
 ## Custom reporter engines
 
 LuaCov supports custom reporter engines, which are distributed as separate

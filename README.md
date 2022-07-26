@@ -5,8 +5,8 @@
         Coverage analyzer for Lua
     </p>    
     <p>
-        <a href="https://travis-ci.org/keplerproject/luacov">
-            <img src="https://travis-ci.org/keplerproject/luacov.svg?branch=master" alt="Build Status">
+        <a href="https://travis-ci.org/lunarmodules/luacov">
+            <img src="https://travis-ci.org/lunarmodules/luacov.svg?branch=master" alt="Build Status">
         </a>
         <a href="https://ci.appveyor.com/project/mpeterv/luacov">
             <img src="https://ci.appveyor.com/api/projects/status/dd9gk87cpkqo5s58?svg=true" alt="Windows build status">
@@ -32,7 +32,7 @@ LuaCov is free software and, like Lua, is released under the
 ## Download and Installation
 
 LuaCov can be downloaded from its
-[Github downloads page](https://github.com/keplerproject/luacov/releases).
+[Github downloads page](https://github.com/lunarmodules/luacov/releases).
 
 It can also be installed using Luarocks:
 
@@ -116,7 +116,7 @@ LuaCov saves its stats upon normal program termination. If your program is a
 daemon -- in other words, if it does not terminate normally -- you can use the
 `luacov.tick` module or `tick` configuration option, which periodically saves
 the stats file. For example, to run (on Unix systems) LuaCov on
-[Xavante](httpsf://keplerproject.github.io/xavante/), just modify the first line
+[Xavante](httpsf://lunarmodules.github.io/xavante/), just modify the first line
 of `xavante_start.lua` so it reads:
 
 ```
@@ -150,7 +150,7 @@ modules = {
 ```
 
 For a full list of options, see
-[`luacov.defaults` documentation](https://keplerproject.github.io/luacov/doc/modules/luacov.defaults.html).
+[`luacov.defaults` documentation](https://lunarmodules.github.io/luacov/doc/modules/luacov.defaults.html).
 
 ## Html reporter
 

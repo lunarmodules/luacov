@@ -8,8 +8,8 @@
         <a href="https://travis-ci.org/lunarmodules/luacov">
             <img src="https://travis-ci.org/lunarmodules/luacov.svg?branch=master" alt="Build Status">
         </a>
-        <a href="https://ci.appveyor.com/project/mpeterv/luacov">
-            <img src="https://ci.appveyor.com/api/projects/status/dd9gk87cpkqo5s58?svg=true" alt="Windows build status">
+        <a href="https://ci.appveyor.com/project/hishamhm/luacov">
+            <img src="https://ci.appveyor.com/api/projects/status/nwlc6603cva412ub?svg=true" alt="Windows build status">
         </a>
     </p>
 </div>
@@ -180,7 +180,7 @@ After cloning this repo, these commands may be useful:
 * `busted` to run tests using [busted](https://github.com/Olivine-Labs/busted).
 * `ldoc .` to regenerate documentation using
   [LDoc](https://github.com/stevedonovan/LDoc).
-* `luacheck .` to lint using [Luacheck](https://github.com/mpeterv/luacheck).
+* `luacheck .` to lint using [Luacheck](https://github.com/lunarmodules/luacheck).
 
 ## Credits
 

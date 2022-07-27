@@ -1,5 +1,21 @@
-[![Build Status](https://travis-ci.org/keplerproject/luacov.svg?branch=master)](https://travis-ci.org/keplerproject/luacov)
-[![Windows build status](https://ci.appveyor.com/api/projects/status/dd9gk87cpkqo5s58?svg=true)](https://ci.appveyor.com/project/mpeterv/luacov)
+<div align="center">
+    <h1>LuaCov</h1>
+    <img src="./docs/logo/luacov-144x144.png" width="144" />
+    <p align="center">
+        Coverage analyzer for Lua
+    </p>    
+    <p>
+        <a href="https://travis-ci.org/lunarmodules/luacov">
+            <img src="https://travis-ci.org/lunarmodules/luacov.svg?branch=master" alt="Build Status">
+        </a>
+        <a href="https://ci.appveyor.com/project/hishamhm/luacov">
+            <img src="https://ci.appveyor.com/api/projects/status/nwlc6603cva412ub?svg=true" alt="Windows build status">
+        </a>
+    </p>
+</div>
+
+<br>
+
 
 ## Overview
 
@@ -16,7 +32,7 @@ LuaCov is free software and, like Lua, is released under the
 ## Download and Installation
 
 LuaCov can be downloaded from its
-[Github downloads page](https://github.com/keplerproject/luacov/releases).
+[Github downloads page](https://github.com/lunarmodules/luacov/releases).
 
 It can also be installed using Luarocks:
 
@@ -100,7 +116,7 @@ LuaCov saves its stats upon normal program termination. If your program is a
 daemon -- in other words, if it does not terminate normally -- you can use the
 `luacov.tick` module or `tick` configuration option, which periodically saves
 the stats file. For example, to run (on Unix systems) LuaCov on
-[Xavante](httpsf://keplerproject.github.io/xavante/), just modify the first line
+[Xavante](httpsf://lunarmodules.github.io/xavante/), just modify the first line
 of `xavante_start.lua` so it reads:
 
 ```
@@ -134,7 +150,18 @@ modules = {
 ```
 
 For a full list of options, see
-[`luacov.defaults` documentation](https://keplerproject.github.io/luacov/doc/modules/luacov.defaults.html).
+[`luacov.defaults` documentation](https://lunarmodules.github.io/luacov/doc/modules/luacov.defaults.html).
+
+## Html reporter
+
+To generate report file as html document, adjust the `.luacov` parameters to
+
+```lua
+reporter = "html"
+reportfile = "luacov.report.html"
+```
+
+![LuaCov Html Reporter](docs/luacov-html-reporter.png)
 
 ## Custom reporter engines
 
@@ -153,7 +180,7 @@ After cloning this repo, these commands may be useful:
 * `busted` to run tests using [busted](https://github.com/Olivine-Labs/busted).
 * `ldoc .` to regenerate documentation using
   [LDoc](https://github.com/stevedonovan/LDoc).
-* `luacheck .` to lint using [Luacheck](https://github.com/mpeterv/luacheck).
+* `luacheck .` to lint using [Luacheck](https://github.com/lunarmodules/luacheck).
 
 ## Credits
 

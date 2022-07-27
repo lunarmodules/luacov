@@ -10,10 +10,13 @@ environment:
   - LUA: "luajit=2.1"
 
 before_build:
-  - set PATH=C:\Python27\Scripts;%PATH%
-  - pip install hererocks
-  - hererocks lua_install --%LUA% -r latest
-  - call lua_install\bin\activate
+  - set PATH=C:\MinGW\bin;%PATH%
+  - set PATH=C:\Python37;C:\Python37\Scripts;%PATH% # Add directory containing 'pip' to PATH
+  - IF NOT EXIST lua_install-%LUAV%\bin\activate.bat ( pip install --upgrade certifi )
+  - FOR /F "tokens=* USEBACKQ" %%F IN (`python -c "import certifi;print(certifi.where())"`) DO ( SET SSL_CERT_FILE=%%F )
+  - IF NOT EXIST lua_install-%LUAV%\bin\activate.bat ( pip install hererocks )
+  - IF NOT EXIST lua_install-%LUAV%\bin\activate.bat ( hererocks lua_install-%LUAV% --%LUAT% %LUAV% %HEREROCKS_FLAGS% --luarocks latest --target=%configuration% )
+  - call lua_install-%LUAV%\bin\activate
   - luarocks install busted
   - luarocks install luacheck
   - luarocks install cluacov --deps-mode=none

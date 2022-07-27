@@ -2,12 +2,18 @@ shallow_clone: true
 
 environment:
   matrix:
-  - LUA: "lua=5.1"
-  - LUA: "lua=5.2"
-  - LUA: "lua=5.3"
-  - LUA: "lua=5.4"
-  - LUA: "luajit=2.0"
-  - LUA: "luajit=2.1"
+  - LUAT: "lua"
+    LUAV: "5.1"
+  - LUAT: "lua"
+    LUAV: "5.2"
+  - LUAT: "lua"
+    LUAV: "5.3"
+  - LUAT: "lua"
+    LUAV: "5.4"
+  - LUAT: "luajit"
+    LUAV: "2.0"
+  - LUAT: "luajit"
+    LUAV: "2.1"
 
 before_build:
   - set PATH=C:\MinGW\bin;%PATH%
@@ -15,7 +21,7 @@ before_build:
   - IF NOT EXIST lua_install-%LUAV%\bin\activate.bat ( pip install --upgrade certifi )
   - FOR /F "tokens=* USEBACKQ" %%F IN (`python -c "import certifi;print(certifi.where())"`) DO ( SET SSL_CERT_FILE=%%F )
   - IF NOT EXIST lua_install-%LUAV%\bin\activate.bat ( pip install hererocks )
-  - IF NOT EXIST lua_install-%LUAV%\bin\activate.bat ( hererocks lua_install-%LUAV% --%LUAT% %LUAV% %HEREROCKS_FLAGS% --luarocks latest --target=%configuration% )
+  - IF NOT EXIST lua_install-%LUAV%\bin\activate.bat ( hererocks lua_install-%LUAV% --%LUAT% %LUAV% %HEREROCKS_FLAGS% --luarocks latest )
   - call lua_install-%LUAV%\bin\activate
   - luarocks install busted
   - luarocks install luacheck

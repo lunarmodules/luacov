@@ -4,7 +4,7 @@ local reporter = {}
 
 local HTML_HEADER, HTML_FOOTER, HTML_TOTAL, HTML_FILE_HEADER, HTML_FILE_FOOTER, HTML_LINE_HIT, HTML_LINE_MIS
 
-function parse_template(template, values)
+local function parse_template(template, values)
     local content = template:gsub("{{([a-z_]+)}}", function(key)
         return values[key]
     end)
@@ -52,13 +52,13 @@ do
         end
     end
 
-    local assets = {
+    local asset_types = {
         script = template.SCRIPT,
         style = template.STYLE,
     }
 
     local assets_content = {}
-    for tag, assets in pairs(assets) do
+    for tag, assets in pairs(asset_types) do
         for _, name in ipairs(assets) do
             local content = read_asset(name)
             if (not assets_content[tag]) then
@@ -87,16 +87,12 @@ do
     HTML_FILE_FOOTER = template.HTML_FILE_FOOTER
     HTML_LINE_HIT = template.HTML_LINE_HIT
     HTML_LINE_MIS = template.HTML_LINE_MIS
-
-    assets = nil
-    template = nil
-    assets_content = nil
 end
 ----------------------------------------------------------------
 
 --- Encodes the HTML entities in a string. Helpfull to avoid XSS.
 -- @param s (String) String to escape.
-function escape_html(s)
+local function escape_html(s)
     return (string.gsub(s, "[}{\">/<'&]", {
         ["&"] = "&amp;",
         ["<"] = "&lt;",
@@ -142,7 +138,7 @@ do
     end
 
     local function filename_to_id(filename)
-        return filename:lower():gsub("(.lua)$", ""):gsub("([^a-z0-9_]+)", function(key)
+        return filename:lower():gsub("(.lua)$", ""):gsub("([^a-z0-9_]+)", function(_key)
             return "-"
         end)
     end
@@ -164,16 +160,16 @@ do
         return cssClass
     end
 
-    function HtmlReporter:on_new_file(filename)
+    --luacheck: no self
+    function HtmlReporter:on_new_file(_filename)
         FILE_HTML = ""
     end
 
     function HtmlReporter:on_file_error(filename, error_type, message)
-        --luacheck: no self
         io.stderr:write(("Couldn't %s %s: %s\n"):format(error_type, filename, message))
     end
 
-    function HtmlReporter:on_empty_line(filename, lineno, line)
+    function HtmlReporter:on_empty_line(_filename, _lineno, line)
         if line == "" then
             FILE_HTML = FILE_HTML .. "\n"
         else
@@ -181,14 +177,14 @@ do
         end
     end
 
-    function HtmlReporter:on_mis_line(filename, lineno, line)
+    function HtmlReporter:on_mis_line(_filename, lineno, line)
         write_to_file_html(HTML_LINE_MIS, {
             line = escape_html(line),
             lineno = lineno,
         })
     end
 
-    function HtmlReporter:on_hit_line(filename, lineno, line, hits)
+    function HtmlReporter:on_hit_line(_filename, lineno, line, hits)
         write_to_file_html(HTML_LINE_HIT, {
             hits = hits,
             line = escape_html(line),

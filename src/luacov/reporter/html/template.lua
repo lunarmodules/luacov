@@ -10,6 +10,7 @@ template.STYLE = {
    "report.css"
 }
 
+-- luacheck: ignore 631
 template.HTML_HEADER = [[
 <!doctype html>
 <html lang="en">

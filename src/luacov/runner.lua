@@ -253,8 +253,9 @@ end
 function runner.real_name(filename)
    local orig_filename = filename
    -- Normalize file names before using patterns.
-   filename = filename:gsub("\\", "/"):gsub("%.lua$", "")
-
+   filename = filename:gsub("\\", "/")    -- normalize separators
+               :gsub("%.lua$", "")        -- remove file extension
+               :gsub("^%./", "")          -- remove "same directory" prefix
    for i, pattern in ipairs(runner.modules.patterns) do
       local match = filename:match(pattern)
 

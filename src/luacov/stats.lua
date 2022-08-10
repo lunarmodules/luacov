@@ -30,6 +30,9 @@ function stats.load(statsfile)
       if not filename then
          break
       end
+
+       -- strip trailing white spaces
+      filename = filename:match('(.*)%s*$')
       data[filename] = {
          max = max,
          max_hits = 0

@@ -251,16 +251,18 @@ end
 -- using `luacov.defaults.modules` option.
 -- @param filename name of the file.
 function runner.real_name(filename)
-   local orig_filename = filename
+   -- remove "same directory" prefix
+   filename = filename:gsub("^%./", "")
+   local new_filename = filename
+
    -- Normalize file names before using patterns.
-   filename = filename:gsub("\\", "/")    -- normalize separators
-               :gsub("%.lua$", "")        -- remove file extension
-               :gsub("^%./", "")          -- remove "same directory" prefix
+   filename = filename:gsub("\\", "/")       -- normalize separators
+                      :gsub("%.lua$", "")    -- remove file extension
    for i, pattern in ipairs(runner.modules.patterns) do
       local match = filename:match(pattern)
 
       if match then
-         local new_filename = runner.modules.filenames[i]
+         new_filename = runner.modules.filenames[i]
 
          if pattern:find(wildcard_expansion, 1, true) then
             -- Given a prefix directory, join it
@@ -272,12 +274,12 @@ function runner.real_name(filename)
             new_filename = new_filename .. match .. ".lua"
          end
 
-         -- Switch slashes back to native.
-         return (new_filename:gsub("^%.[/\\]", ""):gsub("[/\\]", dir_sep))
+         break
       end
    end
 
-   return orig_filename
+   -- Switch slashes back to native.
+   return (new_filename:gsub("^%.[/\\]", ""):gsub("[/\\]", dir_sep))
 end
 
 -- Always exclude luacov's own files.

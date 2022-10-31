@@ -171,6 +171,7 @@ packages. Check them out!
 * Cobertura: https://github.com/britzl/luacov-cobertura
 * Coveralls: https://github.com/moteus/luacov-coveralls
 * Console: https://github.com/spacewander/luacov-console
+* LCOV: https://github.com/daurnimator/luacov-reporter-lcov
 
 ## Using development version
 

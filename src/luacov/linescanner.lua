@@ -39,7 +39,7 @@ end
 --- Lines that are always excluded from accounting
 local any_hits_exclusions = {
    "", -- Empty line
-   "end[,; %)]*", -- Single "end"
+   "end[,; %)]*[end[,; %)]*]*", -- One or more "end"s
    "else", -- Single "else"
    "repeat", -- Single "repeat"
    "do", -- Single "do"

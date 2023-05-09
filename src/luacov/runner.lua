@@ -380,7 +380,7 @@ local function load_config_file(name, is_default)
    raw_os_exit(1)
 end
 
-local default_config_file = ".luacov"
+local default_config_file = os.getenv("LUACOV_CONFIG") or ".luacov"
 
 ------------------------------------------------------
 -- Loads a valid configuration.

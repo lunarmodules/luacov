@@ -1,3 +1,4 @@
+local datafile = require("datafile")
 local luacov_reporter = require("luacov.reporter")
 
 local reporter = {}
@@ -14,11 +15,6 @@ end
 ----------------------------------------------------------------
 --- parse template
 do
-    local dir = string.gsub(debug.getinfo(1).source, "^@(.+/)[^/]+$", "%1")
-    local dir_sep = package.config:sub(1, 1)
-    if not dir_sep:find("[/\\]") then
-        dir_sep = "/"
-    end
     local template = require("luacov.reporter.html.template")
 
     --- Removes a prefix from a string if it's present.
@@ -36,7 +32,7 @@ do
 
     -- Returns contents of a file or nil + error message.
     local function read_asset(name)
-        local f, open_err = io.open(dir .. "html" .. dir_sep .. name, "rb")
+        local f, open_err = datafile.open("static/html/" .. name, "r")
 
         if not f then
             error(unprefix(open_err, name .. ": "))

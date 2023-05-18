@@ -28,6 +28,8 @@ build = {
       ["luacov.linescanner"] = "src/luacov/linescanner.lua",
       ["luacov.reporter"] = "src/luacov/reporter.lua",
       ["luacov.reporter.default"] = "src/luacov/reporter/default.lua",
+      ["luacov.reporter.html"] = "src/luacov/reporter/html.lua",
+      ["luacov.reporter.html.template"] = "src/luacov/reporter/html/template.lua",
       ["luacov.runner"] = "src/luacov/runner.lua",
       ["luacov.stats"] = "src/luacov/stats.lua",
       ["luacov.tick"] = "src/luacov/tick.lua",
@@ -36,6 +38,9 @@ build = {
    install = {
       bin = {
          luacov = "src/bin/luacov"
-      }
-   }
+      },
+   },
+   copy_directories = {
+      "static",
+   },
 }

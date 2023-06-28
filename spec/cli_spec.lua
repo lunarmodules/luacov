@@ -34,7 +34,7 @@ end
 -- The file can contain 'X' to match any number of hits.
 -- flags will be passed to luacov.
 local function assert_cli(dir, enable_cluacov, expected_file, flags, configfp)
-   local prefix = configfp and ("export LUACOV_CONFIG=%q;"):format(configfp) or ""
+   local prefix = configfp and ("LUACOV_CONFIG=%q"):format(configfp) or ""
    local test_dir = "spec" .. dir_sep .. dir
    local _, nestingLevel = dir:gsub("/", "")
 
@@ -57,10 +57,10 @@ local function assert_cli(dir, enable_cluacov, expected_file, flags, configfp)
       init_lua = init_lua .. "; package.preload[ [[cluacov.version]] ] = error"
    end
 
-   exec(("cd %q && %s %q -e %q -lluacov test.lua %s"):format(test_dir, prefix, lua, init_lua, flags))
+   exec(("cd %q && sh -c '%s %q -e %q -lluacov test.lua %s'"):format(test_dir, prefix, lua, init_lua, flags))
 
    local luacov_path = (src_path .. "/bin/luacov"):gsub("/", dir_sep)
-   exec(("cd %q && %s %q -e %q %s %s"):format(test_dir, prefix, lua, init_lua, luacov_path, flags))
+   exec(("cd %q && sh -c '%s %q -e %q %s %s'"):format(test_dir, prefix, lua, init_lua, luacov_path, flags))
 
    expected_file = test_dir .. dir_sep .. expected_file
    local expected = read_file(expected_file)

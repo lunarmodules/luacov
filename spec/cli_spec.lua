@@ -34,7 +34,7 @@ end
 -- The file can contain 'X' to match any number of hits.
 -- flags will be passed to luacov.
 local function assert_cli(dir, enable_cluacov, expected_file, flags, configfp)
-   local prefix = configfp and ("LUACOV_CONFIG=%q"):format(configfp) or ""
+   local prefix = configfp and ("export LUACOV_CONFIG=%q;"):format(configfp) or ""
    local test_dir = "spec" .. dir_sep .. dir
    local _, nestingLevel = dir:gsub("/", "")
 

@@ -33,7 +33,8 @@ end
 -- dir must be a subdir of spec/ containing expected.out or expected_file.
 -- The file can contain 'X' to match any number of hits.
 -- flags will be passed to luacov.
-local function assert_cli(dir, enable_cluacov, expected_file, flags)
+local function assert_cli(dir, enable_cluacov, expected_file, flags, configfp)
+   local prefix = configfp and ("LUACOV_CONFIG=%q"):format(configfp) or ""
    local test_dir = "spec" .. dir_sep .. dir
    local _, nestingLevel = dir:gsub("/", "")
 
@@ -56,10 +57,10 @@ local function assert_cli(dir, enable_cluacov, expected_file, flags)
       init_lua = init_lua .. "; package.preload[ [[cluacov.version]] ] = error"
    end
 
-   exec(("cd %q && %q -e %q -lluacov test.lua %s"):format(test_dir, lua, init_lua, flags))
+   exec(("cd %q && %s %q -e %q -lluacov test.lua %s"):format(test_dir, prefix, lua, init_lua, flags))
 
    local luacov_path = (src_path .. "/bin/luacov"):gsub("/", dir_sep)
-   exec(("cd %q && %q -e %q %s %s"):format(test_dir, lua, init_lua, luacov_path, flags))
+   exec(("cd %q && %s %q -e %q %s %s"):format(test_dir, prefix, lua, init_lua, luacov_path, flags))
 
    expected_file = test_dir .. dir_sep .. expected_file
    local expected = read_file(expected_file)
@@ -90,6 +91,10 @@ local function register_cli_tests(enable_cluacov)
       it("handles configs using file filtering", function()
          assert_cli("filefilter", enable_cluacov)
          assert_cli("filefilter", enable_cluacov, "expected2.out", "-c 2.luacov")
+      end)
+
+      it("handles configs using file filtering and specified via LUACOV_CONFIG", function()
+         assert_cli("filefilter", enable_cluacov, "expected2-config.out", nil, "luacov.config.lua")
       end)
 
       it("handles configs using directory filtering", function()

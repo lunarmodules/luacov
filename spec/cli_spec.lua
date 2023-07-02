@@ -53,7 +53,7 @@ local function assert_cli(dir, enable_cluacov, expected_file, flags, configfp)
 
    if configfp and dir_sep == "\\" then
      precmd = ("setx LUACOV_CONFIG %q"):format(configfp)
-     postcmd = "setx LUACOV_CONFIG="
+     postcmd = "setx LUACOV_CONFIG \"\""
    elseif configfp then
      prefix = ("LUACOV_CONFIG=%q"):format(configfp)
    end

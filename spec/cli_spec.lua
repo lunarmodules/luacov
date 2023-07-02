@@ -101,10 +101,6 @@ local function register_cli_tests(enable_cluacov)
          assert_cli("filefilter", enable_cluacov, "expected2.out", "-c 2.luacov")
       end)
 
-      it("handles configs using file filtering and specified via LUACOV_CONFIG", function()
-         assert_cli("filefilter", enable_cluacov, "expected2-config.out", nil, "luacov.config.lua")
-      end)
-
       it("handles configs using directory filtering", function()
          assert_cli("dirfilter", enable_cluacov)
          assert_cli("dirfilter", enable_cluacov, "expected2.out", "-c 2.luacov")
@@ -140,6 +136,11 @@ local function register_cli_tests(enable_cluacov)
             assert_cli("cluacov", enable_cluacov)
          end)
       end
+
+      it("handles configs specified via LUACOV_CONFIG", function()
+         assert_cli("LUACOV_CONFIG", enable_cluacov, nil, nil, "luacov.config.lua")
+      end)
+
    end)
 end
 

@@ -13,14 +13,26 @@ end
 local lua = get_lua()
 local dir_sep = package.config:sub(1, 1)
 
-local function exec(cmd)
-   local status = os.execute(cmd)
-
+local function check_status (status)
    if type(status) == "number" then
       assert.is_equal(0, status)
    else
       assert.is_true(status)
    end
+end
+
+local function exec(cmd, pre, post)
+
+  if pre then
+    check_status(os.execute(pre))
+  end
+
+  check_status(os.execute(cmd))
+
+  if post then
+    check_status(os.execute(post))
+  end
+
 end
 
 local function read_file(file)
@@ -36,9 +48,12 @@ end
 local function assert_cli(dir, enable_cluacov, expected_file, flags, configfp)
 
    local prefix = ""
+   local precmd = nil
+   local postcmd = nil
 
    if configfp and dir_sep == "\\" then
-     prefix = ("set LUACOV_CONFIG=%q &"):format(configfp)
+     precmd = ("setx LUACOV_CONFIG=%q"):format(configfp)
+     postcmd = ("setx LUACOV_CONFIG="):format(configfp)
    elseif configfp then
      prefix = ("LUACOV_CONFIG=%q"):format(configfp)
    end
@@ -65,10 +80,10 @@ local function assert_cli(dir, enable_cluacov, expected_file, flags, configfp)
       init_lua = init_lua .. "; package.preload[ [[cluacov.version]] ] = error"
    end
 
-   exec(("cd %q && %s %q -e %q -lluacov test.lua %s"):format(test_dir, prefix, lua, init_lua, flags))
+   exec(("cd %q && %s %q -e %q -lluacov test.lua %s"):format(test_dir, prefix, lua, init_lua, flags), precmd, postcmd)
 
    local luacov_path = (src_path .. "/bin/luacov"):gsub("/", dir_sep)
-   exec(("cd %q && %s %q -e %q %s %s"):format(test_dir, prefix, lua, init_lua, luacov_path, flags))
+   exec(("cd %q && %s %q -e %q %s %s"):format(test_dir, prefix, lua, init_lua, luacov_path, flags), precmd, postcmd)
 
    expected_file = test_dir .. dir_sep .. expected_file
    local expected = read_file(expected_file)

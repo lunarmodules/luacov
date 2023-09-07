@@ -35,4 +35,7 @@ jobs:
 
       - name: lint
         run: |
+          for spec in $(find . -type f -name "*.rockspec"); do
+            (luarocks lint $spec && echo "$spec [OK]") || (echo "$spec [NOK]"; exit 1);
+          done
           luacheck .

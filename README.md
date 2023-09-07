@@ -3,7 +3,7 @@
     <img src="./docs/logo/luacov-144x144.png" width="144" />
     <p align="center">
         Coverage analyzer for Lua
-    </p>    
+    </p>
     <p>
         <a href="https://travis-ci.org/lunarmodules/luacov">
             <img src="https://travis-ci.org/lunarmodules/luacov.svg?branch=master" alt="Build Status">
@@ -138,9 +138,11 @@ LuaCov includes several configuration options, which have their defaults
 stored in `src/luacov/defaults.lua`. These are the global defaults. To use
 project specific configuration, create a Lua script setting options as globals
 or returning a table with some options and store it as `.luacov` in the project
-directory from where `luacov` is being run. For example, this config informs
-LuaCov that only `foo` module and its submodules should be covered and that
-they are located inside `src` directory:
+directory from where `luacov` is being run. Alternatively, store it elsewhere
+and specify the path in the `LUACOV_CONFIG` environment variable.
+
+For example, this config informs LuaCov that only `foo` module and its
+submodules should be covered and that they are located inside `src` directory:
 
 ```lua
 modules = {

@@ -41,6 +41,6 @@ build = {
       },
    },
    copy_directories = {
-      "static",
+      "src/luacov/reporter/html/static",
    },
 }

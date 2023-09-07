@@ -163,13 +163,6 @@ reportfile = "luacov.report.html"
 
 ![LuaCov Html Reporter](docs/luacov-html-reporter.png)
 
-:warning: The Html reporter has an additional dependency on
-[datafile](https://github.com/hishamhm/datafile). It can be installed with
-
-```sh
-luarocks install datafile
-```
-
 ## Custom reporter engines
 
 LuaCov supports custom reporter engines, which are distributed as separate

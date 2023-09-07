@@ -32,7 +32,7 @@ do
 
     -- Returns contents of a file or nil + error message.
     local function read_asset(name)
-        local f, open_err = datafile.open("static/html/" .. name, "r")
+        local f, open_err = datafile.open("src/luacov/reporter/html/static/" .. name, "rb")
 
         if not f then
             error(unprefix(open_err, name .. ": "))

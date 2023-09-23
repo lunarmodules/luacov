@@ -402,6 +402,16 @@ local function coverage_to_string(hits, missed)
    return ("%.2f%%"):format(hits/total*100.0)
 end
 
+local function coverage_percentage(hits,missed)
+   local total = hits + missed
+
+   if total == 0 then
+      total = 1
+   end
+
+   return (hits/total*100.0)
+end
+
 function DefaultReporter:on_end()
    self:write(("="):rep(78), "\n")
    self:write("Summary\n")
@@ -465,6 +475,13 @@ function DefaultReporter:on_end()
             self:write((" "):rep(max_column_lengths[column_nr] - #column + 1))
          end
       end
+   end
+
+   local cover = coverage_percentage(total_hits,total_missed)
+   local required = self:config().minimumcoverage
+   if cover < required then
+      print(("Failed to hit the required minimum of %d%% coverage. Got %d%%."):format(required, cover))
+      os.exit(1)
    end
 end
 

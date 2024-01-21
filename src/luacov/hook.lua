@@ -30,8 +30,12 @@ function hook.new(runner)
       -- Get name of processed file.
       local name = debug.getinfo(level, "S").source
       local prefixed_name = string.match(name, "^@(.*)")
+      local name_parser = runner.configuration.nameparser
+      local parsed_name = name_parser and name_parser(name)
       if prefixed_name then
          name = prefixed_name:gsub("^%.[/\\]", ""):gsub("[/\\]", dir_sep)
+      elseif parsed_name then
+         name = parsed_name:gsub("^%.[/\\]", ""):gsub("[/\\]", dir_sep)
       elseif not runner.configuration.codefromstrings then
          -- Ignore Lua code loaded from raw strings by default.
          return

@@ -1,8 +1,9 @@
 return {
-   modules = {
-      ["libB"] = "example-src/moduleA/libB.lua"
-   },
-   includeuntestedfiles = {
-      "example-src/moduleA/libB.lua"
+   -- All files implicitly included
+   includeuntestedfiles = true,
+
+   -- In this case, files from the `dir` directory are not included in the calculation.
+   exclude = {
+      "dir"
    }
 }

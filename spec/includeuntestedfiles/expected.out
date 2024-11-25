@@ -1,66 +1,149 @@
 ==============================================================================
-example-src/moduleA/libA.lua
+bar.lua
 ==============================================================================
- 1 local a = 1 + 1
+ 1 return "This is file Bar"
 
 ==============================================================================
-example-src/moduleA/libB.lua
+dir/foo.lua
 ==============================================================================
-*0 local b = 1 - math.huge
+   -- Samurai Name and Wisdom Generator
+
+   -- Function to generate a random samurai name
+*0 function generateSamuraiName()
+*0     local firstNames = {"Takeda", "Oda", "Tokugawa", "Uesugi", "Shimazu", "Mori", "Date", "Sanada", "Hattori", "Honda"}
+*0     local lastNames = {"Nobunaga", "Ieyasu", "Kenshin", "Yoshihiro", "Yoshimoto", "Masamune", "Yukimura", "Hanzo", "Tadakatsu", "Shingen"}
+
+*0     local firstName = firstNames[math.random(#firstNames)]
+*0     local lastName = lastNames[math.random(#lastNames)]
+
+*0     return firstName .. " " .. lastName
+   end
+
+   -- Function to generate a random samurai wisdom
+*0 function generateSamuraiWisdom()
+*0     local wisdoms = {
+           "The bamboo that bends is stronger than the oak that resists.",
+           "Victory comes to those who make the last move.",
+           "Patience is the warrior's greatest weapon.",
+           "A samurai's mind is as sharp as his blade.",
+           "In the midst of chaos, there is also opportunity.",
+           "The journey of a thousand miles begins with a single step.",
+           "To know oneself is to study oneself in action with another person.",
+           "The ultimate aim of martial arts is not having to use them.",
+           "A warrior is worthless unless he rises above others and stands strong in the midst of a storm.",
+           "The way of the warrior is resolute acceptance of death."
+       }
+
+*0     return wisdoms[math.random(#wisdoms)]
+   end
+
+   -- Function to display ASCII art of a samurai
+*0 function displaySamuraiArt()
+*0     print("        O")
+*0     print("       /|\\")
+*0     print("      / | \\")
+*0     print("     /  |  \\")
+*0     print("    /   |   \\")
+*0     print("   /    |    \\")
+*0     print("  /     |     \\")
+*0     print(" /      |      \\")
+*0     print("/_______|_______\\")
+*0     print("       / \\")
+*0     print("      /   \\")
+*0     print("     /     \\")
+*0     print("    /       \\")
+*0     print("   /         \\")
+*0     print("  /           \\")
+*0     print(" /             \\")
+*0     print("/_______________\\")
+   end
+
+   -- Main function to generate and display samurai name and wisdom
+*0 function main()
+*0     math.randomseed(os.time())
+
+*0     print("Welcome to the Samurai Name and Wisdom Generator!")
+*0     print("-----------------------------------------------")
+
+*0     local samuraiName = generateSamuraiName()
+*0     local samuraiWisdom = generateSamuraiWisdom()
+
+*0     print("\nYour Samurai Name:")
+*0     print("------------------")
+*0     print(samuraiName)
+
+*0     print("\nSamurai Wisdom:")
+*0     print("---------------")
+*0     print(samuraiWisdom)
+
+*0     print("\nSamurai Art:")
+*0     print("------------")
+*0     displaySamuraiArt()
+   end
+
+   -- Run the main function
+*0 main()
 
 ==============================================================================
-example-src/moduleB/aLib.lua
+dir/moduleA/too.lua
 ==============================================================================
-*0 local val = "ue"
+*0 local max_iterations = 100
+*0 local width = 80
+*0 local height = 40
+*0 local x_min, x_max = -2.0, 1.0
+*0 local y_min, y_max = -1.0, 1.0
 
-==============================================================================
-example-src/moduleB/bLib.lua
-==============================================================================
-*0 local test = 123
+   local function mandelbrot(cx, cy)
+*0     local x, y = 0, 0
+*0     local iteration = 0
 
-==============================================================================
-example-src/third-module/lib-1.lua
-==============================================================================
- 1 return 5
+*0     while x*x + y*y <= 4 and iteration < max_iterations do
+*0         local x_new = x*x - y*y + cx
+*0         y = 2*x*y + cy
+*0         x = x_new
+*0         iteration = iteration + 1
+       end
 
-==============================================================================
-example-src/third-module/lib-2.lua
-==============================================================================
- 1 return 0
+*0     return iteration
+   end
 
-==============================================================================
-subdir/test.lua
-==============================================================================
+   local function draw_mandelbrot()
+*0     for py = 0, height - 1 do
+*0         local y = y_min + (y_max - y_min) * py / (height - 1)
+*0         local line = ""
 
-*0 package.path = package.path .. ";../?.lua"
+*0         for px = 0, width - 1 do
+*0             local x = x_min + (x_max - x_min) * px / (width - 1)
+*0             local iteration = mandelbrot(x, y)
 
-   -- Don't load some of the modules to prevent them from getting tested/executed
-   require "example-src.moduleA.libA"
-   require "example-src.third-module.lib-1"
-   require "example-src.third-module.lib-2"
+*0             if iteration == max_iterations then
+*0                 line = line .. "#"
+               else
+*0                 local shade = math.floor((iteration / max_iterations) * 10)
+*0                 line = line .. string.sub(" .:-=+*#%@", shade + 1, shade + 1)
+               end
+           end
+
+*0         print(line)
+       end
+   end
+
+*0 draw_mandelbrot()
 
 ==============================================================================
 test.lua
 ==============================================================================
-
-   -- Don't load some of the modules to prevent them from getting tested/executed
- 1 require "example-src.moduleA.libA"
- 1 require "example-src.third-module.lib-1"
- 1 require "example-src.third-module.lib-2"
+ 1 require('bar')
 
 ==============================================================================
 Summary
 ==============================================================================
 
-File                               Hits Missed Coverage
--------------------------------------------------------
-example-src/moduleA/libA.lua       1    0      100.00%
-example-src/moduleA/libB.lua       0    1      0.00%
-example-src/moduleB/aLib.lua       0    1      0.00%
-example-src/moduleB/bLib.lua       0    1      0.00%
-example-src/third-module/lib-1.lua 1    0      100.00%
-example-src/third-module/lib-2.lua 1    0      100.00%
-subdir/test.lua                    0    1      0.00%
-test.lua                           3    0      100.00%
--------------------------------------------------------
-Total                              6    4      60.00%
+File                Hits Missed Coverage
+----------------------------------------
+bar.lua             1    0      100.00%
+dir/foo.lua         0    43     0.00%
+dir/moduleA/too.lua 0    25     0.00%
+test.lua            1    0      100.00%
+----------------------------------------
+Total               2    68     2.86%

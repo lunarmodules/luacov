@@ -150,12 +150,8 @@ local function on_exit()
    end
 end
 
-local dir_sep = package.config:sub(1, 1)
+local dir_sep = util.get_dir_sep()
 local wildcard_expansion = "[^/]+"
-
-if not dir_sep:find("[/\\]") then
-   dir_sep = "/"
-end
 
 local function escape_module_punctuation(ch)
    if ch == "." then
@@ -305,20 +301,6 @@ local function is_absolute(path)
    return false
 end
 
-local function get_cur_dir()
-   local pwd_cmd = dir_sep == "\\" and "cd 2>nul" or "pwd 2>/dev/null"
-   local handler = io.popen(pwd_cmd, "r")
-   local cur_dir = handler:read()
-   handler:close()
-   cur_dir = cur_dir:gsub("\r?\n$", "")
-
-   if cur_dir:sub(-1) ~= dir_sep and cur_dir:sub(-1) ~= "/" then
-      cur_dir = cur_dir .. dir_sep
-   end
-
-   return cur_dir
-end
-
 -- Sets configuration. If some options are missing, default values are used instead.
 local function set_config(configuration)
    runner.configuration = {}
@@ -339,8 +321,8 @@ local function set_config(configuration)
       local path = runner.configuration[option]
 
       if not is_absolute(path) then
-         cur_dir = cur_dir or get_cur_dir()
-         runner.configuration[option] = cur_dir .. path
+         cur_dir = cur_dir or util.get_cur_dir()
+         runner.configuration[option] = util.pathjoin(cur_dir, path)
       end
    end
 
@@ -458,6 +440,21 @@ function runner.with_luacov(f)
    end
 end
 
+-- Recursive search of all lua files
+local function find_luas(list_of_lua_modules, path)
+   local current_dir = util.get_cur_dir()
+
+   for _, filename in ipairs(util.listdir(path)) do
+      local full_filename = util.pathjoin(path, filename)
+      if util.is_dir(full_filename) then
+         find_luas(list_of_lua_modules, full_filename)
+      elseif util.string_ends_with(full_filename, ".lua") then
+         local filename_by_pwd = full_filename:sub(#current_dir + 1)
+         list_of_lua_modules[filename_by_pwd] = {max = 0, max_hits = 0}
+      end
+   end
+end
+
 --------------------------------------------------
 -- Initializes LuaCov runner to start collecting data.
 -- @param[opt] configuration if string, filename of config file (used to call `load_config`).
@@ -505,6 +502,11 @@ function runner.init(configuration)
 
    if not runner.tick then
       runner.on_exit_trick = on_exit_wrap(on_exit)
+   end
+
+   if runner.configuration.includeuntestedfiles then
+      runner.data = {}
+      find_luas(runner.data, util.get_cur_dir())
    end
 
    runner.initialized = true

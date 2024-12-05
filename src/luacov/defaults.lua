@@ -67,9 +67,8 @@ return {
   modules = {},
 
   --- Enable including untested files in report.
-  -- If `true`, all untested files in "." will be included.
-  -- If it is a table with directory and file paths, all untested files in these paths will be included.
-  -- Note that you are not allowed to use patterns in these paths.
+  -- If `true`, all untested files will be included, according to filters
+  -- include/exclude.
   -- Default: false.
   includeuntestedfiles = false,
 

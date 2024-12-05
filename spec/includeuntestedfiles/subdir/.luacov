@@ -1,8 +1,0 @@
-return {
-   include = {
-      "..%/example%-src/*"
-   },
-   includeuntestedfiles = {
-     "../example-src"
-   }
-}

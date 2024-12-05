@@ -1,9 +1,9 @@
 return {
-   include = {
-      "example%-src%/moduleA%/*"
-   },
+   -- All files implicitly included
+   includeuntestedfiles = true,
 
-   includeuntestedfiles = {
-      "example-src/moduleA"
+   -- In this case, only files from the `dir` directory are included in the calculation.
+   include = {
+      "dir%/*"
    }
 }

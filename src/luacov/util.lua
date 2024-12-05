@@ -4,6 +4,12 @@
 -- @name luacov.util
 local util = {}
 
+--- Library require
+local lfs_ok, lfs = pcall(require, "lfs")
+if not lfs_ok then
+   error("The option includeuntestedfiles requires the lfs module (from luafilesystem) to be installed.")
+end
+
 --- Removes a prefix from a string if it's present.
 -- @param str a string.
 -- @param prefix a prefix string.
@@ -98,6 +104,79 @@ function util.file_exists(name)
    else
       return false
    end
+end
+
+--- Returns directory path separator
+-- @return directory path separator
+function util.get_dir_sep()
+   local dir_sep = package.config:sub(1, 1)
+   if not dir_sep:find("[/\\]") then
+      dir_sep = "/"
+   end
+
+   return dir_sep
+end
+
+--- Returns current directory path
+-- @return current directory path
+function util.get_cur_dir()
+   local dir_sep = util.get_dir_sep()
+   return lfs.currentdir() .. dir_sep
+end
+
+--- Join multiple path components.
+-- Concatenates multiple path components into a single path, using the appropriate directory separator.
+-- @param first the first path component.
+-- @param ... additional path components.
+-- @return a single string representing the combined path.
+function util.pathjoin(first, ...)
+   local seconds = {...}
+   local res = first
+   local dir_sep = util.get_dir_sep()
+
+   for _, s in ipairs(seconds) do
+      if util.string_ends_with(res, dir_sep) then
+         res = res .. s
+      else
+         res = res .. dir_sep .. s
+      end
+   end
+
+   return res
+end
+
+--- Check if a path is a directory.
+-- Determines whether the given path corresponds to a directory.
+-- @param path the file system path to check.
+-- @return true if the path is a directory, false otherwise.
+function util.is_dir(path)
+   local attr = lfs.attributes(path)
+   return attr and attr.mode == "directory"
+end
+
+--- List files in a directory.
+-- Retrieves a list of filenames in the specified directory, excluding "." and "..".
+-- @param path the file system path of the directory to list.
+-- @return a table containing the names of the files in the directory.
+function util.listdir(path)
+   local files = {}
+
+   for filename in lfs.dir(path) do
+      if filename ~= "." and filename ~= ".." then
+         table.insert(files, filename)
+      end
+   end
+
+   return files
+end
+
+--- Check if a string ends with a specified substring.
+-- Determines whether the given string ends with the specified ending substring.
+-- @param str the string to check.
+-- @param ending the substring to look for at the end of the string.
+-- @return true if the string ends with the specified substring, false otherwise.
+function util.string_ends_with(str, ending)
+   return ending == "" or str:sub(-#ending) == ending
 end
 
 return util

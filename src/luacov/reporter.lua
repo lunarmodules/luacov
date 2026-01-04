@@ -28,7 +28,8 @@ local function dirtree(dir)
    dir = dir:gsub("[/\\]", dir_sep)
 
    local function yieldtree(directory)
-       for entry in lfs.dir(directory) do
+       for fname in lfs.dir(directory) do
+           local entry = fname
            if entry ~= "." and entry ~= ".." then
                entry=directory..dir_sep..entry
                local attr=lfs.attributes(entry)
@@ -80,7 +81,8 @@ function ReporterBase:new(conf)
 
    -- Several original paths can map to one real path,
    -- their stats should be merged in this case.
-   for filename, file_stats in pairs(data) do
+   for fname, file_stats in pairs(data) do
+      local filename = fname
       if luacov.file_included(filename) then
          filename = luacov.real_name(filename)
 

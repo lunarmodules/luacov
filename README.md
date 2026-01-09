@@ -9,8 +9,7 @@
 <br>
 
 ## Status
-[![Unix build](https://img.shields.io/github/actions/workflow/status/lunarmodules/luacov/unix_build.yml?branch=master&label=Unix%20build&logo=linux)](https://github.com/lunarmodules/luacov/actions/workflows/unix_build.yml)
-[![Windows build](https://ci.appveyor.com/api/projects/status/nwlc6603cva412ub?svg=true)](https://ci.appveyor.com/project/hishamhm/luacov)
+[![Build status](https://img.shields.io/github/actions/workflow/status/lunarmodules/luacov/unix_build.yml?branch=master&label=Build%20status)](https://github.com/lunarmodules/luacov/actions/workflows/unix_build.yml)
 [![Lint](https://github.com/lunarmodules/luacov/workflows/Lint/badge.svg)](https://github.com/lunarmodules/luacov/actions/workflows/lint.yml)
 [![SemVer](https://img.shields.io/github/v/tag/lunarmodules/luacov?color=brightgreen&label=SemVer&logo=semver&sort=semver)](CHANGELOG.md)
 

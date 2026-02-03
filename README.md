@@ -38,7 +38,7 @@ luarocks install luacov
 
 In order to additionally install experimental C extensions that improve
 performance and analysis accuracy install
-[CLuaCov](https://github.com/mpeterv/cluacov) package instead:
+[CLuaCov](https://github.com/lunarmodules/cluacov) package instead:
 
 ```
 luarocks install cluacov

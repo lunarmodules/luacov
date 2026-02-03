@@ -1,25 +1,38 @@
-package = "luacov"
-version = "scm-1"
+local package_name = "luacov"
+local package_version = "scm"
+local rockspec_revision = "1"
+local github_account_name = "lunarmodules"
+local github_repo_name = "luacov"
+
+
+package = package_name
+version = package_version.."-"..rockspec_revision
+
 source = {
-   url = "git+https://github.com/lunarmodules/luacov.git",
+   url = "git+https://github.com/"..github_account_name.."/"..github_repo_name..".git",
+   branch = (package_version == "scm") and "master" or nil,
+   tag = (package_version ~= "scm") and package_version or nil,
 }
+
 description = {
    summary = "Coverage analysis tool for Lua scripts",
    detailed = [[
-LuaCov is a simple coverage analysis tool for Lua scripts.
-When a Lua script is run with the luacov module, it
-generates a stats file. The luacov command-line script then
-processes this file generating a report indicating which code
-paths were not traversed, which is useful for verifying the
-effectiveness of a test suite.
+      LuaCov is a simple coverage analysis tool for Lua scripts.
+      When a Lua script is run with the luacov module, it
+      generates a stats file. The luacov command-line script then
+      processes this file generating a report indicating which code
+      paths were not traversed, which is useful for verifying the
+      effectiveness of a test suite.
    ]],
-   homepage = "https://lunarmodules.github.io/luacov/",
+   homepage = "https://"..github_account_name..".github.io"..github_repo_name.."/",
    license = "MIT"
 }
+
 dependencies = {
    "lua >= 5.1",
    "datafile",
 }
+
 build = {
    type = "builtin",
    modules = {

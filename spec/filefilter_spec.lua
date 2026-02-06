@@ -8,9 +8,9 @@ local function assert_filefilter(config, files)
    local expected = {}
    local actual = {}
 
-   for filename, expected_result in pairs(files) do
+   for fname, expected_result in pairs(files) do
       expected_result = expected_result and expected_result:gsub("/", dir_sep)
-      filename = filename:gsub("/", dir_sep)
+      local filename = fname:gsub("/", dir_sep)
       local actual_result = runner.file_included(filename) and runner.real_name(filename)
 
       expected[filename] = expected_result

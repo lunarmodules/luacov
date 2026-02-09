@@ -28,6 +28,7 @@ runner.data = {}
 runner.paused = true
 runner.initialized = false
 runner.tick = false
+runner.coroutines = {}
 
 -- Checks if a string matches at least one of patterns.
 -- @param patterns array of patterns or nil
@@ -435,6 +436,24 @@ local function has_hook_per_thread()
 
    return hook_per_thread
 end
+--------------------------------------------------
+-- Removes debug hook(s), so that LuaCov's runner stops collecting data.
+-- This is useful when performance is critical and coverage data is not needed for some part of the code.
+function runner.stop()
+   debug.sethook(nil)
+   for _, co in ipairs(runner.coroutines) do
+      debug.sethook(co, nil)
+   end
+end
+
+---------------------------------------------------
+-- Resets debug hook(s), so that LuaCov's runner continues collecting data after `stopped`.
+function runner.continue()
+   debug.sethook(runner.debug_hook, "l")
+   for _, co in ipairs(runner.coroutines) do
+      debug.sethook(co, runner.debug_hook, "l")
+   end
+end
 
 --------------------------------------------------
 -- Wraps a function, enabling coverage gathering in it explicitly.
@@ -481,6 +500,7 @@ function runner.init(configuration)
       local rawcoroutinecreate = coroutine.create
       coroutine.create = function(...) -- luacheck: no global
          local co = rawcoroutinecreate(...)
+         table.insert(runner.coroutines, co)
          debug.sethook(co, runner.debug_hook, "l")
          return co
       end
@@ -496,6 +516,7 @@ function runner.init(configuration)
 
       coroutine.wrap = function(...) -- luacheck: no global
          local co = rawcoroutinecreate(...)
+         table.insert(runner.coroutines, co)
          debug.sethook(co, runner.debug_hook, "l")
          return function(...)
             return safeassert(coroutine.resume(co, ...))

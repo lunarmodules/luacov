@@ -528,6 +528,10 @@ local function getsourcefile(func)
    if d and d:sub(1, 1) == "@" then
       return d:sub(2)
    end
+   local name_parser = runner.configuration.nameparser
+   if d and name_parser then
+      return name_parser(d)
+   end
 end
 
 -- Looks for a function inside a table.

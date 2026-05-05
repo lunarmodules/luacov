@@ -42,6 +42,7 @@ build = {
       ["luacov.linescanner"] = "src/luacov/linescanner.lua",
       ["luacov.reporter"] = "src/luacov/reporter.lua",
       ["luacov.reporter.default"] = "src/luacov/reporter/default.lua",
+      ["luacov.reporter.json"] = "src/luacov/reporter/json.lua",
       ["luacov.reporter.html"] = "src/luacov/reporter/html.lua",
       ["luacov.reporter.html.template"] = "src/luacov/reporter/html/template.lua",
       ["luacov.runner"] = "src/luacov/runner.lua",

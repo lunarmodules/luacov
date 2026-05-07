@@ -113,15 +113,13 @@ function JsonReporter:on_end()
       local file_data = json[filename]
       if file_data then
          local file_summary = file_data.summary
-         local fhits = file_summary.hits
-         local fmiss = file_summary.miss
          table.insert(result.files, {
             file = filename,
             lines = file_data.lines,
             summary = file_summary
          })
-         hits = hits + (fhits == NOT_RELEVANT_MARKER and 0 or fhits)
-         miss = miss + (fmiss == NOT_RELEVANT_MARKER and 0 or fmiss)
+         hits = hits + file_summary.hits
+         miss = miss + file_summary.miss
       end
    end
    result.summary = {

@@ -1,45 +1,76 @@
 local luacov_reporter = require("luacov.reporter")
+local luacov_json_provider = require("luacov.reporter.json.provider")
 
--- allow multiple json libraries
--- to provide the encoding
--- of the final json report.
-local json_providers = {
-   {rname = "cjson",  name = "lua-cjson"},
-   {rname = "dkjson", name = "dkjson"}
-}
+-- a concrete implementation
+-- of a json provider
+local json_provider
 
-local function encode_json_with_provider(provider, provider_name, obj)
-   local ok, json_lib = pcall(require, provider)
-   if not ok then
-      return nil, "Failed to load the json library " .. provider_name
-   end
+do
+   -- an array containing registered json providers
+   -- in descending order of preference.
+   -- item fields:
+   --    * rname: the selected provider
+   --             as in luacov.reporter.json.providers.*
+   --    * name:  the registered rock name on luarocks.org
+   local providers = {
+      {rname = "cjson",  name = "lua-cjson"},
+      {rname = "dkjson", name = "dkjson"}
+   }
 
-   local json_str = json_lib.encode(obj)
-   if type(json_str) ~= "string" then
-      return nil, "Failed to encode report with the library " .. provider_name
-   end
-   return json_str
-end
+   local json_ok
 
-local function write_encoded_json(self, obj)
-   local json_str, err
-   for _, provider in ipairs(json_providers) do
-      json_str, err = encode_json_with_provider(provider.rname, provider.name, obj)
-      if json_str then
-         self:write(json_str)
-         return
+   -- list of providers that
+   -- didn't meet minimal
+   -- json encoding capabilities
+   local providers_unmet_quality = {}
+
+   for _, p in ipairs(providers) do
+      json_ok, json_provider = luacov_json_provider.load_provider(p.rname)
+      if json_ok and json_provider then
+         -- test whether the json provider is able
+         -- to encode an empty table as empty json array
+         -- or not
+         local empty_array = json_provider:create_array()
+         if json_provider:encode(empty_array) ~= "[]" then
+            json_ok = false
+            json_provider = nil
+         else
+            -- test whether the json provider is able
+            -- to encode an empty object as empty json object
+            -- or not
+            local empty_obj = json_provider:create_object()
+            if json_provider:encode(empty_obj) ~= "{}" then
+               json_ok = false
+               json_provider = nil
+            end
+         end
+
+         if json_ok and json_provider then
+            break
+         else
+            table.insert(providers_unmet_quality, p.name)
+         end
       end
    end
-   local provider_names = {}
-   for _, provider in ipairs(json_providers) do
-      table.insert(provider_names, provider.name)
+
+   if not (json_ok and json_provider) then
+      local provider_names = {}
+      for _, p in ipairs(providers) do
+         table.insert(provider_names, p.name)
+      end
+      local msg = "In order to use the json reporter, " ..
+                  "you must install a recent version of one " ..
+                  "of the following libraries: " ..
+                  table.concat(provider_names, ", ") ..
+                  "."
+      if #providers_unmet_quality > 0 then
+         msg = msg ..
+               " The libraries present in the system (" ..
+               table.concat(providers_unmet_quality, ", ") ..
+               ") didn't meet minimal json encoding capabilities."
+      end
+      error(msg)
    end
-   io.stderr:write(
-     "In order to use the json reporter, " ..
-     "you must install one of the following libraries: " ..
-     table.concat(provider_names, ", ") ..
-     "\n"
-  )
 end
 
 -- implementation for the json reporter
@@ -61,20 +92,46 @@ function JsonReporter:on_start()
    self._json = {}
 end
 
-function JsonReporter:on_new_file(filename)
-   self._json[filename] = {
-      summary = { hits = 0, miss = 0, coverage = 0 },
-      lines = {}
-   }
+local function create_summary()
+   local summary = json_provider:create_object()
+   summary.hits = 0
+   summary.miss = 0
+   summary.coverage = 0
+   return summary
 end
 
-function JsonReporter:on_file_error(filename, error_type, message)
+local function eval_coverage(hits, miss)
+   local total = hits + miss
+   if total == 0 then
+      total = 1
+   end
+   return hits / total
+end
+
+local function update_summary(summary, hits, miss)
+   summary.hits = hits
+   summary.miss = miss
+   summary.coverage = eval_coverage(hits, miss)
+end
+
+function JsonReporter:on_new_file(filename)
+   local file_entry = json_provider:create_object()
+   file_entry.file = filename
+   file_entry.summary = create_summary()
+   file_entry.lines = json_provider:create_array()
+   self._json[filename] = file_entry
+end
+
+function JsonReporter:on_file_error(filename, error_type, message) --luacheck: no self
    io.stderr:write(("Couldn't %s %s: %s\n"):format(error_type, filename, message))
 end
 
 local function push_line_on_report(self, filename, lineno, line, hits)
    local lines = self._json[filename].lines
-   local new_line = { line_number = lineno, hits = hits, line = line }
+   local new_line = json_provider:create_object()
+   new_line.line_number = lineno
+   new_line.hits = hits
+   new_line.line = line
    table.insert(lines, new_line)
 end
 
@@ -90,44 +147,29 @@ function JsonReporter:on_hit_line(filename, lineno, line, hits)
    push_line_on_report(self, filename, lineno, line, hits)
 end
 
-local function eval_coverage(hits, miss)
-   local total = hits + miss
-   if total == 0 then
-      total = 1
-   end
-   return hits / total
-end
-
 function JsonReporter:on_end_file(filename, hits, miss)
-   local summary = self._json[filename].summary
-   summary.hits = hits
-   summary.miss = miss
-   summary.coverage = eval_coverage(hits, miss)
+   update_summary(self._json[filename].summary, hits, miss)
 end
 
 function JsonReporter:on_end()
-   local result = { format_version = format_version, files = {} }
+   local result = json_provider:create_object()
+   result.format_version = format_version
+   result.files = json_provider:create_array()
+   result.summary = create_summary()
+
    local hits, miss = 0, 0
-   local json = self._json or {}
-   for i, filename in ipairs(self:files()) do
-      local file_data = json[filename]
-      if file_data then
-         local file_summary = file_data.summary
-         table.insert(result.files, {
-            file = filename,
-            lines = file_data.lines,
-            summary = file_summary
-         })
-         hits = hits + file_summary.hits
-         miss = miss + file_summary.miss
-      end
+   local json = self._json
+   for _, filename in ipairs(self:files()) do
+      local file_entry = json[filename]
+      local file_summary = file_entry.summary
+      table.insert(result.files, file_entry)
+
+      hits = hits + file_summary.hits
+      miss = miss + file_summary.miss
    end
-   result.summary = {
-      hits = hits,
-      miss = miss,
-      coverage = eval_coverage(hits, miss)
-   }
-   write_encoded_json(self, result)
+
+   update_summary(result.summary, hits, miss)
+   self:write(json_provider:encode(result))
 end
 
 function reporter.report()

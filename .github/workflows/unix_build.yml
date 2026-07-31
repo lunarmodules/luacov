@@ -59,7 +59,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@61b9e3751b92087fd0b06925ba6dd6314e06f089 # master
+        uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # master
 
       - name: Setup MSVC
         # the 'hishamhm/gh-actions-lua' step requires msvc to build PuC Rio Lua

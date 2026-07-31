@@ -59,13 +59,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@61b9e3751b92087fd0b06925ba6dd6314e06f089 # master
 
       - name: Setup MSVC
         # the 'hishamhm/gh-actions-lua' step requires msvc to build PuC Rio Lua
         # versions on Windows (LuaJIT will be build using MinGW/gcc).
         if: ${{ matrix.toolchain == 'msvc' }}
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1
 
       - uses: hishamhm/gh-actions-lua@master
         with:

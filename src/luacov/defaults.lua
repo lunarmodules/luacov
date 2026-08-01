@@ -73,4 +73,14 @@ return {
   -- Default: false.
   includeuntestedfiles = false,
 
+  --- Provides a function to parse filenames.
+  -- This function is used to parse filenames in the debug hook.
+  -- It is passed the filename as an argument and should return the parsed filename.
+  -- The default parser removes leading `@` and replaces path separators with `/`.
+  -- @usage
+  -- nameparser = function(name)
+  --    return name:match("^@?(.*)")
+  -- end
+  nameparser = nil
+
 }
